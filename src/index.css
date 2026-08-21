@@ -1,0 +1,109 @@
+@import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
+
+@theme {
+  /* White and light grey carry the layout; orange is a signal, not a surface. */
+  --color-bg: #ffffff;
+  --color-surface: #f6f6f5;
+  --color-surface-2: #efeeec;
+  --color-line: #e7e5e2;
+
+  --color-ink: #16150f;
+  --color-ink-2: #5c584f;
+  --color-ink-3: #918c83;
+
+  /* ResoMap brand orange — primary CTA, selected state, AI highlight only. */
+  --color-brand: #ff6210;
+  --color-brand-press: #e2540a;
+  --color-brand-wash: #fff1e8;
+
+  --color-ok: #0e9f6e;
+  --color-warn: #b45309;
+
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang TC",
+    "Noto Sans TC", "Microsoft JhengHei", "Hiragino Sans", Roboto, Arial,
+    sans-serif;
+
+  --radius-card: 16px;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: #e9e8e6;
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
+}
+
+/* Must live in `base`. Unlayered CSS outranks every Tailwind layer, so a bare
+   `button { color: inherit }` silently kills `text-white` on every button in
+   the app — white-on-orange CTAs render as black-on-orange. */
+@layer base {
+  button {
+    font: inherit;
+    color: inherit;
+  }
+}
+
+.num {
+  font-variant-numeric: tabular-nums;
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Horizontal rails snap so a half-cut card never looks like a bug. */
+.snap-rail {
+  scroll-snap-type: x mandatory;
+}
+.snap-rail > * {
+  scroll-snap-align: start;
+}
+
+.leaflet-container {
+  font-family: var(--font-sans);
+  background: #eceae7;
+  outline: none;
+}
+.leaflet-control-container {
+  display: none;
+}
+
+@keyframes rm-up {
+  from {
+    transform: translateY(100%);
+  }
+}
+.rm-up {
+  animation: rm-up 0.3s cubic-bezier(0.2, 0.9, 0.25, 1);
+}
+
+@keyframes rm-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+.rm-in {
+  animation: rm-in 0.3s cubic-bezier(0.2, 0.9, 0.25, 1) both;
+}
+
+@keyframes rm-fade {
+  from {
+    opacity: 0;
+  }
+}
+.rm-fade {
+  animation: rm-fade 0.2s ease both;
+}
