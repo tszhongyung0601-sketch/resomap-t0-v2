@@ -14,6 +14,9 @@ import {
 import { createPlayer, formatClock, splitSentences, type VoicePlayer } from "../lib/speech";
 import { track } from "../lib/track";
 import { Button, Headphones, Segmented, Sheet, Tag, Thumb } from "./ui";
+import { nearbyCounts } from "../lib/nearby";
+import { BY_DEST } from "../data/destinations";
+import type { NearbyCat } from "../data/nearbyCategories";
 import type { StoryLength } from "../types";
 
 /** The one language ResoMap has actually recorded. Everything else is text. */
@@ -128,15 +131,22 @@ export function StoryPlayer({
   poiId,
   length = "full",
   audioId,
-  onNearby,
+  onExplore,
   onClose,
 }: {
   poiId: string;
   length?: StoryLength;
   /** Set for anything that is not one of ResoMap's own fifteen guides. */
   audioId?: string;
-  /** Opens 周邊推薦 for this place. The whole point of finishing a guide. */
-  onNearby?: (poiId: string) => void;
+  /**
+   * Where a finished guide goes next.
+   *
+   * `cat` omitted opens 周邊推薦 itself; given, it opens that one list. The
+   * traveller who has just heard three minutes about a night market already
+   * knows they want food — making them walk through a hub screen to say so is
+   * a step that exists only because the app is organised that way.
+   */
+  onExplore?: (poiId: string, cat?: NearbyCat) => void;
   onClose: () => void;
 }) {
   const p = poi(poiId);
@@ -194,6 +204,10 @@ export function StoryPlayer({
   const [elapsed, setElapsed] = useState(0);
   /** Set when the guide runs to the end — the one moment 探索附近 is earned. */
   const [finished, setFinished] = useState(false);
+  /* The transcript's job is done once the guide has ended; the panel takes its
+     place rather than being squeezed above it. Reversible, because somebody may
+     have finished listening and still want to read a sentence back. */
+  const [showNext, setShowNext] = useState(false);
   const [sheet, setSheet] = useState<"comments" | null>(null);
   /* Shared and persisted, keyed by story id — 收藏 reads the same list. */
   /* Hook first, question after: putting useSaved() behind `s &&` makes it a
@@ -220,6 +234,7 @@ export function StoryPlayer({
         onEnd: () => {
           setPlaying(false);
           setFinished(true);
+          setShowNext(true);
           track("story_finish", { poiId });
         },
       },
@@ -229,6 +244,7 @@ export function StoryPlayer({
     setLine(0);
     setElapsed(0);
     setFinished(false);
+    setShowNext(false);
     countedRef.current = false;
     // Autoplay: they already picked an edit to get here.
     if (spokenRef.current) {
@@ -464,6 +480,7 @@ export function StoryPlayer({
                     setPlaying(false);
                   } else {
                     setFinished(false);
+                    setShowNext(false);
                     player.play();
                     setPlaying(true);
                     if (!countedRef.current) {
@@ -524,41 +541,45 @@ export function StoryPlayer({
         </div>
 
         {/* The hand-off. It appears when the guide has actually run to the end,
-            not on open — an offer to leave, printed before anybody has listened
-            to anything, is an advert. */}
-        {finished && onNearby && (
-          <button
-            onClick={() => onNearby(poiId)}
-            className="rm-in mt-3 flex min-h-13 w-full items-center gap-3 rounded-2xl bg-brand px-4 text-left text-white active:bg-brand-press"
-          >
-            <span className="text-[19px]" aria-hidden>
-              📍
-            </span>
-            <span className="min-w-0 flex-1">
-              <span className="block text-[14.5px] font-bold">探索附近</span>
-              <span className="block truncate text-[12px] opacity-90">
-                {p.name}周邊的餐廳、住宿、包車與導遊
-              </span>
-            </span>
-            <span className="shrink-0 text-[15px]" aria-hidden>
-              ›
-            </span>
-          </button>
-        )}
+            never on open — an offer to go shopping, printed before anybody has
+            listened to anything, is an advert.
 
-        <div className="mt-3 flex-1 overflow-y-auto no-scrollbar">
-          {sentences.map((t, i) => (
-            <p
-              key={i}
-              className={`mb-2 text-[14.5px] leading-[1.8] transition ${
-                i === line && playing ? "font-semibold text-ink" : "text-ink-3"
-              }`}
-            >
-              {t}
-            </p>
-          ))}
-          <div className="h-4" />
-        </div>
+            A question with five answers rather than one button, because by this
+            point the traveller has a specific appetite. Each row goes straight
+            to that list; only the rows with something behind them within 5 km
+            are offered. */}
+        {showNext && onExplore ? (
+          <NextUp
+            poiId={poiId}
+            placeName={p.name}
+            onExplore={onExplore}
+            onTranscript={() => setShowNext(false)}
+          />
+        ) : (
+          <>
+            {finished && onExplore && (
+              <button
+                onClick={() => setShowNext(true)}
+                className="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-full bg-surface text-[13.5px] font-bold text-ink active:bg-surface-2"
+              >
+                接下來想做什麼？
+              </button>
+            )}
+            <div className="mt-3 flex-1 overflow-y-auto no-scrollbar">
+              {sentences.map((t, i) => (
+                <p
+                  key={i}
+                  className={`mb-2 text-[14.5px] leading-[1.8] transition ${
+                    i === line && playing ? "font-semibold text-ink" : "text-ink-3"
+                  }`}
+                >
+                  {t}
+                </p>
+              ))}
+              <div className="h-4" />
+            </div>
+          </>
+        )}
       </div>
 
       {/* Rendered inside the player rather than through `Sheet`.
@@ -580,6 +601,105 @@ export function StoryPlayer({
 }
 
 /* ------------------------------------------------------------------ parts */
+
+/**
+ * 「接下來想做什麼？」 — the moment the whole product hangs on.
+ *
+ * A guide creates an appetite; this is where it gets answered. Five specific
+ * answers rather than one 探索附近, because somebody who has just heard about a
+ * night market wants food, and routing them through a hub screen to say so is a
+ * step that exists only because the app is organised that way.
+ *
+ * Only rows with something behind them at 5 km are offered — the counts come
+ * from the same `nearbyCounts` the 周邊推薦 screen uses, so a row that appears
+ * here cannot open an empty list. When nothing at all is nearby the panel says
+ * that instead of listing five dead ends.
+ */
+const NEXT_STEPS: { cat: NearbyCat; icon: string; label: string; note: string }[] = [
+  { cat: "restaurant", icon: "🍜", label: "看附近美食", note: "在地小吃與餐館" },
+  { cat: "souvenir", icon: "🛍️", label: "找伴手禮", note: "老舖與名產" },
+  { cat: "driver", icon: "🚐", label: "找包車", note: "接送與包車旅遊" },
+  { cat: "guide", icon: "🧭", label: "找私人導遊", note: "深度導覽、客製路線" },
+  { cat: "aff-tour", icon: "🎫", label: "找 Local tour", note: "一日遊與體驗行程" },
+];
+
+function NextUp({
+  poiId,
+  placeName,
+  onExplore,
+  onTranscript,
+}: {
+  poiId: string;
+  placeName: string;
+  onExplore: (poiId: string, cat?: NearbyCat) => void;
+  onTranscript: () => void;
+}) {
+  const counts = useMemo(() => {
+    const p = poi(poiId);
+    if (!p) return null;
+    return nearbyCounts({
+      at: { lat: p.lat, lng: p.lng },
+      destId: p.destId,
+      destName: BY_DEST[p.destId]?.name ?? "",
+      poiArea: p.area,
+      radiusM: 5000,
+    });
+  }, [poiId]);
+
+  const steps = NEXT_STEPS.filter((s) => (counts?.[s.cat] ?? 0) > 0);
+
+  return (
+    <div className="rm-in mt-3 flex-1 overflow-y-auto no-scrollbar">
+      <div className="text-[16px] font-bold text-ink">接下來想做什麼？</div>
+      <p className="mt-1 text-[12.5px] leading-relaxed text-ink-3">
+        {placeName}走路五公里內的選擇。
+      </p>
+
+      {steps.length === 0 ? (
+        <p className="mt-4 rounded-2xl bg-surface p-4 text-[13.5px] leading-relaxed text-ink-3">
+          這個地點五公里內還沒有合作的商家或服務。你可以先看看地圖上還有什麼。
+        </p>
+      ) : (
+        <div className="mt-3 space-y-2">
+          {steps.map((s) => (
+            <button
+              key={s.cat}
+              onClick={() => onExplore(poiId, s.cat)}
+              className="flex min-h-[56px] w-full items-center gap-3 rounded-2xl bg-surface px-4 text-left active:bg-surface-2"
+            >
+              <span className="text-[20px]" aria-hidden>
+                {s.icon}
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block truncate text-[15px] font-bold text-ink">{s.label}</span>
+                <span className="block truncate text-[12px] text-ink-3">{s.note}</span>
+              </span>
+              <span className="num shrink-0 text-[12.5px] font-semibold text-ink-3">
+                {counts?.[s.cat]} 家 ›
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
+
+      <div className="mt-3 flex gap-2">
+        <button
+          onClick={() => onExplore(poiId)}
+          className="inline-flex min-h-11 flex-1 items-center justify-center rounded-full bg-brand text-[13.5px] font-bold text-white active:bg-brand-press"
+        >
+          全部周邊推薦
+        </button>
+        <button
+          onClick={onTranscript}
+          className="inline-flex min-h-11 flex-1 items-center justify-center rounded-full bg-surface text-[13.5px] font-bold text-ink active:bg-surface-2"
+        >
+          回到文字稿
+        </button>
+      </div>
+      <div className="h-4" />
+    </div>
+  );
+}
 
 function ActionPill({
   icon,

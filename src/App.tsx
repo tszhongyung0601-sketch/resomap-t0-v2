@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { Suspense, lazy, useCallback, useMemo, useState } from "react";
 import { AppShell } from "./components/AppShell";
 import { AdaptCard } from "./components/AdaptCard";
 import { OutboundSheet } from "./components/DealCard";
@@ -21,16 +21,9 @@ import { focusTrip } from "./lib/trip";
 import { track } from "./lib/track";
 import { NavContext, type Nav, type Route, type Tab } from "./nav";
 import { Explore } from "./screens/Explore";
-import { Search } from "./screens/Search";
-import { Destination } from "./screens/Destination";
-import { Poi } from "./screens/Poi";
-import { MapTab } from "./screens/MapTab";
-import { CreateTrip } from "./screens/CreateTrip";
 import { Trips } from "./screens/Trips";
-import { TripHome, DayPlan } from "./screens/TripTimeline";
 import { AddPoiSheet } from "./screens/AddPoi";
 import { Travellers, Consensus, Alternatives } from "./screens/Group";
-import { Deals } from "./screens/Deals";
 import {
   CarRentalFlow,
   MoreServicesSheet,
@@ -39,30 +32,54 @@ import {
   TransportFlow,
 } from "./screens/Services";
 import { ProductDetail, Tickets } from "./screens/Tickets";
-import { Profile } from "./screens/Profile";
 import { Together, Prefs, Pool, ConsensusView } from "./screens/Together";
-import { BusinessDemo } from "./screens/BusinessDemo";
 import { Expenses, Settle, resetReceipts } from "./screens/Expenses";
 import { resetSaved } from "./lib/saved";
-import { Today } from "./screens/Today";
 import { Library } from "./screens/Library";
-import { Saved } from "./screens/Saved";
-import { Language } from "./screens/Language";
-import { Coupons } from "./screens/Coupons";
-import { CoEdit } from "./screens/CoEdit";
-import { DemoPanel } from "./screens/DemoPanel";
-import { Audios } from "./screens/Audios";
-import { AddAudio } from "./screens/AddAudio";
-import { Nearby } from "./screens/Nearby";
-import { NearbyList } from "./screens/NearbyList";
-import { Merchant } from "./screens/Merchant";
-import { Provider } from "./screens/Provider";
-import { Reviews } from "./screens/Reviews";
-import { Subscribe } from "./screens/Subscribe";
-import { Pro } from "./screens/Pro";
 import { resetReactions } from "./lib/reactions";
 import { resetAccount } from "./lib/account";
 import type { Deal, StoryLength, Trip } from "./types";
+
+/**
+ * Screens that are never on the first paint, split out of the entry chunk.
+ *
+ * The four tab roots stay eager — one of them renders immediately and a spinner
+ * on app open would be a regression, not an optimisation. Everything else is
+ * reached by a tap, which is exactly the moment a fetch is free: the chunk
+ * arrives while the finger is still lifting.
+ *
+ * `lazy()` wants a default export and these are named, so each one adapts its
+ * own module rather than every screen file growing a default export it does not
+ * otherwise need.
+ */
+const Search = lazy(async () => ({ default: (await import("./screens/Search")).Search }));
+const Destination = lazy(async () => ({ default: (await import("./screens/Destination")).Destination }));
+const Poi = lazy(async () => ({ default: (await import("./screens/Poi")).Poi }));
+const MapTab = lazy(async () => ({ default: (await import("./screens/MapTab")).MapTab }));
+const CreateTrip = lazy(async () => ({ default: (await import("./screens/CreateTrip")).CreateTrip }));
+const Deals = lazy(async () => ({ default: (await import("./screens/Deals")).Deals }));
+const Coupons = lazy(async () => ({ default: (await import("./screens/Coupons")).Coupons }));
+const Saved = lazy(async () => ({ default: (await import("./screens/Saved")).Saved }));
+const Language = lazy(async () => ({ default: (await import("./screens/Language")).Language }));
+const CoEdit = lazy(async () => ({ default: (await import("./screens/CoEdit")).CoEdit }));
+const Profile = lazy(async () => ({ default: (await import("./screens/Profile")).Profile }));
+const BusinessDemo = lazy(async () => ({ default: (await import("./screens/BusinessDemo")).BusinessDemo }));
+const DemoPanel = lazy(async () => ({ default: (await import("./screens/DemoPanel")).DemoPanel }));
+const Today = lazy(async () => ({ default: (await import("./screens/Today")).Today }));
+/* The largest screen in the app at 1,300 lines, and never the first thing
+   drawn — the 行程 tab lists trips, and this is what a trip opens into. */
+const TripHome = lazy(async () => ({ default: (await import("./screens/TripTimeline")).TripHome }));
+const DayPlan = lazy(async () => ({ default: (await import("./screens/TripTimeline")).DayPlan }));
+const Audios = lazy(async () => ({ default: (await import("./screens/Audios")).Audios }));
+const AddAudio = lazy(async () => ({ default: (await import("./screens/AddAudio")).AddAudio }));
+const Nearby = lazy(async () => ({ default: (await import("./screens/Nearby")).Nearby }));
+const NearbyList = lazy(async () => ({ default: (await import("./screens/NearbyList")).NearbyList }));
+const Merchant = lazy(async () => ({ default: (await import("./screens/Merchant")).Merchant }));
+const Provider = lazy(async () => ({ default: (await import("./screens/Provider")).Provider }));
+const Reviews = lazy(async () => ({ default: (await import("./screens/Reviews")).Reviews }));
+const Subscribe = lazy(async () => ({ default: (await import("./screens/Subscribe")).Subscribe }));
+const Pro = lazy(async () => ({ default: (await import("./screens/Pro")).Pro }));
+
 
 /** The demo starts before anything has been booked. */
 const INITIAL: Trip[] = [
@@ -405,13 +422,15 @@ export default function App() {
           poiId={story.poiId}
           length={story.length}
           audioId={story.audioId}
-          /* Finish a guide, and the next question is "what is around here" —
-             which is the whole of the business model in one tap. Closing the
-             player first, so Back from 周邊推薦 lands on the screen the
-             traveller came from rather than reopening the player. */
-          onNearby={(poiId) => {
+          /* Finish a guide and the next question is "what is around here" —
+             which is the whole of the business model in one tap. The player
+             asks it as five specific answers, so a category comes back with it
+             and lands the traveller on that list rather than on a hub.
+             Closing the player first, so Back lands on the screen they came
+             from rather than reopening the player. */
+          onExplore={(poiId, cat) => {
             setStory(null);
-            nav.go({ k: "nearby", poiId });
+            nav.go(cat ? { k: "nearbyList", poiId, cat } : { k: "nearby", poiId });
           }}
           onClose={() => setStory(null)}
         />
@@ -450,7 +469,11 @@ export default function App() {
   return (
     <NavContext.Provider value={nav}>
       <AppShell tab={tab} onTab={nav.tab} showNav={!hideNav} overlay={overlay}>
-        {screen}
+        {/* The fallback is the page's own white, not a spinner. These chunks are
+            a few kilobytes over a warm connection; a spinner that flashes for
+            80ms reads as jank, and an empty screen for 80ms reads as the tap
+            having worked. */}
+        <Suspense fallback={<div className="h-full bg-bg" />}>{screen}</Suspense>
       </AppShell>
     </NavContext.Provider>
   );
