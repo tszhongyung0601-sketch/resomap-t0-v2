@@ -33,6 +33,8 @@ export interface Shot {
   credit?: Credit;
   /** True when this is illustrative rather than a photo of the actual place. */
   illustrative: boolean;
+  /** A generated portrait of a person. Every surface that shows one marks it. */
+  person?: boolean;
 }
 
 export interface HasPhoto {
@@ -40,6 +42,9 @@ export interface HasPhoto {
   photo?: string;
   /** A POI whose real, credited photograph this record borrows. */
   photoFromPoi?: string;
+  /** A provider whose portrait illustrates this — for the category cards that
+      are about people rather than about a place. */
+  portraitOf?: string;
 }
 
 const base = import.meta.env.BASE_URL;
@@ -63,10 +68,17 @@ export function portraitFor(providerId: string): Shot | null {
     card: `${base}portraits/${providerId}-card.webp`,
     hero: `${base}portraits/${providerId}-hero.webp`,
     illustrative: true,
+    person: true,
   };
 }
 
 export function shotFor(rec: HasPhoto): Shot | null {
+  /* Checked first: a card that has chosen a person to stand for it has made a
+     stronger statement than one that has a street to fall back on. */
+  if (rec.portraitOf) {
+    const shot = portraitFor(rec.portraitOf);
+    if (shot) return shot;
+  }
   if (rec.photoFromPoi) {
     const p = poi(rec.photoFromPoi);
     const slot = p ? photoFor(p) : undefined;

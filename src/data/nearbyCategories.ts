@@ -41,6 +41,10 @@ export interface NearbyCard {
   photo?: string;
   /** A real, credited T0 photograph that reads as this category. */
   photoFromPoi?: string;
+  /** A provider whose portrait illustrates this category. For 私人導遊 and
+      包車司機, where the thing being offered is a person and a photograph of a
+      street would answer a different question. */
+  portraitOf?: string;
   /** Half-width. Two of these sit side by side in one section. */
   half?: boolean;
 }
@@ -96,7 +100,7 @@ export const NEARBY_SECTIONS: NearbySection[] = [
         label: "ResoMap 精選",
         info: "partner",
         emoji: "🧭",
-        photo: "guide-1",
+        portraitOf: "p-tainan-guide",
         half: true,
       },
       {
@@ -107,7 +111,7 @@ export const NEARBY_SECTIONS: NearbySection[] = [
         label: "ResoMap 精選",
         info: "partner",
         emoji: "🚐",
-        photo: "driver-1",
+        portraitOf: "p-acheng",
         half: true,
       },
     ],

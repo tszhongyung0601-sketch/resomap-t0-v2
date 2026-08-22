@@ -344,6 +344,10 @@ export function RecordPhoto({
           style={{ borderRadius: radius }}
         />
       )}
+      {/* A category card can be illustrated by a person — 私人導遊 is a face, not
+          a street — and a face is marked wherever it appears, not only on that
+          person's own card. */}
+      {show && shot?.person && <AiMark />}
       {children}
     </div>
   );
@@ -387,7 +391,7 @@ export function RecordPhotoCredit({ record }: { record: HasPhoto }) {
  */
 function AiMark() {
   return (
-    <span className="absolute right-2 top-2 rounded-md bg-black/55 px-1.5 py-0.5 text-[10.5px] font-semibold tracking-wide text-white/95">
+    <span className="absolute right-2 top-2 whitespace-nowrap rounded-md bg-black/55 px-1.5 py-0.5 text-[10.5px] font-semibold text-white/95">
       AI 生成
     </span>
   );
