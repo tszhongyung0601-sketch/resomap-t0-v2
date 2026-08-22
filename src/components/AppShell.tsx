@@ -21,12 +21,30 @@ const BEZEL = 13;
  */
 function measure() {
   const narrow = window.innerWidth < 520;
+  if (narrow) return { phone: false, scale: 1, bezel: BEZEL };
+
+  /* A laptop at 1280x720 has 720px of window for an 852px device, so something
+     has to give — that is arithmetic, not a bug, and the only question is how
+     much of the shortfall the app has to absorb rather than the chrome.
+
+     Two things were spending height that the screen could have had: a 40px
+     margin around the device, and a 13px bezel that is decoration. Below ~90%
+     the bezel thins to 8px, which buys the content about three per cent — and
+     at that size the thick bezel was reading as a border anyway. The margin is
+     24px, enough that the drawn shadow is not clipped.
+
+     The result: 1280x720 lands at ~0.80 (was 0.77), 1440x900 at ~0.99, and
+     anything 1120px tall or more is 1:1. */
+  const MARGIN = 24;
+  const rough = (window.innerHeight - MARGIN) / (SCREEN_H + BEZEL * 2);
+  const bezel = rough < 0.9 ? 8 : BEZEL;
   return {
     /** Draw the fake device, i.e. we are on something that is not a phone. */
-    phone: !narrow,
+    phone: true,
+    bezel,
     /* The bezel adds to the height that has to fit on screen, so it is part of
        the sum — otherwise the frame's bottom edge falls off the viewport. */
-    scale: narrow ? 1 : Math.min(1, (window.innerHeight - 40) / (SCREEN_H + BEZEL * 2)),
+    scale: Math.min(1, (window.innerHeight - MARGIN) / (SCREEN_H + bezel * 2)),
   };
 }
 
@@ -71,7 +89,7 @@ export function AppShell({
   children: ReactNode;
 }) {
   const { t, translated } = useI18n();
-  const [{ scale, phone }, setFrame] = useState(measure);
+  const [{ scale, phone, bezel }, setFrame] = useState(measure);
   /* Published to every screen through OverlayHost, so a `Sheet` opened deep
      inside one still lands here — above the tab bar, inside the clip. */
   const [host, setHost] = useState<HTMLDivElement | null>(null);
@@ -82,7 +100,11 @@ export function AppShell({
     const fit = () =>
       setFrame((prev) => {
         const next = measure();
-        return prev.phone === next.phone && prev.scale === next.scale ? prev : next;
+        return prev.phone === next.phone &&
+          prev.scale === next.scale &&
+          prev.bezel === next.bezel
+          ? prev
+          : next;
       });
     fit();
     window.addEventListener("resize", fit);
@@ -158,7 +180,7 @@ export function AppShell({
 
   return (
     <div className="grid h-full w-full place-items-center">
-      <div style={{ height: (SCREEN_H + BEZEL * 2) * scale }}>
+      <div style={{ height: (SCREEN_H + bezel * 2) * scale }}>
         {/* `zoom`, not `transform: scale`.
             Both fit the device to a short window, but scale rasterises the app
             at 393px and then resamples the bitmap — every glyph, icon and
@@ -179,7 +201,7 @@ export function AppShell({
                 product render rather than a screen the app is running on. */}
             <div
               className="rounded-[60px] bg-[#17171a] shadow-[0_30px_70px_-12px_rgba(0,0,0,.45),0_0_0_1px_rgba(255,255,255,.07)_inset]"
-              style={{ padding: BEZEL }}
+              style={{ padding: bezel }}
             >
               <div
                 className="relative flex flex-col overflow-hidden rounded-[46px] bg-bg"

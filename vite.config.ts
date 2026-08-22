@@ -18,9 +18,12 @@ export default defineConfig({
         // which only accepts a function here. Leaflet is tested first because
         // `react-leaflet` contains the string "react" and would otherwise be
         // filed under the React chunk, splitting the map across two files.
+        // Both separators are matched — the ids arrive with backslashes on
+        // Windows and forward slashes in CI, and a rule that only works on one
+        // of them silently stops chunking on the other.
         manualChunks(id: string) {
-          if (/node_modules[\/](react-)?leaflet/.test(id)) return 'leaflet'
-          if (/node_modules[\/](react|react-dom|scheduler)[\/]/.test(id)) return 'react'
+          if (/node_modules[/\\](react-)?leaflet/.test(id)) return 'leaflet'
+          if (/node_modules[/\\](react|react-dom|scheduler)[/\\]/.test(id)) return 'react'
           return undefined
         },
       },
