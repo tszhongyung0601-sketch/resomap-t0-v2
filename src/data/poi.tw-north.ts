@@ -287,4 +287,122 @@ export const POI_TW_NORTH: Poi[] = [
     about: "主戰場在文華路和逢甲路口一帶，週末七點以後擠到走不動；巷子裡的攤位換得很快，別認著舊名字找。",
     stayMin: 90,
   },
+  /* ============================================ 新店・景美（地圖首頁的附近） =
+
+     The seven places the map home opens on. Coordinates are OpenStreetMap's,
+     looked up once at development time rather than guessed — 碧潭吊橋 is
+     way/1004055340, 白色恐怖景美紀念園區 is relation/6613336, and so on. They
+     sit between 890 m and 2.5 km of the demo location in
+     `src/data/location.ts`, which is what makes a single map frame able to show
+     "you" and "everything worth walking to" at once.
+
+     Every one of them has a ResoMap guide in data/stories.ts, because the map
+     home's whole claim is that an orange headphone means something you can
+     press play on.                                                           */
+  {
+    id: "yulon-city",
+    storyId: "st-yulon",
+    name: "裕隆城",
+    destId: "newtaipei",
+    area: "新店區",
+    kind: "shopping",
+    lat: 24.978123,
+    lng: 121.546796,
+    emoji: "🏬",
+    tint: "#E4E9F2",
+    about:
+      "捷運大坪林站走過來五分鐘，B1 到 3 樓是誠品，地下美食街平日晚上七點後才比較有位子。",
+    stayMin: 90,
+    indoor: true,
+  },
+  {
+    id: "jingmei-park",
+    storyId: "st-jingmei-park",
+    name: "白色恐怖景美紀念園區",
+    destId: "newtaipei",
+    area: "新店區",
+    kind: "attraction",
+    lat: 24.987302,
+    lng: 121.532391,
+    emoji: "⚖️",
+    tint: "#E6EAF3",
+    about:
+      "免費入場，週一休館。仁愛樓看守所與第一法庭都保留原樣，建議留一小時，走太快會什麼都沒看到。",
+    stayMin: 60,
+  },
+  {
+    id: "bitan",
+    storyId: "st-bitan",
+    name: "碧潭風景區",
+    destId: "newtaipei",
+    area: "新店區",
+    kind: "nature",
+    lat: 24.956535,
+    lng: 121.538393,
+    emoji: "🦢",
+    tint: "#DCEAEF",
+    about:
+      "捷運新店站出來就是東岸商圈，天鵝船在水門邊租；西岸安靜很多，走吊橋過去只要兩分鐘。",
+    stayMin: 90,
+  },
+  {
+    id: "bitan-bridge",
+    storyId: "st-bitan-bridge",
+    name: "碧潭吊橋",
+    destId: "newtaipei",
+    area: "新店區",
+    kind: "attraction",
+    lat: 24.956371,
+    lng: 121.536023,
+    emoji: "🌉",
+    tint: "#E3E7F0",
+    about:
+      "走上去會晃，那是直吊式吊橋本來的樣子，不是壞了。橋面窄，人多的時候會單向管制。",
+    stayMin: 30,
+  },
+  {
+    id: "hemeishan",
+    storyId: "st-hemeishan",
+    name: "和美山步道",
+    destId: "newtaipei",
+    area: "新店區",
+    kind: "nature",
+    lat: 24.95035,
+    lng: 121.533405,
+    emoji: "🥾",
+    tint: "#E2EDE4",
+    about:
+      "藍線走水岸、綠線上稜線，從吊橋西端起登，來回大約一小時半。四到五月的傍晚有螢火蟲。",
+    stayMin: 90,
+  },
+  {
+    id: "xindian-riverside",
+    storyId: "st-xindian-riverside",
+    name: "新店溪河濱步道",
+    destId: "newtaipei",
+    area: "新店區",
+    kind: "nature",
+    lat: 24.971557,
+    lng: 121.52814,
+    emoji: "🚲",
+    tint: "#DEEAF0",
+    about:
+      "右岸自行車道每兩百公尺一個里程碑，往北一路接得到台北市區。傍晚風大，逆風那段會騎得很久。",
+    stayMin: 60,
+  },
+  {
+    id: "jingmei-market",
+    storyId: "st-jingmei-market",
+    name: "景美夜市",
+    destId: "taipei",
+    area: "文山區",
+    kind: "food",
+    lat: 24.99106,
+    lng: 121.541826,
+    emoji: "🥟",
+    tint: "#F5E0D4",
+    about:
+      "捷運景美站出來就到，攤位沿景美街排，廟口那一段最擠；多數攤子下午五點後才開。",
+    stayMin: 75,
+  },
 ];
