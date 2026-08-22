@@ -30,3 +30,8 @@ dist-ssr
 # portrait review artefacts (regenerate with scripts/draw-portraits.mjs)
 .portrait-contact-sheet.svg
 .contact.png
+
+# stock photo probes
+.probe*.png
+.stock-portraits.json
+.stock-src/
