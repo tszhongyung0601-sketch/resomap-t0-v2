@@ -152,11 +152,12 @@ export function NearbyList({
             />
           ))}
 
-          {providers.map(({ item, metres }) => (
+          {providers.map(({ item, metres }, i) => (
             <ProviderCard
               key={item.id}
               provider={item}
               metres={metres}
+              first={i === 0 && merchants.length === 0}
               onOpen={() => nav.go({ k: "provider", id: item.id })}
               onContact={() => setContact({ name: item.name, c: item.contact })}
             />

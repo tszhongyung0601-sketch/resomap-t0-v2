@@ -10,8 +10,9 @@ import {
   PendingBadge,
 } from "../components/Trade";
 import { SHORT_DISCLOSURE, type InfoTopic } from "../data/info";
-import { Avatar, Button, Note, Screen, Section, Tag } from "../components/ui";
-import { RecordPhoto, RecordPhotoCredit } from "../components/Cover";
+import { Avatar, Button, Note, Screen, Section, Tag, TopBar } from "../components/ui";
+import { PersonPhoto } from "../components/Cover";
+import { hasPortrait } from "../data/portraits";
 import { isVerifiedPartner } from "../lib/nearby";
 import { CHANNEL_LABELS, availableChannels, tryContact } from "../lib/contact";
 import { useNav } from "../nav";
@@ -42,37 +43,45 @@ export function Provider({ id }: { id: string }) {
   const verified = isVerifiedPartner(p);
   const isDriver = p.kind === "driver";
   const channels = availableChannels(p.contact);
+  const portrait = hasPortrait(p.id);
 
   return (
     <Screen>
       {/* A picture, then the person. A charter driver is chosen the way a hotel
-          is: you look first. The initial stays as a small avatar beside the
-          name, which is how this app has drawn people everywhere else and what
-          survives a photo that fails to load. */}
-      <div className="relative shrink-0">
-        <RecordPhoto
-          record={p}
-          fallbackId={p.id}
-          fallbackKind={isDriver ? "transit" : "attraction"}
-          emoji={isDriver ? "🚐" : "🧭"}
-          height={200}
-          radius={0}
-          size="hero"
-          className="w-full"
-        />
-        <button
-          onClick={() => nav.back()}
-          aria-label="返回"
-          className="absolute left-4 top-4 grid size-11 place-items-center rounded-full bg-bg/90 text-[19px] text-ink active:bg-bg"
-        >
-          ‹
-        </button>
-        <span className="absolute bottom-3 left-4 rounded-md bg-bg/85 px-2 py-1 text-[12px] font-semibold text-ink-2">
-          {PROVIDER_KIND_LABELS[p.kind]}
-        </span>
-      </div>
+          is: you look first.
 
-      <RecordPhotoCredit record={p} />
+          When there is no portrait yet there is no header either — an ordinary
+          top bar instead. The card can show a monogram in its image slot because
+          the name below it is 22px; here the avatar beside the name is already
+          44px, so a second copy of the same initial at 76px directly above it is
+          the same circle drawn twice and reads as a mistake. Better to have no
+          picture than a slot pretending to be one. */}
+      {portrait ? (
+        <div className="relative shrink-0">
+          <PersonPhoto
+            id={p.id}
+            name={p.name}
+            color={p.color}
+            initial={p.initial}
+            height={200}
+            size="hero"
+            eager
+            className="w-full"
+          />
+          <button
+            onClick={() => nav.back()}
+            aria-label="返回"
+            className="absolute left-4 top-4 grid size-11 place-items-center rounded-full bg-bg/90 text-[19px] text-ink active:bg-bg"
+          >
+            ‹
+          </button>
+          <span className="absolute bottom-3 left-4 rounded-md bg-bg/85 px-2 py-1 text-[12px] font-semibold text-ink-2">
+            {PROVIDER_KIND_LABELS[p.kind]}
+          </span>
+        </div>
+      ) : (
+        <TopBar title={PROVIDER_KIND_LABELS[p.kind]} onBack={() => nav.back()} />
+      )}
 
       <div className="flex items-start gap-3 px-5 pb-1 pt-4">
         <Avatar name={p.name} color={p.color} initial={p.initial} size={44} />

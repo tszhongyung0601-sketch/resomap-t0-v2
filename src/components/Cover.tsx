@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from "react";
 import { photoFor } from "../data/imagePrompts";
-import { shotFor, type HasPhoto } from "../lib/photo";
+import { portraitFor, shotFor, type HasPhoto } from "../lib/photo";
+import { Avatar } from "./ui";
 import type { Poi, PoiKind } from "../types";
 
 /**
@@ -371,5 +372,102 @@ export function RecordPhotoCredit({ record }: { record: HasPhoto }) {
       </a>
       {" · via Wikimedia Commons"}
     </p>
+  );
+}
+
+/**
+ * The badge that says a face was not photographed.
+ *
+ * On the image, not at the bottom of the page. Every other illustrative asset
+ * in this demo is a shop front or a street, and a line of small print under the
+ * list is proportionate to those. A portrait is different: a photograph of a
+ * person is the one thing a viewer will assume is a real person unless it is
+ * marked where they are looking, and the person in it does not exist. Small,
+ * on the corner the distance chip does not use, and never on top of the face.
+ */
+function AiMark() {
+  return (
+    <span className="absolute right-2 top-2 rounded-md bg-black/55 px-1.5 py-0.5 text-[10.5px] font-semibold tracking-wide text-white/95">
+      AI 生成
+    </span>
+  );
+}
+
+/**
+ * A driver or a guide, drawn as the person they are.
+ *
+ * Two states and no third. A portrait if one has been produced, and otherwise a
+ * monogram on the colour this person already wears everywhere else in the app —
+ * which reads as "a profile without a photo yet", the way every product with
+ * people in it draws that. What it will never do is borrow a photograph of the
+ * nearest attraction: a guide at 七星潭 represented by an empty pebble beach is
+ * a card with no person on it, and a traveller choosing between two guides is
+ * then choosing between two identical beaches.
+ *
+ * `eager` for the first card in a list, lazy for the rest — a 周邊推薦 list can
+ * hold a dozen of these and eleven of them are below the fold.
+ */
+export function PersonPhoto({
+  id,
+  name,
+  color,
+  initial,
+  height = 150,
+  radius = 0,
+  size = "card",
+  eager = false,
+  className = "",
+  children,
+}: {
+  id: string;
+  name: string;
+  color: string;
+  initial: string;
+  height?: number | string;
+  radius?: number;
+  size?: "card" | "hero";
+  eager?: boolean;
+  className?: string;
+  /** Overlaid on the image — the distance chip, a kind label. */
+  children?: ReactNode;
+}) {
+  const shot = portraitFor(id);
+  const [failed, setFailed] = useState(false);
+  const src = shot ? (size === "hero" ? shot.hero : shot.card) : undefined;
+  const show = Boolean(src) && !failed;
+
+  return (
+    <div
+      className={`relative shrink-0 overflow-hidden bg-surface-2 ${className}`}
+      style={{ height, borderRadius: radius }}
+    >
+      {/* Underneath the photograph rather than instead of it, so a request that
+          fails degrades to the monogram and not to a broken-image glyph. */}
+      <div
+        className="absolute inset-0 grid place-items-center"
+        style={{ background: `linear-gradient(160deg, ${color}1f, ${color}0a 62%, transparent)` }}
+      >
+        <Avatar
+          name={name}
+          color={color}
+          initial={initial}
+          size={size === "hero" ? 76 : 58}
+        />
+      </div>
+
+      {show && src && (
+        <img
+          src={src}
+          alt={name}
+          loading={eager ? "eager" : "lazy"}
+          decoding="async"
+          onError={() => setFailed(true)}
+          className="absolute inset-0 size-full object-cover"
+        />
+      )}
+
+      {show && <AiMark />}
+      {children}
+    </div>
   );
 }

@@ -23,3 +23,6 @@ dist-ssr
 *.sln
 *.sw?
 .photo-work/
+
+# portrait pipeline: source renders in, WebP out (the WebP is committed)
+.portrait-src/

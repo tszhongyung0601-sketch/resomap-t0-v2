@@ -1,5 +1,6 @@
 import { poi } from "../data";
 import { photoFor, type Credit } from "../data/imagePrompts";
+import { hasPortrait } from "../data/portraits";
 
 /**
  * The picture for something that is not a POI — a shop, a driver, a guide, a
@@ -42,6 +43,28 @@ export interface HasPhoto {
 }
 
 const base = import.meta.env.BASE_URL;
+
+/**
+ * The portrait of a driver or a guide, if one has been produced.
+ *
+ * Separate from `shotFor` because a person is not a place, and the fallback
+ * chain that is right for a shop is wrong for a face. A hotel on 神農街 showing
+ * a photograph of 神農街 is a location shot and says so; a guide at 七星潭 shown
+ * as an empty pebble beach is a card with no person on it, which is what a
+ * traveller is actually choosing between. So there is no borrowing here: a
+ * portrait, or a monogram, and never scenery standing in for somebody's face.
+ *
+ * `PORTRAIT_IDS` is the gate, so a provider whose picture has not been made yet
+ * never requests a file that is not there.
+ */
+export function portraitFor(providerId: string): Shot | null {
+  if (!hasPortrait(providerId)) return null;
+  return {
+    card: `${base}portraits/${providerId}-card.webp`,
+    hero: `${base}portraits/${providerId}-hero.webp`,
+    illustrative: true,
+  };
+}
 
 export function shotFor(rec: HasPhoto): Shot | null {
   if (rec.photoFromPoi) {

@@ -29,7 +29,6 @@ export const PROVIDERS: Provider[] = [
     name: "阿誠包車旅遊",
     initial: "誠",
     color: "#2F6FED",
-    photo: "driver-1",
     destId: "taipei",
     area: "萬華區",
     lat: 25.0365,
@@ -59,7 +58,6 @@ export const PROVIDERS: Provider[] = [
     name: "小芳包車旅遊",
     initial: "芳",
     color: "#C2410C",
-    photo: "driver-2",
     destId: "taipei",
     area: "大同區",
     lat: 25.0549,
@@ -89,7 +87,6 @@ export const PROVIDERS: Provider[] = [
     name: "大熊旅遊包車",
     initial: "熊",
     color: "#5C584F",
-    photoFromPoi: "taroko",
     destId: "taipei",
     area: "松山區",
     lat: 25.0503,
@@ -119,7 +116,6 @@ export const PROVIDERS: Provider[] = [
     name: "府城包車小旅行",
     initial: "府",
     color: "#0E9F6E",
-    photoFromPoi: "anping-fort",
     destId: "tainan",
     area: "中西區",
     lat: 22.9962,
@@ -149,7 +145,6 @@ export const PROVIDERS: Provider[] = [
     name: "花蓮山海包車",
     initial: "海",
     color: "#0369A1",
-    photoFromPoi: "taroko",
     destId: "hualien",
     area: "花蓮市",
     lat: 23.9805,
@@ -212,7 +207,6 @@ export const PROVIDERS: Provider[] = [
     org: "在地文化工作室",
     initial: "米",
     color: "#B45309",
-    photo: "guide-2",
     destId: "taipei",
     area: "萬華區",
     lat: 25.0381,
@@ -242,7 +236,6 @@ export const PROVIDERS: Provider[] = [
     org: "哲行文化導覽",
     initial: "哲",
     color: "#7C3AED",
-    photoFromPoi: "dadaocheng",
     destId: "taipei",
     area: "大同區",
     lat: 25.0561,
@@ -272,7 +265,6 @@ export const PROVIDERS: Provider[] = [
     org: "漫遊台灣",
     initial: "A",
     color: "#DB2777",
-    photoFromPoi: "taipei-101",
     destId: "taipei",
     area: "信義區",
     lat: 25.0331,
@@ -302,7 +294,6 @@ export const PROVIDERS: Provider[] = [
     org: "府城巷弄導覽",
     initial: "秀",
     color: "#CA8A04",
-    photo: "guide-1",
     destId: "tainan",
     area: "中西區",
     lat: 22.9974,
@@ -332,7 +323,6 @@ export const PROVIDERS: Provider[] = [
     org: "太魯閣自然導覽",
     initial: "P",
     color: "#047857",
-    photoFromPoi: "shakadang",
     destId: "hualien",
     area: "秀林鄉",
     lat: 24.1585,
@@ -397,7 +387,6 @@ export const PROVIDERS: Provider[] = [
     seats: 7,
     isPaid: true,
     reviewStatus: "approved",
-    photoFromPoi: "jiufen",
     contact: { lineUrl: LINE, whatsappUrl: WA },
   },
   {
@@ -427,7 +416,6 @@ export const PROVIDERS: Provider[] = [
     serviceType: "半日 / 黃昏場",
     isPaid: true,
     reviewStatus: "approved",
-    photoFromPoi: "shifen",
     contact: { lineUrl: LINE },
   },
 
@@ -459,7 +447,6 @@ export const PROVIDERS: Provider[] = [
     seats: 9,
     isPaid: true,
     reviewStatus: "approved",
-    photoFromPoi: "tamsui",
     contact: { lineUrl: LINE, whatsappUrl: WA },
   },
   {
@@ -489,7 +476,6 @@ export const PROVIDERS: Provider[] = [
     serviceType: "半日 / 夕陽場",
     isPaid: true,
     reviewStatus: "approved",
-    photoFromPoi: "fort-domingo",
     contact: { lineUrl: LINE },
   },
 
@@ -521,7 +507,6 @@ export const PROVIDERS: Provider[] = [
     seats: 8,
     isPaid: true,
     reviewStatus: "approved",
-    photoFromPoi: "gaomei",
     contact: { lineUrl: LINE, whatsappUrl: WA },
   },
   {
@@ -551,7 +536,6 @@ export const PROVIDERS: Provider[] = [
     serviceType: "半日 / 早市場",
     isPaid: true,
     reviewStatus: "approved",
-    photoFromPoi: "opera-house",
     contact: { lineUrl: LINE },
   },
 
@@ -583,7 +567,6 @@ export const PROVIDERS: Provider[] = [
     seats: 7,
     isPaid: true,
     reviewStatus: "approved",
-    photoFromPoi: "cijin",
     contact: { lineUrl: LINE, whatsappUrl: WA },
   },
   {
@@ -613,7 +596,6 @@ export const PROVIDERS: Provider[] = [
     serviceType: "半日 / 夜市場",
     isPaid: true,
     reviewStatus: "approved",
-    photoFromPoi: "pier2",
     contact: { lineUrl: LINE },
   },
 
@@ -645,7 +627,6 @@ export const PROVIDERS: Provider[] = [
     seats: 9,
     isPaid: true,
     reviewStatus: "approved",
-    photoFromPoi: "wufengchi",
     contact: { lineUrl: LINE, whatsappUrl: WA },
   },
   {
@@ -675,7 +656,6 @@ export const PROVIDERS: Provider[] = [
     serviceType: "半日 / 步道場",
     isPaid: true,
     reviewStatus: "approved",
-    photoFromPoi: "jiaoxi",
     contact: { lineUrl: LINE },
   },
   {
@@ -705,7 +685,6 @@ export const PROVIDERS: Provider[] = [
     serviceType: "夜市場 / 半日",
     isPaid: true,
     reviewStatus: "approved",
-    photoFromPoi: "traditional-arts",
     contact: { lineUrl: LINE },
   },
 
@@ -737,7 +716,6 @@ export const PROVIDERS: Provider[] = [
     seats: 7,
     isPaid: true,
     reviewStatus: "approved",
-    photoFromPoi: "brown-blvd",
     contact: { lineUrl: LINE, whatsappUrl: WA },
   },
   {
@@ -767,7 +745,6 @@ export const PROVIDERS: Provider[] = [
     serviceType: "半日 / 夜場",
     isPaid: true,
     reviewStatus: "approved",
-    photoFromPoi: "tiehua",
     contact: { lineUrl: LINE },
   },
 
@@ -799,7 +776,6 @@ export const PROVIDERS: Provider[] = [
     serviceType: "半日 / 夜市場",
     isPaid: true,
     reviewStatus: "approved",
-    photoFromPoi: "hualien-cultural",
     contact: { lineUrl: LINE, whatsappUrl: WA },
   },
 
@@ -835,7 +811,6 @@ export const PROVIDERS: Provider[] = [
     seats: 9,
     isPaid: true,
     reviewStatus: "approved",
-    photoFromPoi: "brown-blvd",
     contact: { lineUrl: LINE },
   },
   {
@@ -865,7 +840,6 @@ export const PROVIDERS: Provider[] = [
     serviceType: "半日 / 清晨場",
     isPaid: true,
     reviewStatus: "approved",
-    photoFromPoi: "brown-blvd",
     contact: { lineUrl: LINE },
   },
   {
@@ -895,7 +869,6 @@ export const PROVIDERS: Provider[] = [
     seats: 9,
     isPaid: true,
     reviewStatus: "approved",
-    photoFromPoi: "sanxiantai",
     contact: { lineUrl: LINE, whatsappUrl: WA },
   },
   {
@@ -925,7 +898,6 @@ export const PROVIDERS: Provider[] = [
     serviceType: "日出場 / 半日",
     isPaid: true,
     reviewStatus: "approved",
-    photoFromPoi: "sanxiantai",
     contact: { lineUrl: LINE },
   },
   {
@@ -955,7 +927,6 @@ export const PROVIDERS: Provider[] = [
     seats: 7,
     isPaid: true,
     reviewStatus: "approved",
-    photoFromPoi: "hualien-sugar",
     contact: { lineUrl: LINE },
   },
   {
@@ -985,7 +956,6 @@ export const PROVIDERS: Provider[] = [
     serviceType: "半日 / 部落餐",
     isPaid: true,
     reviewStatus: "approved",
-    photoFromPoi: "hualien-sugar",
     contact: { lineUrl: LINE, whatsappUrl: WA },
   },
   /* -------------------- 峽谷口、北海岸、山線的在地業者 -------------------- */
@@ -1016,7 +986,6 @@ export const PROVIDERS: Provider[] = [
     seats: 9,
     isPaid: true,
     reviewStatus: "approved",
-    photoFromPoi: "taroko",
     contact: { lineUrl: LINE, whatsappUrl: WA },
   },
   {
@@ -1046,7 +1015,6 @@ export const PROVIDERS: Provider[] = [
     seats: 8,
     isPaid: true,
     reviewStatus: "approved",
-    photoFromPoi: "yehliu",
     contact: { lineUrl: LINE },
   },
   {
@@ -1076,7 +1044,6 @@ export const PROVIDERS: Provider[] = [
     serviceType: "半日 / 清晨場",
     isPaid: true,
     reviewStatus: "approved",
-    photoFromPoi: "yehliu",
     contact: { lineUrl: LINE },
   },
   {
@@ -1106,7 +1073,6 @@ export const PROVIDERS: Provider[] = [
     serviceType: "半日 / 鐵道場",
     isPaid: true,
     reviewStatus: "approved",
-    photoFromPoi: "shifen",
     contact: { lineUrl: LINE },
   },
   {
@@ -1136,7 +1102,6 @@ export const PROVIDERS: Provider[] = [
     seats: 7,
     isPaid: true,
     reviewStatus: "approved",
-    photoFromPoi: "gaomei",
     contact: { lineUrl: LINE },
   },
   {
@@ -1166,7 +1131,6 @@ export const PROVIDERS: Provider[] = [
     serviceType: "夕陽場 / 半日",
     isPaid: true,
     reviewStatus: "approved",
-    photoFromPoi: "gaomei",
     contact: { lineUrl: LINE },
   },
   {
@@ -1196,7 +1160,6 @@ export const PROVIDERS: Provider[] = [
     seats: 9,
     isPaid: true,
     reviewStatus: "approved",
-    photoFromPoi: "traditional-arts",
     contact: { lineUrl: LINE, whatsappUrl: WA },
   },
   /* --------------------------------------------------- 花蓮・新城（七星潭） */
@@ -1227,7 +1190,6 @@ export const PROVIDERS: Provider[] = [
     seats: 7,
     isPaid: true,
     reviewStatus: "approved",
-    photoFromPoi: "qixingtan",
     contact: { lineUrl: LINE, whatsappUrl: WA },
   },
   {
@@ -1257,7 +1219,6 @@ export const PROVIDERS: Provider[] = [
     serviceType: "日出場 / 半日",
     isPaid: true,
     reviewStatus: "approved",
-    photoFromPoi: "qixingtan",
     contact: { lineUrl: LINE },
   },
 ];

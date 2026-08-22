@@ -745,9 +745,6 @@ export interface Provider extends Rated {
   color: string;
   /** An illustrative portrait under public/demo/, without the size suffix. */
   photo?: string;
-  /** A POI whose real, credited photograph stands in for this person — their
-      own signature route, which is what a traveller is actually choosing. */
-  photoFromPoi?: string;
   /** Where they are based — used for the distance from a place. */
   destId: string;
   area: string;

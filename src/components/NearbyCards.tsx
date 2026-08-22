@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { RecordPhoto } from "./Cover";
+import { PersonPhoto, RecordPhoto } from "./Cover";
 import { AffiliateBadge, PartnerBadge, PendingBadge, Stars } from "./Trade";
 import { Avatar, Headphones } from "./ui";
 import { km } from "../lib/geo";
@@ -110,11 +110,14 @@ export function MerchantCard({
 export function ProviderCard({
   provider: p,
   metres,
+  first = false,
   onOpen,
   onContact,
 }: {
   provider: Provider;
   metres: number;
+  /** The one card above the fold, whose portrait loads eagerly. */
+  first?: boolean;
   onOpen: () => void;
   onContact: () => void;
 }) {
@@ -124,18 +127,23 @@ export function ProviderCard({
   return (
     <article className="overflow-hidden rounded-2xl bg-surface">
       <button onClick={onOpen} className="block w-full text-left active:bg-surface-2">
-        <RecordPhoto
-          record={p}
-          fallbackId={p.id}
-          fallbackKind={isDriver ? "transit" : "attraction"}
-          emoji={isDriver ? "🚐" : "🧭"}
+        {/* The person, not the view from where they work. This slot used to
+            borrow the nearest attraction's photograph, which meant every driver
+            and guide around 七星潭 was represented by the same empty beach —
+            three cards, three names, one picture, and nothing in any of them
+            that a traveller was actually choosing between. */}
+        <PersonPhoto
+          id={p.id}
+          name={p.name}
+          color={p.color}
+          initial={p.initial}
           height={150}
-          radius={0}
+          eager={first}
         >
           <span className="num absolute bottom-2 left-2 rounded-md bg-black/60 px-1.5 py-0.5 text-[11.5px] font-semibold text-white">
             {km(metres)}
           </span>
-        </RecordPhoto>
+        </PersonPhoto>
 
         <div className="px-4 pt-3">
           <div className="flex items-center gap-2">
