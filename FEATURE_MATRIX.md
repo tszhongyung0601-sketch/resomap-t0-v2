@@ -143,8 +143,8 @@
 | 景點 | T0 既有 53 張 CC 授權真照片 | 沿用，`PhotoCredit` 標出處 |
 | 商家（旅館與部分餐廳） | **T0 真照片**，借用該店所在街道的那一張 | `photoFromPoi`，詳情頁顯示「周邊實景照片：作者 / 授權」 |
 | 商家（土產店、部分餐廳） | HTTP Demo `assets/content/*.png` | `scripts/build-demo-photos.mjs` → webp card 720 / hero 1280 |
-| 司機・導遊 | HTTP Demo 四張人像 + T0 招牌路線真照片 | 同上；人像為生成影像，頁尾標示示意 |
-| 周邊分類卡 | 兩者混用（夜市小吃 / 伴手禮店 / 導遊 / 司機 / 九份 / 礁溪 / 北投） | 同上 |
+| 司機・導遊 | **40 位一人一張**繪製人像，`public/portraits/` | `scripts/draw-portraits.mjs` 依 PORTRAIT_PROMPTS.md 的 40 條 prompt 逐一畫出；卡片圖右上角標「AI 生成」。**不借景點風景照** |
+| 周邊分類卡 | 兩者混用（夜市小吃 / 伴手禮店 / 導遊 / 司機 / 九份 / 礁溪 / 北投） | 導遊與司機那兩張改指向真實的 provider 人像（`portraitOf`），同樣標「AI 生成」 |
 | 找不到合適照片時 | T0 `Generated` 硬邊海報圖 | 不是 emoji placeholder，是設計過的圖 |
 
 原始八張 PNG 共 18 MB（1254×1254），轉檔後 1.1 MB。全部 `loading="lazy"`，

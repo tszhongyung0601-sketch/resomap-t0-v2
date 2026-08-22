@@ -26,3 +26,7 @@ dist-ssr
 
 # portrait pipeline: source renders in, WebP out (the WebP is committed)
 .portrait-src/
+
+# portrait review artefacts (regenerate with scripts/draw-portraits.mjs)
+.portrait-contact-sheet.svg
+.contact.png

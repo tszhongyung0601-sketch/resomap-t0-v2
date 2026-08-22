@@ -186,12 +186,15 @@ src/
   「周邊實景照片：作者 / 授權」——CC 授權要求出處，這是條款不是裝飾。
 - **土產店、部分餐廳、分類卡**：HTTP Demo 的實拍素材，
   經 `scripts/build-demo-photos.mjs` 轉成 webp 兩尺寸。
-- **司機與導遊**：一人一張 AI 生成的工作情境人像，`public/portraits/<provider-id>-*.webp`，
+- **司機與導遊**：40 位一人一張工作情境人像，`public/portraits/<provider-id>-*.webp`，
   **卡片圖右上角標「AI 生成」**——其他示意素材是店面與街景，頁尾一句小字就夠了；
-  一張臉不一樣，人會預設那是真人。40 條 prompt 在
-  [PORTRAIT_PROMPTS.md](PORTRAIT_PROMPTS.md)，匯入用 `scripts/build-portraits.mjs`。
-  沒有人像的那幾位顯示字母頭像，**不會**去借附近景點的風景照——
-  幫街上的店借那條街的照片是實景照，幫一個人借一片海灘不是。
+  一張臉不一樣，人會預設那是真人。
+  它們是**畫的**，走 T0 本來就在用的絹印海報語言（硬邊、平塗、沒有漸層，見 `Generated`），
+  由 `scripts/draw-portraits.mjs` 依 [PORTRAIT_PROMPTS.md](PORTRAIT_PROMPTS.md) 的 40 條
+  prompt 逐一產生：同一個年齡、同一個髮型、同一頂帽子、同一件衣服、同一個地點與時辰。
+  要換成照片就照那份 prompt 生圖丟進 `.portrait-src/`，跑 `scripts/build-portraits.mjs`
+  會蓋掉插畫——但要換就 40 張一起換，一張照片配一張插畫是壞掉，不是混搭。
+  **絕不**借附近景點的風景照：幫街上的店借那條街的照片是實景照，幫一個人借一片海灘不是。
 - **都沒有的時候**：T0 的 `Generated` 硬邊海報圖。不是 emoji placeholder，是設計過的圖，
   而且它永遠墊在照片底下，所以載入失敗會降級成海報而不是破圖。
 

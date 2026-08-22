@@ -14,13 +14,8 @@ import { readFile, writeFile } from "node:fs/promises";
  *   node scripts/build-prompt-doc.mjs
  */
 
-const { prompts } = JSON.parse(
-  await readFile(".portrait-prompts.json", "utf8"),
-);
+const { prompts } = JSON.parse(await readFile(".portrait-prompts.json", "utf8"));
 const src = await readFile("src/data/providers.ts", "utf8");
-const manifest = await readFile("src/data/portraits.ts", "utf8");
-
-const done = new Set([...manifest.matchAll(/"(p-[^"]+)"/g)].map((m) => m[1]));
 
 /** kind and area per id, read from the data rather than restated here. */
 const meta = new Map();
@@ -40,8 +35,7 @@ const section = (kind, title) => {
   rows.forEach((p, i) => {
     const m = meta.get(p.id);
     out += `\n### ${i + 1}. ${p.name}${m.org ? `（${m.org}）` : ""}\n\n`;
-    out += `\`${p.id}.png\` → \`.portrait-src/\`　·　${m.area}`;
-    out += done.has(p.id) ? "　·　**已有暫用圖，建議重生**\n\n" : "\n\n";
+    out += `\`${p.id}.png\` → \`.portrait-src/\`　·　${m.area}\n\n`;
     out += `${p.zh}\n\n`;
     out += "```text\n" + p.prompt + "\n```\n\n";
     out += "<details><summary>Negative prompt</summary>\n\n```text\n" + p.negative + "\n```\n\n</details>\n";
@@ -51,38 +45,46 @@ const section = (kind, title) => {
 
 const doc = `# 司機與導遊人像 Prompt
 
-40 位包車司機與私人導遊，一人一條 prompt。
+40 位包車司機與私人導遊，一人一條。**這份是升級用的，不是缺圖用的。**
 
-這批圖要解決的問題很具體：原本沒有人像的服務者，卡片會去借「最近景點」的風景照，
-所以七星潭附近的司機、導遊、旅館全都長成同一片空的礫石灘——三張卡、三個名字、一張圖，
-而旅客要選的其實是「人」。所以規則是**一人一張、不共用**：同一張臉掛兩個名字，比借風景更糟。
+App 裡 40 位現在全部都有圖：\`scripts/draw-portraits.mjs\` 依照下面每一條 prompt 的
+年齡、髮型、帽子、衣著、場景與時辰，畫出 40 張平面插畫，用的是 T0 本來就在用的絹印海報
+語言（硬邊、平塗、沒有漸層，見 \`Cover.tsx\` 的 \`Generated\`）。那是設計過的圖，不是佔位符。
+
+這份文件存在，是為了哪天你想把整組換成**照片**。
+
+## 為什麼一人一張、不共用
+
+原本沒有人像的服務者，卡片會去借「最近景點」的風景照，所以七星潭附近的司機、導遊、旅館
+全都長成同一片空的礫石灘——三張卡、三個名字、一張圖，而旅客要選的其實是「人」。
+同一張臉掛兩個名字比借風景更糟，所以一人一張。
+
+## 要換就 40 張一起換
+
+一張照片擺在一張插畫旁邊，看起來不是「混搭」，是「壞掉」。
+要嘛全部插畫（現況），要嘛 40 張照片一次到位。
 
 ## 怎麼用
 
-1. 把下面某一條 prompt 貼進圖像模型（Negative prompt 另外貼）。
+1. 把某一條 prompt 貼進圖像模型（Negative prompt 另外貼）。
 2. 存檔，**檔名就是標題裡那個 id**，例如 \`p-qixingtan-guide.png\`。
-3. 全部丟進專案根目錄的 \`.portrait-src/\`（這個資料夾不進版控）。
+3. 全部丟進專案根目錄的 \`.portrait-src/\`（不進版控）。
 4. 跑：
 
 \`\`\`bash
 node scripts/build-portraits.mjs
 \`\`\`
 
-腳本會裁成 16:9、轉成 WebP 兩個尺寸（\`720×405\` 卡片、\`1280×720\` 詳情頁），
+會裁成 16:9、轉成 WebP 兩個尺寸（\`720×405\` 卡片、\`1280×720\` 詳情頁），
 並依照 \`public/portraits/\` 實際有的檔案重寫 \`src/data/portraits.ts\`。
-沒生的那幾位會顯示字母頭像，**不會**出現破圖或 404。
+照片會蓋掉同一個人的插畫，而且之後再跑 \`draw-portraits.mjs\` 會自動跳過已經有照片的人。
 
 ## 版面規格（每條 prompt 裡都已經寫進去了）
 
 - 16:9 橫幅，人物在中間偏右，頭在上方三分之一偏中。
 - **左下角**是距離標籤（\`120 m\`）、**右上角**是「AI 生成」標籤——這兩個角要留背景，不能壓到臉。
-- 畫面裡不要有任何文字或招牌（AI 生出來的中文招牌一定是亂碼，現有的 \`p-tainan-guide\` 暫用圖就是這樣）。
+- 畫面裡不要有任何文字或招牌（AI 生出來的中文招牌一定是亂碼）。
 - 人是主角，不是風景裡的一個小人影。
-
-## 進度
-
-**${done.size} / ${prompts.length}**　已經有圖：${[...done].sort().map((d) => `\`${d}\``).join("、")}
-（這四張是舊 Demo 沿用的生成人像，先當暫用圖，建議照下面的 prompt 重生一次。）
 ${section("driver", "包車司機")}${section("guide", "私人導遊")}
 ---
 
@@ -103,7 +105,7 @@ ${section("driver", "包車司機")}${section("guide", "私人導遊")}
 
 三個面向一共提了 30 個問題，最後採用了 24 條修改。
 
-實際結果：
+實際結果（以最終 40 條 prompt 核對過，不是選角表的草稿）：
 
 - **性別** 24 男 / 16 女。司機偏男（17/20）但不是全男；導遊 7 男 13 女。
   名字有性別的照名字（美玲、淑玲、怡君、佩瑜、郁婷、秀蘭、雅萍、秀珠 為女；
@@ -120,7 +122,18 @@ ${section("driver", "包車司機")}${section("guide", "私人導遊")}
   夕陽場是日落，夜市場是攤位燈光。40 張裡有 9 張是暗的，不是 40 個大晴天中午。
 - **動作** 全部在做事——開門、擦玻璃、檢查胎壓、卸腳踏車、扛魚箱、倒茶、
   發安全帽、攤地圖、撥蘆葦、提竹籠、舉起一顆石頭。**沒有一個人只是對著鏡頭笑**。
+
+## 現在的插畫是怎麼畫的
+
+\`scripts/portrait-casting.mjs\` 把上面每一條 prompt 讀成一列參數（年齡、膚色、髮型、
+髮色、帽子、眼鏡、鬍子、體型、上衣、場景、光線），\`scripts/draw-portraits.mjs\` 把那一列
+畫成 SVG 再轉成 WebP。頭骨寬高、眼距、眼睛大小、眉毛粗細與角度、鼻長、嘴寬、嘴角弧度
+都由 id 決定並固定不變——40 張用同一組常數畫出來的，就是同一顆頭換 40 頂帽子。
+
+\`\`\`bash
+node scripts/draw-portraits.mjs
+\`\`\`
 `;
 
 await writeFile("PORTRAIT_PROMPTS.md", doc, "utf8");
-console.log(`PORTRAIT_PROMPTS.md — ${prompts.length} prompts, ${done.size} already drawn`);
+console.log(`PORTRAIT_PROMPTS.md — ${prompts.length} prompts`);
