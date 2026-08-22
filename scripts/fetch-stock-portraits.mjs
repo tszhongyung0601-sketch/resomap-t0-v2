@@ -103,15 +103,39 @@ function luminance(hex) {
   return (0.2126 * ((n >> 16) & 255) + 0.7152 * ((n >> 8) & 255) + 0.0722 * (n & 255)) / 255;
 }
 
-/** Ids and photographers already spoken for, so nobody appears twice. */
+/**
+ * Ids and photographers already spoken for, so nobody appears twice.
+ *
+ * Seeded from the credits already on file, not empty. A re-roll names four ids
+ * on the command line and knows nothing about the thirty-six it is not
+ * touching, so a fresh set here lets the fourth re-roll hand somebody the exact
+ * photograph the first run gave to somebody else — the one-face-two-names
+ * failure this whole exercise exists to avoid, arriving through the back door.
+ */
 const usedPhoto = new Set();
 const usedShooter = new Set();
+try {
+  const prior = JSON.parse(await readFile(CREDITS, "utf8"));
+  for (const c of prior) {
+    if (skips.has(c.id)) continue; /* this one is being replaced */
+    /* Photographs only. Seeding photographers too was over-constraining: with
+       forty slots and a thin East Asian commercial corpus, demanding forty
+       distinct photographers pushed the picker so deep into the results that
+       four slots came back with the wrong continent. Two photographs by one
+       photographer are a problem only if they are the same model, and that is
+       something a contact sheet catches and an API cannot. */
+    usedPhoto.add(c.photoId);
+  }
+} catch {
+  /* first run */
+}
 
 function pick(photos, sex, skip = 0, namedOnly = false) {
   const wantsMale = sex === "m";
   let seen = 0;
   for (const p of photos) {
-    if (usedPhoto.has(p.id) || usedShooter.has(p.photographer_id)) continue;
+    if (usedPhoto.has(p.id)) continue;
+    if (usedShooter.has(p.photographer_id) || usedShooter.has(p.photographer)) continue;
     const alt = p.alt ?? "";
     if (REJECT.test(alt)) continue;
 
@@ -175,7 +199,7 @@ for (const c of wanted) {
         .toFile(join(OUT, `${c.id}-${s.suffix}.webp`));
     }
     credits.push({
-      id: c.id, photoId: p.id, photographer: p.photographer,
+      id: c.id, photoId: p.id, photographer: p.photographer, photographerId: p.photographer_id,
       photographerUrl: p.photographer_url, url: p.url, alt: p.alt ?? "", query: "pinned",
     });
     console.log(`  ${c.id.padEnd(22)} ${String(p.id).padEnd(9)} ${p.photographer} (pinned)`);
@@ -208,6 +232,7 @@ for (const c of wanted) {
 
   usedPhoto.add(chosen.id);
   usedShooter.add(chosen.photographer_id);
+  usedShooter.add(chosen.photographer);
 
   const img = await fetch(chosen.src.large2x ?? chosen.src.original);
   const buf = Buffer.from(await img.arrayBuffer());
@@ -226,6 +251,7 @@ for (const c of wanted) {
     id: c.id,
     photoId: chosen.id,
     photographer: chosen.photographer,
+    photographerId: chosen.photographer_id,
     photographerUrl: chosen.photographer_url,
     url: chosen.url,
     alt: chosen.alt ?? "",

@@ -96,13 +96,13 @@ export const PORTRAIT_CREDITS: Record<string, PortraitCredit> = {
   "p-jiufen-guide": {
     photographer: "Ketut Subiyanto",
     photographerUrl: "https://www.pexels.com/@ketut-subiyanto",
-    url: "https://www.pexels.com/photo/man-in-blue-top-pointing-finger-on-forehead-4584178/",
+    url: "https://www.pexels.com/photo/a-man-in-crew-neck-t-shirt-clapping-his-hands-4584559/",
   },
   /* 淡水海線包車 */
   "p-tamsui-car": {
-    photographer: "Vitaly Gariev",
-    photographerUrl: "https://www.pexels.com/@silverkblack",
-    url: "https://www.pexels.com/photo/portrait-of-mature-man-in-checkered-shirt-36764484/",
+    photographer: "RDNE Stock project",
+    photographerUrl: "https://www.pexels.com/@rdne",
+    url: "https://www.pexels.com/photo/a-happy-man-sitting-at-an-office-7845165/",
   },
   /* 怡君 */
   "p-tamsui-guide": {
@@ -124,9 +124,9 @@ export const PORTRAIT_CREDITS: Record<string, PortraitCredit> = {
   },
   /* 港都包車 */
   "p-kaohsiung-car": {
-    photographer: "Wasin Pirom",
-    photographerUrl: "https://www.pexels.com/@wasinpirom",
-    url: "https://www.pexels.com/photo/man-standing-with-tablet-16692396/",
+    photographer: "PNW Production",
+    photographerUrl: "https://www.pexels.com/@pnw-prod",
+    url: "https://www.pexels.com/photo/a-man-in-white-long-sleeves-leaning-on-a-wall-8250216/",
   },
   /* 淑玲 */
   "p-kaohsiung-guide": {
@@ -172,9 +172,9 @@ export const PORTRAIT_CREDITS: Record<string, PortraitCredit> = {
   },
   /* 池上縱谷小巴 */
   "p-chishang-car": {
-    photographer: "Ketut Subiyanto",
-    photographerUrl: "https://www.pexels.com/@ketut-subiyanto",
-    url: "https://www.pexels.com/photo/a-smiling-man-in-beige-crew-neck-t-shirt-4584548/",
+    photographer: "RDNE Stock project",
+    photographerUrl: "https://www.pexels.com/@rdne",
+    url: "https://www.pexels.com/photo/man-in-white-dress-shirt-holding-red-flowers-5637526/",
   },
   /* 秀蘭 */
   "p-chishang-guide": {
@@ -184,9 +184,9 @@ export const PORTRAIT_CREDITS: Record<string, PortraitCredit> = {
   },
   /* 東海岸包車 */
   "p-chenggong-car": {
-    photographer: "Sóc Năng Động",
-    photographerUrl: "https://www.pexels.com/@soc-nang-d-ng-2150345854",
-    url: "https://www.pexels.com/photo/portrait-of-a-thoughtful-man-in-outdoor-setting-38620726/",
+    photographer: "Vitaly Gariev",
+    photographerUrl: "https://www.pexels.com/@silverkblack",
+    url: "https://www.pexels.com/photo/smiling-man-waving-in-casual-checkered-shirt-36764486/",
   },
   /* Ina */
   "p-chenggong-guide": {
@@ -208,9 +208,9 @@ export const PORTRAIT_CREDITS: Record<string, PortraitCredit> = {
   },
   /* 太魯閣峽谷接駁 */
   "p-taroko-car": {
-    photographer: "HONG SON",
-    photographerUrl: "https://www.pexels.com/@hson",
-    url: "https://www.pexels.com/photo/man-in-blue-polo-shirt-12488270/",
+    photographer: "Nguyễn Danh",
+    photographerUrl: "https://www.pexels.com/@nguy-n-danh-91089729",
+    url: "https://www.pexels.com/photo/a-man-in-black-polo-shirt-10769407/",
   },
   /* 北海岸包車 */
   "p-yehliu-car": {

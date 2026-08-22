@@ -111,6 +111,6 @@ export const OVERRIDE = {
      distinct; which decade a face reads as costs nothing next to publishing
      somebody's grandmother as a fictional guide with a fabricated rating. */
   "p-chenggong-guide": "asian woman smiling studio portrait",
-  "p-taroko-car": "asian man polo shirt studio portrait",
-  "p-chishang-car": "asian senior man smiling studio",
+  "p-taroko-car": "asian man polo shirt white background",
+  "p-chishang-car": "asian senior man portrait white background",
 };
