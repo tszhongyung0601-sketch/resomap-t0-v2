@@ -184,8 +184,14 @@ src/
   [PHOTO_ATTRIBUTION.md](PHOTO_ATTRIBUTION.md)，App 內也顯示在照片下方。
 - **商家（旅館與部分餐廳）**：借用該店所在街道的那一張 T0 真照片，詳情頁顯示
   「周邊實景照片：作者 / 授權」——CC 授權要求出處，這是條款不是裝飾。
-- **土產店、部分餐廳、司機、導遊、分類卡**：HTTP Demo 的實拍素材，
-  經 `scripts/build-demo-photos.mjs` 轉成 webp 兩尺寸。人像是生成影像，畫面上標示示意。
+- **土產店、部分餐廳、分類卡**：HTTP Demo 的實拍素材，
+  經 `scripts/build-demo-photos.mjs` 轉成 webp 兩尺寸。
+- **司機與導遊**：一人一張 AI 生成的工作情境人像，`public/portraits/<provider-id>-*.webp`，
+  **卡片圖右上角標「AI 生成」**——其他示意素材是店面與街景，頁尾一句小字就夠了；
+  一張臉不一樣，人會預設那是真人。40 條 prompt 在
+  [PORTRAIT_PROMPTS.md](PORTRAIT_PROMPTS.md)，匯入用 `scripts/build-portraits.mjs`。
+  沒有人像的那幾位顯示字母頭像，**不會**去借附近景點的風景照——
+  幫街上的店借那條街的照片是實景照，幫一個人借一片海灘不是。
 - **都沒有的時候**：T0 的 `Generated` 硬邊海報圖。不是 emoji placeholder，是設計過的圖，
   而且它永遠墊在照片底下，所以載入失敗會降級成海報而不是破圖。
 
