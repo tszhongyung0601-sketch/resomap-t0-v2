@@ -209,12 +209,13 @@ export function MapHome() {
           zoom={14}
           /* Frame all seven on the first paint, so the answer to "what is around
              me" is visible rather than something you have to go looking for —
-             and only until the traveller moves it themselves. `fitBounds` and
-             `flyTo` both want the last word, and a refit that fires because the
-             pin list changed would snap the map back from wherever 定位 or a
-             search result just took it. One flight hands control over for
-             good. */
-          fit={!flight}
+             and then never again. `fitBounds` re-runs whenever the pin list
+             changes, which is the same thing as re-centring the map behind the
+             traveller's back: once after a flight, undoing 定位 or a search
+             result, and once when a late Overpass response arrives, undoing a
+             drag. Both of those are the auto-recentre nobody wants, so the
+             first flight or the first merged place ends the auto-fit. */
+          fit={!flight && osm.length === 0}
           /* Never grouped. On a map whose whole message is "these are the places
              with a guide", a bubble reading 3 is three places you cannot see. */
           spread
