@@ -222,6 +222,43 @@ export function nearbyOffers(
 }
 
 /**
+ * The measure word, per category.
+ *
+ * 「3 家餐廳」 and 「2 位私人導遊」 and 「5 個行程」. Chinese counts people,
+ * shops, rooms and itineraries with different words, and using 家 for all of
+ * them is the kind of thing that reads as a translation rather than a product.
+ * One table, so a screen can never pick a different one than its neighbour.
+ */
+const COUNT_UNIT: Record<string, string> = {
+  restaurant: "家",
+  souvenir: "家",
+  hotel: "間",
+  "aff-hotel": "間",
+  driver: "位",
+  guide: "位",
+  "aff-tour": "個行程",
+};
+
+/** What a category is called when it follows a number. */
+const COUNT_NOUN: Record<string, string> = {
+  restaurant: "餐廳",
+  souvenir: "伴手禮店",
+  hotel: "住宿",
+  "aff-hotel": "住宿",
+  driver: "包車司機",
+  guide: "私人導遊",
+  "aff-tour": "",
+};
+
+/** 「家」/「位」/「個行程」 — for a badge with no room for the noun. */
+export const getNearbyCountUnit = (category: string) => COUNT_UNIT[category] ?? "個";
+
+/** 「3 家餐廳」/「2 位私人導遊」/「5 個行程」 — for a line that has the room. */
+export function getNearbyCountLabel(category: string, count: number): string {
+  return `${count} ${getNearbyCountUnit(category)}${COUNT_NOUN[category] ?? ""}`.trim();
+}
+
+/**
  * How many things of each kind sit inside the radius.
  *
  * The 周邊推薦 rows print this, so a traveller can see 「5km 內 3 家」 before
