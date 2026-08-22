@@ -35,3 +35,7 @@ dist-ssr
 .probe*.png
 .stock-portraits.json
 .stock-src/
+
+# stock portrait pipeline (photos are committed, the manifest of them is not secret but the sources dir is)
+.stock-src/
+.sheet.png

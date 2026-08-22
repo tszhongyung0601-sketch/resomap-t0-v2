@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from "react";
 import { photoFor } from "../data/imagePrompts";
 import { portraitFor, shotFor, type HasPhoto } from "../lib/photo";
+import { portraitCredit } from "../data/portraitCredits";
 import { Avatar } from "./ui";
 import type { Poi, PoiKind } from "../types";
 
@@ -357,6 +358,30 @@ export function RecordPhoto({
 }
 
 /**
+ * Who took the portrait.
+ *
+ * The Pexels licence does not require this. It is here because forty
+ * photographers' work fronts this product, and naming them costs one line — the
+ * same argument the CC credit makes next door, minus the legal obligation.
+ */
+export function PortraitCredit({ providerId }: { providerId: string }) {
+  const c = portraitCredit(providerId);
+  if (!c) return null;
+  return (
+    <p className="px-5 pt-1.5 text-[11px] leading-relaxed text-ink-3">
+      人物照片為圖庫示意圖，非實際服務者本人。攝影：
+      <a href={c.photographerUrl} target="_blank" rel="noopener noreferrer" className="underline">
+        {c.photographer}
+      </a>
+      {" · via "}
+      <a href={c.url} target="_blank" rel="noopener noreferrer" className="underline">
+        Pexels
+      </a>
+    </p>
+  );
+}
+
+/**
  * Photographer and licence for a borrowed T0 photograph.
  *
  * Only a real photograph carries a credit, and when it does the licence
@@ -393,19 +418,24 @@ export function RecordPhotoCredit({ record }: { record: HasPhoto }) {
  * on the corner the distance chip does not use, and never on top of the face.
  */
 function AiMark({ tiny = false }: { tiny?: boolean }) {
-  /* At 96px there is no room for two words without covering the face, and a
-     mark that covers the face is worse than no mark. Two letters in the corner
-     still says "not a photograph", and the foot of the list says the rest. */
+  /* 「圖庫示意」 and not 「AI 生成」. These are photographs of real people —
+     stock models who signed a release — so the earlier wording became false the
+     day the drawings were replaced. What still needs saying is the same thing it
+     always was: this is not the person whose name is under it.
+
+     At 96px there is no room for four characters without covering the face, and
+     a mark that covers the face is worse than no mark. 「示意」 carries it in the
+     corner and the line at the foot of the list carries the rest. */
   if (tiny) {
     return (
       <span className="absolute bottom-1 right-1 rounded bg-black/55 px-1 py-px text-[9px] font-bold leading-tight text-white/95">
-        AI
+        示意
       </span>
     );
   }
   return (
     <span className="absolute right-2 top-2 whitespace-nowrap rounded-md bg-black/55 px-1.5 py-0.5 text-[10.5px] font-semibold text-white/95">
-      AI 生成
+      圖庫示意
     </span>
   );
 }

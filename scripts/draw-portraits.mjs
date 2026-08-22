@@ -1,5 +1,5 @@
 import sharp from "sharp";
-import { mkdir, readdir, writeFile } from "node:fs/promises";
+import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { CASTING } from "./portrait-casting.mjs";
 import { writeManifest } from "./portrait-manifest.mjs";
@@ -734,7 +734,15 @@ try {
     .filter((f) => /\.(png|jpe?g|webp)$/i.test(f))
     .map((f) => f.replace(/\.[^.]+$/, ""));
 } catch {
-  /* no source directory — every one of the forty is drawn */
+  /* no source directory */
+}
+try {
+  /* Stock photographs count too. Without this, running the drawer once after a
+     fetch silently replaces forty photographs with forty drawings. */
+  const stock = JSON.parse(await readFile(".stock-portraits.json", "utf8"));
+  photographed = [...photographed, ...stock.map((c) => c.id)];
+} catch {
+  /* nothing fetched yet — every one of the forty is drawn */
 }
 
 const contact = [];

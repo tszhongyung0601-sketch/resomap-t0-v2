@@ -186,15 +186,16 @@ src/
   「周邊實景照片：作者 / 授權」——CC 授權要求出處，這是條款不是裝飾。
 - **土產店、部分餐廳、分類卡**：HTTP Demo 的實拍素材，
   經 `scripts/build-demo-photos.mjs` 轉成 webp 兩尺寸。
-- **司機與導遊**：40 位一人一張工作情境人像，`public/portraits/<provider-id>-*.webp`，
-  **卡片圖右上角標「AI 生成」**——其他示意素材是店面與街景，頁尾一句小字就夠了；
-  一張臉不一樣，人會預設那是真人。
-  它們是**畫的**，走 T0 本來就在用的絹印海報語言（硬邊、平塗、沒有漸層，見 `Generated`），
-  由 `scripts/draw-portraits.mjs` 依 [PORTRAIT_PROMPTS.md](PORTRAIT_PROMPTS.md) 的 40 條
-  prompt 逐一產生：同一個年齡、同一個髮型、同一頂帽子、同一件衣服、同一個地點與時辰。
-  要換成照片就照那份 prompt 生圖丟進 `.portrait-src/`，跑 `scripts/build-portraits.mjs`
-  會蓋掉插畫——但要換就 40 張一起換，一張照片配一張插畫是壞掉，不是混搭。
+- **司機與導遊**：40 位一人一張真人照片，來自 Pexels，`public/portraits/<provider-id>-*.webp`。
+  **是圖庫模特兒，不是實際的服務者**——他們簽過肖像授權，授權內容正是「被用來扮演不是自己的人」。
+  這也是為什麼不用 Wikimedia：CC 授權給的是攝影師的著作權，不含肖像權，
+  拿一張紀實街拍去撐虛構商號與虛構評價，是把真人放在他沒說過的話後面。
+  卡片圖角落標「示意」、詳情頁標「圖庫示意圖，非實際服務者本人」並附攝影師姓名，
+  清單頁尾再說一次。攝影師名單在 [PORTRAIT_ATTRIBUTION.md](PORTRAIT_ATTRIBUTION.md)。
   **絕不**借附近景點的風景照：幫街上的店借那條街的照片是實景照，幫一個人借一片海灘不是。
+- **司機與導遊的備援**：`scripts/draw-portraits.mjs` 會依
+  [PORTRAIT_PROMPTS.md](PORTRAIT_PROMPTS.md) 的 40 條 prompt 畫出平面插畫，
+  給的是「對的人在對的地方」——圖庫換不到的那一半。有照片的人它會自動跳過。
 - **都沒有的時候**：T0 的 `Generated` 硬邊海報圖。不是 emoji placeholder，是設計過的圖，
   而且它永遠墊在照片底下，所以載入失敗會降級成海報而不是破圖。
 

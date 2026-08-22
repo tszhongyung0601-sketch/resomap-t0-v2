@@ -145,8 +145,8 @@
 | 景點 | T0 既有 53 張 CC 授權真照片 | 沿用，`PhotoCredit` 標出處 |
 | 商家（旅館與部分餐廳） | **T0 真照片**，借用該店所在街道的那一張 | `photoFromPoi`，詳情頁顯示「周邊實景照片：作者 / 授權」 |
 | 商家（土產店、部分餐廳） | HTTP Demo `assets/content/*.png` | `scripts/build-demo-photos.mjs` → webp card 720 / hero 1280 |
-| 司機・導遊 | **40 位一人一張**繪製人像，`public/portraits/`（16:9 兩尺寸 + 1:1 縮圖） | `scripts/draw-portraits.mjs` 依 PORTRAIT_PROMPTS.md 的 40 條 prompt 逐一畫出；方形縮圖是重新構圖不是裁切。列表縮圖角落標「AI」、大圖標「AI 生成」，清單頁尾那句話講完整。**不借景點風景照** |
-| 周邊分類卡 | 兩者混用（夜市小吃 / 伴手禮店 / 導遊 / 司機 / 九份 / 礁溪 / 北投） | 導遊與司機那兩張改指向真實的 provider 人像（`portraitOf`），同樣標「AI 生成」 |
+| 司機・導遊 | **40 位一人一張真人照片**（Pexels 圖庫模特兒），`public/portraits/`（16:9 兩尺寸 + 1:1 縮圖） | `scripts/fetch-stock-portraits.mjs`：依選角搜圖、照片與攝影師雙重去重、擋掉紀實街拍與時尚棚拍、亮度過濾。角落標「示意」、詳情頁標「非實際服務者本人」＋攝影師，頁尾再說一次。攝影師名單見 [PORTRAIT_ATTRIBUTION.md](PORTRAIT_ATTRIBUTION.md)。**不借景點風景照** |
+| 周邊分類卡 | 兩者混用（夜市小吃 / 伴手禮店 / 導遊 / 司機 / 九份 / 礁溪 / 北投） | 導遊與司機那兩張改指向真實的 provider 人像（`portraitOf`），同樣標「圖庫示意」 |
 | 找不到合適照片時 | T0 `Generated` 硬邊海報圖 | 不是 emoji placeholder，是設計過的圖 |
 
 原始八張 PNG 共 18 MB（1254×1254），轉檔後 1.1 MB。全部 `loading="lazy"`，

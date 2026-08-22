@@ -11,7 +11,7 @@ import {
 } from "../components/Trade";
 import { SHORT_DISCLOSURE, type InfoTopic } from "../data/info";
 import { Avatar, Button, Note, Screen, Section, Tag, TopBar } from "../components/ui";
-import { PersonPhoto } from "../components/Cover";
+import { PersonPhoto, PortraitCredit } from "../components/Cover";
 import { hasPortrait } from "../data/portraits";
 import { isVerifiedPartner } from "../lib/nearby";
 import { CHANNEL_LABELS, availableChannels, tryContact } from "../lib/contact";
@@ -82,6 +82,8 @@ export function Provider({ id }: { id: string }) {
       ) : (
         <TopBar title={PROVIDER_KIND_LABELS[p.kind]} onBack={() => nav.back()} />
       )}
+
+      {portrait && <PortraitCredit providerId={p.id} />}
 
       <div className="flex items-start gap-3 px-5 pb-1 pt-4">
         <Avatar name={p.name} color={p.color} initial={p.initial} size={44} />

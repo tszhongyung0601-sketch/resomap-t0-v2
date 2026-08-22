@@ -78,7 +78,7 @@ export const INFO: Record<string, InfoTopic> = {
 /** The single line a commercial list still carries at its foot. */
 export const SHORT_DISCLOSURE = {
   /** ResoMap's own supply. */
-  resomap: "商家與服務者資料由提供者自行填寫，皆為示意資料。人物圖像為 AI 生成，非真實人物照片。",
+  resomap: "商家與服務者資料由提供者自行填寫，皆為示意資料。人物照片為圖庫示意圖，非實際服務者本人。",
   /** Somebody else's inventory. */
   partner: "價格與供應狀況以合作平台為準，皆為示意資料。",
 } as const;

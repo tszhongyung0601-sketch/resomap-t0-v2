@@ -1,63 +1,116 @@
 /**
- * What to search Pexels for, one line per provider.
+ * How to ask Pexels for forty Taiwanese drivers and guides.
  *
- * Derived queries did not survive contact with a real search index: "Han
- * Taiwanese man in his early fifties, stocky, navy driver polo, hillside
- * pull-in above Jiufen" returns nothing, because a stock library is indexed on
- * three or four words, not on a paragraph. So these are hand-written, short,
- * and ordered the way the index rewards — subject first, then the one detail
- * that matters most.
+ * The query shape below was found by throwing away three that did not work, and
+ * all three are worth keeping because each one looks like success until the
+ * pictures are on screen:
  *
- * They still come from the same casting the drawings use, so the person who
- * arrives is the age and gender the prompt describes. What a stock library
- * cannot give is the place: there is no photograph of a sixty-something Amis
- * guide on the Sanxiantai tide shelf at 04:30, so 和美山, 太魯閣 and 七星潭 all
- * become "outdoors". That trade is the whole point of the exchange — the person
- * becomes real and the location becomes generic — and it is worth writing down
- * rather than discovering later.
+ *   "asian man van driver"                 → European couriers with clipboards.
+ *                                             A stock library has no supply of
+ *                                             Taiwanese charter drivers, so it
+ *                                             answers with the nearest job it
+ *                                             does have.
+ *   "east asian middle aged man portrait"  → European men. Five qualifying words
+ *                                             dilute the first one until the
+ *                                             index stops honouring it.
+ *   "korean man portrait"                  → Korean faces, but the corpus behind
+ *                                             short artistic queries is editorial
+ *                                             and street: hanbok, kabuki, candid
+ *                                             strangers. Right faces, wrong
+ *                                             register, and no model release.
+ *
+ * What works is short and commercial: `asian` + one age word + man/woman + one
+ * garment or manner + a background. That lands on the part of the library shot
+ * for advertising — plain backdrops, polo shirts, people who look like they do
+ * a job — which is both the right register for a directory listing and the part
+ * where a model release actually exists.
+ *
+ * Five words. Every extra qualifier costs a little of the first one.
  */
-export const QUERIES = {
-  /* ---------------------------------------------------------- 包車司機 */
-  "p-acheng": "mature asian man van driver",
-  "p-xiaofang": "asian woman driver van smiling",
-  "p-dabear": "asian man cap driving van",
-  "p-fucheng-car": "senior asian man shirt outdoors",
-  "p-hualien-car": "young asian man coast outdoors",
-  "p-akai": "young asian man hoodie city night",
-  "p-ruifang-car": "asian man sunglasses driver car",
-  "p-tamsui-car": "asian man bucket hat seaside",
-  "p-taichung-car": "asian man uniform shirt bus driver",
-  "p-kaohsiung-car": "elderly asian man cap harbour",
-  "p-jiaoxi-car": "asian man fleece jacket mountain",
-  "p-taitung-car": "asian man work shirt countryside",
-  "p-chishang-car": "elderly asian farmer hat field",
-  "p-chenggong-car": "asian man cap sunrise coast",
-  "p-guangfu-car": "asian man tshirt outdoors field",
-  "p-taroko-car": "asian man work shirt canyon",
-  "p-yehliu-car": "asian woman standing beside van",
-  "p-qingshui-car": "asian man polo shirt fishing harbour",
-  "p-luodong-car": "asian woman polo shirt harbour",
-  "p-qixingtan-car": "elderly asian man beanie glasses",
 
-  /* ---------------------------------------------------------- 私人導遊 */
-  "p-xiaomi": "asian woman tour guide old street",
-  "p-azhe": "asian man glasses vest guide",
-  "p-ada": "asian woman short hair city guide",
-  "p-tainan-guide": "asian woman mature temple travel",
-  "p-hualien-guide": "asian woman hiking guide forest",
-  "p-jiufen-guide": "elderly asian man jacket old street",
-  "p-tamsui-guide": "asian woman holding map outdoors",
-  "p-taichung-guide": "young asian man glasses market",
-  "p-kaohsiung-guide": "mature asian woman polo shirt guide",
-  "p-jiaoxi-guide": "asian man hiking trail guide",
-  "p-luodong-guide": "young asian woman night market",
-  "p-taitung-guide": "asian man beard guitar outdoors",
-  "p-hualien-city-guide": "asian woman night market street food",
-  "p-chishang-guide": "asian woman farmer rice field",
-  "p-chenggong-guide": "elderly asian woman working outdoors",
-  "p-guangfu-guide": "asian woman wetland nature",
-  "p-yehliu-guide": "asian man sun hat field vest",
-  "p-pingxi-guide": "asian man cap railway station",
-  "p-gaomei-guide": "asian woman binoculars nature watching",
-  "p-qixingtan-guide": "asian woman windbreaker beach wind",
+/** age band → the word commercial stock is actually tagged with */
+const AGE = { 20: "young", 30: "young", 40: "middle aged", 50: "middle aged", 60: "elderly" };
+
+/* Rotated so forty near-identical queries do not return the same forty photos
+   in the same order, which after deduping leaves the last twenty people with
+   whatever nobody else wanted. */
+const LOOK = ["polo shirt", "smiling", "businessman", "casual shirt", "friendly", "portrait"];
+const BG = ["white background", "plain background", "studio background", "grey background"];
+
+export function queryFor(casting, i) {
+  const look = LOOK[(casting.sex === "m" ? i : i + 2) % LOOK.length];
+  return [
+    "asian",
+    AGE[casting.age],
+    casting.sex === "m" ? "man" : "woman",
+    look === "businessman" && casting.sex === "f" ? "office" : look,
+    BG[i % BG.length],
+  ].join(" ");
+}
+
+/**
+ * The one signal that names ethnicity, used as a preference rather than a rule.
+ *
+ * Requiring it rejects every photograph on every page — Pexels' alt text
+ * mentions it in roughly none of eighty results. But where it is present it is
+ * reliable, so the picker takes a whole pass looking only at photos whose alt
+ * says so, and only falls back to the rest when that pass comes up empty.
+ */
+export const EAST_ASIAN = /\basian\b/i;
+
+/**
+ * "A photographer pointed a camera at a stranger going about their life."
+ *
+ * The one kind that must never get through. A candid subject signed nothing,
+ * and this app would put their face behind a fictional business with a
+ * fabricated rating on it — the same wrong that ruled out Wikimedia, only
+ * harder to spot inside a stock library.
+ *
+ * Word boundaries are load-bearing. Without them `sign` matches "design" and
+ * `field` matches "fields", which rejects almost everything and makes a broken
+ * filter look like a supply problem. An earlier version shipped without them
+ * and zeroed out all forty.
+ */
+export const DOCUMENTARY = new RegExp(
+  String.raw`\b(street|market|temple|shrine|village|festival|parade|tourist|monk|nun|protest|rally|refugee|tribe|tribal|costume|vendor|beggar|candid|documentary|sidewalk|alley|kimono|hanbok|traditional attire|traditional dress)\b`,
+  "i",
+);
+
+/**
+ * Studio work that is still wrong for a row in a directory.
+ *
+ * A monochrome frame among thirty-nine colour ones reads as a mistake. A
+ * fashion or beauty shot reads as an advertisement rather than somebody you are
+ * about to hire. A profile, a back view or closed eyes gives a listing a subject
+ * who is not looking at the reader, and two people in the frame gives it a
+ * subject nobody can identify.
+ *
+ * `topless` is on the list because a perfectly ordinary query returned one —
+ * which is the argument for having the list, not an argument for trusting the
+ * query.
+ */
+export const OFF_REGISTER = new RegExp(
+  String.raw`\b(monochrome|black and white|grayscale|greyscale|beauty|fashion|makeup|glamour|lingerie|nude|topless|shirtless|bare chest|side profile|profile view|back view|silhouette|eyes closed|looking away|taking notes|man and woman|woman and man|conversation|couple|two people|hard hat|architect)\b`,
+  "i",
+);
+
+/**
+ * Per-person overrides, for the bands where the generated query runs dry.
+ *
+ * Elderly East Asian women and middle-aged East Asian men in plain commercial
+ * settings are the two thinnest parts of this library; the generated query kept
+ * returning European and South Asian results for them however far the picker
+ * skipped ahead. Naming the relationship rather than the age — grandmother, not
+ * "elderly woman" — reaches a different and better-stocked corner of it.
+ */
+export const OVERRIDE = {
+  /* Recast a band down, rather than take what the elderly-woman band offers.
+     Everything Pexels has under "elderly asian woman" is documentary — street
+     and village portraits of real people who signed nothing — so Ina is shot
+     ten years younger instead. The casting exists to keep forty people
+     distinct; which decade a face reads as costs nothing next to publishing
+     somebody's grandmother as a fictional guide with a fabricated rating. */
+  "p-chenggong-guide": "asian woman smiling studio portrait",
+  "p-taroko-car": "asian man polo shirt studio portrait",
+  "p-chishang-car": "asian senior man smiling studio",
 };
