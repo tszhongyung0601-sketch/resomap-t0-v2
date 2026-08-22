@@ -1,16 +1,14 @@
-import { useMemo, useState } from "react";
-import { TW_DESTINATIONS, dest, poi, poisForDest, storiesForDest } from "../data";
+import { poi } from "../data";
 import { BrandBar } from "../components/BrandBar";
+import { MapHome } from "./MapHome";
 import { PoiImage } from "../components/Cover";
-import { MapCredit, MapView, PinLegend, type MapPin } from "../components/MapView";
 import { Button, Card, Headphones, Screen, Tag } from "../components/ui";
-import { distance } from "../lib/geo";
 import { toggleStory, useSaved } from "../lib/saved";
-import { hasStory, playLabel, rating, storyRail } from "../lib/story";
+import { playLabel, rating, storyRail } from "../lib/story";
 import { focusTrip } from "../lib/trip";
 import { useI18n } from "../i18n";
 import { useNav, type Route } from "../nav";
-import type { Destination, Poi, Story, Trip } from "../types";
+import type { Story, Trip } from "../types";
 
 /**
  * Home. The map leads, and everything else scrolls past it.
@@ -36,7 +34,11 @@ export function Explore({ trips }: { trips: Trip[] }) {
   return (
     <Screen>
       <BrandBar />
-      <MapBlock trip={trip} />
+      {/* Where I am, and what is worth walking to. It replaced the island /
+          trip-stops view: both of those were about somewhere else, and the first
+          thing a traveller opening a travel app wants is here. Everything below
+          this line is untouched. */}
+      <MapHome />
       {/* Guides first, then the trip. The map answers「去哪」and the rail answers
           「有什麼好聽的」— both are about the place. The trip card is about you,
           and it reads better as the answer to those two than as their preface. */}
@@ -52,196 +54,15 @@ export function Explore({ trips }: { trips: Trip[] }) {
 
 /* ------------------------------------------------- 1 · the map, and search */
 
-/** Roughly the centre of the island, framed so the whole of Taiwan fits. */
-const TW_CENTRE: [number, number] = [23.75, 120.95];
-const TW_ZOOM = 7;
-
 /** Distinct places on the itinerary — a lunch spot visited twice is one place. */
 const tripPois = (trip: Trip): string[] => [
   ...new Set(trip.days.flatMap((d) => d.tracks.flatMap((t) => t.stops)).map((s) => s.poiId)),
 ];
 
-/**
- * The place that stands in for a city on the island map.
- *
- * `MapPin` takes a `Poi` and a `Destination` is not one, so a city cannot pin
- * itself. Rather than widen the shared map component for one screen, each city
- * is pinned at a real place inside it, chosen by a rule that keeps the pin's
- * colour truthful:
- *
- *   · the city's most-played guide, when it has one — so an orange pin is
- *     orange because that exact place has a recording, and the city does too;
- *   · otherwise the place nearest the city centre, which has no guide, and
- *     neither does anything else in that city, so navy is true both ways.
- *
- * The two readings — "this place has a guide" and "this city has a guide" — can
- * therefore never disagree, which is the only thing that would make the legend
- * a lie. `plays` is demo data, but it is only choosing which of a city's own
- * places to drop the pin on; no number reaches the screen from it.
- */
-function anchorFor(d: Destination): Poi | undefined {
-  const top = [...storiesForDest(d.id)].sort((a, b) => b.plays - a.plays)[0];
-  if (top) return poi(top.poiId);
-  /* 交通 is a station, not somewhere you go. It would be the nearest thing to
-     most city centres and the least useful pin on the map. */
-  const here = poisForDest(d.id).filter((p) => p.kind !== "transit");
-  return [...here].sort((a, b) => distance(d, a) - distance(d, b))[0];
-}
-
-const TW_ANCHORS: Poi[] = TW_DESTINATIONS.map(anchorFor).filter((p): p is Poi => Boolean(p));
-
-/**
- * Two pin languages, because the map does two jobs.
- *
- * Choosing a city: colour is the answer to「哪裡有得聽」, so the pin is toned and
- * the legend explains it. Looking at a trip: the question is「這趟會去哪」, the
- * stops are metres apart and genuinely cluster — 24 of the 66 pairs on the 台南
- * itinerary overlap at the zoom it fits to — so most colours would be hidden
- * inside a bubble reading "5", and a key explaining a colour you cannot see is
- * the decoration-pretending-to-be-data this app keeps deleting. There the pins
- * stay the app's ordinary white emoji, and the guides are announced by the rail
- * directly underneath and by the 🎧 badges on the timeline.
- */
-const cityPin = (p: Poi): MapPin => ({ poi: p, tone: hasStory(p.id) ? "story" : "plain" });
-const stopPin = (p: Poi): MapPin => ({ poi: p });
-
-/**
- * Two maps, one component.
- *
- * No trip: the island, one pin per Taiwan destination, tapping one opens that
- * city. This is what the 探索台灣 card grid used to do, done in the place
- * somebody would actually look for it.
- *
- * A trip: that city, pinned with the places the itinerary genuinely visits.
- * Which trip is `focusTrip`'s answer and nobody else's — the same rule the
- * card at the bottom of this screen and the deals tab both read, so the map can
- * never open on a different city than the card underneath it.
- */
-function MapBlock({ trip }: { trip?: Trip }) {
-  const nav = useNav();
-  /**
-   * The island view, asked for while a trip exists.
-   *
-   * Without this the overview is unreachable in practice: App's INITIAL always
-   * holds two trips, so `focusTrip` always answers and the map always opens on a
-   * city. The one thing the boss's own mockup shows — Taiwan covered in pins —
-   * would never appear in a demo. It is a view, not a preference, so it lives in
-   * component state and resets when the screen does.
-   */
-  const [island, setIsland] = useState(false);
-  const focused = trip && !island ? trip : undefined;
-  const here = focused ? dest(focused.destId) : undefined;
-  /** The trip's city, whichever view is showing — the chip's label needs it. */
-  const home = trip ? dest(trip.destId)?.name : undefined;
-
-  const pins = useMemo<MapPin[]>(
-    () =>
-      focused
-        ? tripPois(focused).map(poi).filter(Boolean).map(stopPin)
-        : TW_ANCHORS.map(cityPin),
-    [focused],
-  );
-
-  return (
-    <div className="relative shrink-0 pb-6">
-      <div className="relative h-[380px] overflow-hidden">
-        <MapView
-          /* Remount when the map changes job: `centre` and `zoom` are the
-             container's initial view, so switching between the island and a
-             trip without a new key would leave the old framing in place. */
-          key={here?.id ?? "tw"}
-          pins={pins}
-          centre={here ? [here.lat, here.lng] : TW_CENTRE}
-          zoom={here?.zoom ?? TW_ZOOM}
-          fit={Boolean(here)}
-          /* The eight city anchors do not overlap at zoom 7 — grouping them hid
-             three cities behind a bubble reading "3", directly under a chip that
-             says there are eight. A trip's own stops keep clustering: they are
-             metres apart, not kilometres. */
-          spread={!focused}
-          onPick={(p) =>
-            /* An anchor pin belongs to the city it sits in, so the destination
-               comes off the place itself rather than from a parallel lookup
-               that could drift out of step with the pin list. */
-            focused ? nav.go({ k: "poi", id: p.id }) : nav.go({ k: "dest", id: p.destId })
-          }
-        />
-
-        {/* Tappable only when there is another view to go to. With no trip at
-            all the island is the only thing the map can show, and a control that
-            returns you to where you already are is the dead control this app
-            keeps removing. */}
-        <MapChip
-          onClick={trip ? () => setIsland((v) => !v) : undefined}
-          action={home ? (island ? `回到${home}` : "看全台") : undefined}
-        >
-          {here ? `${here.name}・這趟會去的地方` : `台灣 ${TW_DESTINATIONS.length} 座城市`}
-        </MapChip>
-        {/* Only where the colour is the message. */}
-        {!focused && <PinLegend />}
-
-        {/* The tile licence requires the attribution to be visible, and its own
-            corner is where the search field lands. `MapCredit` pins itself to
-            its nearest positioned ancestor, so it is given one that stops short
-            of the field rather than being left underneath it. */}
-        <div className="pointer-events-none absolute inset-x-0 top-0 bottom-[30px]">
-          <MapCredit />
-        </div>
-      </div>
-
-      {/* Straddling the edge: 24px of the field is over the map and 24px is over
-          the page, which is what `pb-6` on the wrapper leaves room for. The
-          wrapper is deliberately not `overflow-hidden` — the map is, and the
-          field has to be able to hang out of it. */}
-      <button
-        onClick={() => nav.go({ k: "search", q: "" })}
-        className="absolute inset-x-4 bottom-0 z-20 flex h-12 items-center gap-2.5 rounded-full bg-bg px-4 text-left shadow-[0_4px_18px_rgba(0,0,0,.16)] active:bg-surface"
-      >
-        <SearchIcon />
-        <span className="truncate text-[14.5px] text-ink-3">
-          {here ? `搜尋${here.name}的景點、美食` : "搜尋城市、景點或想做的事"}
-        </span>
-      </button>
-    </div>
-  );
-}
-
-/**
- * What the map is showing, and — when there is a choice — what tapping does.
- *
- * The label states the state and the action states the destination, because a
- * bare chevron on a chip that reads 「台南・這趟會去的地方」 does not tell anybody
- * where it goes. The tap target is extended past the 30px visual with an
- * ::after, the same trick Chip and Tabs use, rather than padding the pill to
- * 44px and turning a caption into a button.
- */
-function MapChip({
-  children,
-  onClick,
-  action,
-}: {
-  children: string;
-  onClick?: () => void;
-  action?: string;
-}) {
-  const base =
-    "absolute left-2.5 top-2.5 z-10 max-w-[74%] rounded-xl bg-bg/92 px-2.5 py-1.5 text-[11.5px] font-semibold text-ink-2 shadow-sm backdrop-blur";
-
-  if (!onClick) {
-    return <span className={`pointer-events-none truncate ${base}`}>{children}</span>;
-  }
-
-  return (
-    <button
-      onClick={onClick}
-      aria-label={action}
-      className={`${base} flex items-center gap-1.5 text-left after:absolute after:inset-x-0 after:-inset-y-[7px] after:content-[''] active:bg-surface`}
-    >
-      <span className="truncate">{children}</span>
-      <span className="shrink-0 border-l border-line pl-1.5 text-brand">{action}</span>
-    </button>
-  );
-}
+/* The map block moved to screens/MapHome.tsx when it stopped being a picture of
+   somewhere else and became a picture of where you are. The island anchors, the
+   看全台 chip and the two-tone pin legend went with the old behaviour — the new
+   map has one kind of pin, so it needs no key. */
 
 /* ---------------------------------------------------------- 2 · the guides */
 
@@ -569,23 +390,6 @@ function NoTrip() {
 
 /* ------------------------------------------------------------------ icons */
 
-function SearchIcon() {
-  return (
-    <svg
-      width="18"
-      height="18"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      className="shrink-0 text-ink-3"
-      aria-hidden
-    >
-      <circle cx="11" cy="11" r="6.5" />
-      <path d="M16 16l4 4" strokeLinecap="round" />
-    </svg>
-  );
-}
 
 function PlayIcon() {
   return (
