@@ -1025,6 +1025,139 @@ export const IMAGE_SLOTS: ImageSlot[] = [
       "muted palette, documentary style, no text, no watermark.",
     status: "todo",
   },
+  /* ------------------------------------------- 新店・景美（地圖首頁的七個點）
+
+     Fetched from Wikimedia Commons by scripts/fetch-attraction-photos.mjs and
+     committed, so the build never touches the network. Every one is a real
+     photograph of that exact place under a free licence, and no file is used
+     twice — the credit below is what `PhotoCredit` prints under the image,
+     which on CC BY and CC BY-SA is a licence term rather than a courtesy. */
+  {
+    poiId: "yulon-city",
+    kind: "photo",
+    aspectRatio: "4:3",
+    minLongEdge: 1600,
+    prompt:
+      "裕隆城外觀全景，看得出是一整棟商場而不是街景。",
+    status: "done",
+    src: "photos/yulon-city-card.webp",
+    srcLarge: "photos/yulon-city-hero.webp",
+    credit: {
+      author: "Foxy1219",
+      licence: "CC BY-SA 4.0",
+      licenceUrl: "https://creativecommons.org/licenses/by-sa/4.0",
+      source:
+        "https://commons.wikimedia.org/wiki/File:%E6%96%B0%E5%BA%97%20%E8%A3%95%E9%9A%86%E5%9F%8E%202023-11-02%20(2).jpg",
+    },
+  },
+  {
+    poiId: "jingmei-park",
+    kind: "photo",
+    aspectRatio: "4:3",
+    minLongEdge: 1600,
+    prompt:
+      "仁愛樓看守所外部，牆上的字與上方的刺絲網要入鏡。",
+    status: "done",
+    src: "photos/jingmei-park-card.webp",
+    srcLarge: "photos/jingmei-park-hero.webp",
+    credit: {
+      author: "人人生來平等",
+      licence: "CC BY-SA 4.0",
+      licenceUrl: "https://creativecommons.org/licenses/by-sa/4.0",
+      source:
+        "https://commons.wikimedia.org/wiki/File:%E6%99%AF%E7%BE%8E%E4%BA%BA%E6%AC%8A%E6%96%87%E5%8C%96%E5%9C%92%E5%8D%80%E8%AD%A6%E5%82%99%E7%B8%BD%E5%8F%B8%E4%BB%A4%E9%83%A8%E4%BB%81%E6%84%9B%E6%A8%93%E7%9C%8B%E5%AE%88%E6%89%80%E5%A4%96%E9%83%A8.jpg",
+    },
+  },
+  {
+    poiId: "bitan",
+    kind: "photo",
+    aspectRatio: "4:3",
+    minLongEdge: 1600,
+    prompt:
+      "碧潭水面與兩岸，天鵝船入鏡，不要只拍吊橋。",
+    status: "done",
+    src: "photos/bitan-card.webp",
+    srcLarge: "photos/bitan-hero.webp",
+    credit: {
+      author: "Monyuan",
+      licence: "CC0 1.0",
+      licenceUrl: "https://creativecommons.org/publicdomain/zero/1.0/",
+      source:
+        "https://commons.wikimedia.org/wiki/File:Bitan%20Scenic%20Area.jpg",
+    },
+  },
+  {
+    poiId: "bitan-bridge",
+    kind: "photo",
+    aspectRatio: "4:3",
+    minLongEdge: 1600,
+    prompt:
+      "碧潭吊橋側面全景，主纜錨進岩壁的那一端要看得到。",
+    status: "done",
+    src: "photos/bitan-bridge-card.webp",
+    srcLarge: "photos/bitan-bridge-hero.webp",
+    credit: {
+      author: "王彥翔",
+      licence: "CC BY-SA 3.0",
+      licenceUrl: "https://creativecommons.org/licenses/by-sa/3.0",
+      source:
+        "https://commons.wikimedia.org/wiki/File:%E6%96%B0%E5%BA%97%20%E7%A2%A7%E6%BD%AD%E5%90%8A%E6%A9%8B.JPG",
+    },
+  },
+  {
+    poiId: "hemeishan",
+    kind: "photo",
+    aspectRatio: "4:3",
+    minLongEdge: 1600,
+    prompt:
+      "和美山頂往北看新店市區與新店溪的彎，天氣好時帶到台北一〇一。",
+    status: "done",
+    src: "photos/hemeishan-card.webp",
+    srcLarge: "photos/hemeishan-hero.webp",
+    credit: {
+      author: "Anas1712",
+      licence: "CC BY 4.0",
+      licenceUrl: "https://creativecommons.org/licenses/by/4.0",
+      source:
+        "https://commons.wikimedia.org/wiki/File:View%20of%20Xindian%20skyline%20and%20Taipei%20101%20from%20Hemeishan%20top%20near%20Bitan%2020230522%20130327.jpg",
+    },
+  },
+  {
+    poiId: "xindian-riverside",
+    kind: "photo",
+    aspectRatio: "4:3",
+    minLongEdge: 1600,
+    prompt:
+      "新店溪右岸自行車道，河堤與河面同時入鏡。",
+    status: "done",
+    src: "photos/xindian-riverside-card.webp",
+    srcLarge: "photos/xindian-riverside-hero.webp",
+    credit: {
+      author: "C.L. Kao (eddie5150)",
+      licence: "CC BY-SA 3.0",
+      licenceUrl: "https://creativecommons.org/licenses/by-sa/3.0",
+      source:
+        "https://commons.wikimedia.org/wiki/File:%E5%AE%89%E5%9D%91%E6%A9%8B%EF%BC%8C%E6%96%B0%E5%BA%97%E6%BA%AA%E5%B7%A6%E5%B2%B8%E6%B2%B3%E6%BF%B1%E8%87%AA%E8%A1%8C%E8%BB%8A%E9%81%93%E3%80%82%20-%20panoramio.jpg",
+    },
+  },
+  {
+    poiId: "jingmei-market",
+    kind: "photo",
+    aspectRatio: "4:3",
+    minLongEdge: 1600,
+    prompt:
+      "景美夜市街景，攤位沿街排開，晚上的燈色。",
+    status: "done",
+    src: "photos/jingmei-market-card.webp",
+    srcLarge: "photos/jingmei-market-hero.webp",
+    credit: {
+      author: "Alfred Twu",
+      licence: "CC0 1.0",
+      licenceUrl: "https://creativecommons.org/publicdomain/zero/1.0/",
+      source:
+        "https://commons.wikimedia.org/wiki/File:Jingmei-night-market.jpg",
+    },
+  },
 ];
 
 export const slotsFor = (poiId: string) => IMAGE_SLOTS.filter((s) => s.poiId === poiId);

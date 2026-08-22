@@ -14,6 +14,7 @@ import {
 import { createPlayer, formatClock, splitSentences, type VoicePlayer } from "../lib/speech";
 import { track } from "../lib/track";
 import { Button, Headphones, Segmented, Sheet, Tag, Thumb } from "./ui";
+import { PoiImage } from "./Cover";
 import { getNearbyCountUnit, nearbyCounts } from "../lib/nearby";
 import { BY_DEST } from "../data/destinations";
 import type { NearbyCat } from "../data/nearbyCategories";
@@ -319,11 +320,18 @@ export function StoryPlayer({
 
   return (
     <div className="absolute inset-0 z-50 flex flex-col bg-bg">
-      <div
-        className="relative grid h-[30%] shrink-0 place-items-center text-[64px]"
-        style={{ background: p.tint }}
-      >
-        {p.emoji}
+      {/* The place, photographed where there is a photograph of it. `PoiImage`
+          falls back to the tinted emoji panel for the POIs that have none, so
+          this is the same header it always was wherever no picture exists — and
+          a real one everywhere a real one has been sourced. */}
+      <div className="relative h-[30%] shrink-0">
+        <PoiImage
+          poi={p}
+          height="100%"
+          radius={0}
+          large
+          className="absolute inset-0"
+        />
         {/* 44px, matching the back button on the POI page. At size-10 this was
             40px — the one way out of a full-screen overlay, and the smallest
             target in the app. */}
