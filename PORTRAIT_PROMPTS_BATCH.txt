@@ -1,0 +1,380 @@
+ResoMap 司機與導遊人像 — 生圖工作清單
+
+每一段貼進圖像模型，存檔時檔名就是「存成：」那一行，全部丟進專案根目錄的
+.portrait-src/，然後跑：
+
+    node scripts/build-portraits.mjs
+
+腳本會裁成 16:9 與 1:1、轉 WebP、更新清單。沒生的人維持現在的插畫，不會破圖。
+要換就整組換：一張照片擺在一張插畫旁邊看起來是壞掉，不是混搭。
+
+════════════════════════════════════════════════════════
+第一批：demo 動線會走到的 15 位
+（龍山寺 / 大稻埕 / 信義 / 九份 / 台南 / 花蓮 / 七星潭 / 東大門 一路點下去看得到的人）
+════════════════════════════════════════════════════════
+
+━━━━━━━━━━ 1 / 15 ━━━━━━━━━━
+存成：p-acheng.png
+五十多歲台灣男司機在九份山腰停車處拉開七人座後門請客人下車，上午陰天平光。
+
+Documentary editorial photograph of a chartered-car driver. A stocky Han Taiwanese man in his early fifties, thick through the shoulders, short greying crop thinning at the temples, no glasses, navy short-sleeve driver polo with a soft worn collar, a cloth in his back pocket. He slides the rear door of a black seven-seat MPV open, his free hand gesturing guests out. A hillside pull-in above Jiufen, tiled roofs and sea haze below, flat bright overcast, mid-morning. Wide 16:9 frame, subject waist-up and right of centre, head in the upper-middle third, clear negative space in the lower-left road and upper-right sky. 35mm lens, f/4, natural light, muted film-like colour, real skin texture.
+
+Negative prompt:
+no text, no lettering, no logos, no watermarks, no legible vehicle badges or number plates, no likeness of any real living person, no children's faces, nothing sexualised, no plastic 3D-render look, no HDR clown colour, no stock-photo smile, no fashion retouching, no perfect teeth, no heroic low angle, no empty scenery without a person, no studio backdrop, no red lanterns filling the frame, no rain
+
+━━━━━━━━━━ 2 / 15 ━━━━━━━━━━
+存成：p-xiaofang.png
+淡水河口濱河路退潮清晨，五十出頭女司機在路邊抖動橡膠腳踏墊、一邊回頭跟客人說話，白色七人座側門敞開，平白雲光。
+
+Documentary editorial photograph of a chartered-car driver, a Han Taiwanese woman in her early fifties, sturdy and short-necked, a long grey-streaked plait pulled forward over one shoulder, sun-freckled cheeks, a magenta long-sleeve sun top under a faded canvas work apron with cable ties in the pocket. She stands at the kerb shaking out a rubber floor mat against her knee, mid-motion, mouth open mid-sentence to a guest, her plain white seven-seat van close behind her with the side door open. Riverside road at the Tamsui estuary at low tide, exposed grey-brown mudflat, Guanyin Mountain a flat unlit shape across the water, early morning under flat white cloud. Wide 16:9 frame, waist-up, subject right of centre, head in the upper-middle third, empty mudflat in the lower-left, blank pale sky in the upper-right. 50mm lens, f/2.8, background soft, muted film colour, real skin and sun lines.
+
+Negative prompt:
+no text, no letters, no signage, no watermarks, no logos, no legible vehicle badges or number plates, no likeness of any real living person, no children's faces, nothing sexualised, no plastic 3D render, no CGI, no HDR clown colour, no stock-photo smile, no fashion retouching, no perfect teeth, no heroic low angle, no empty scenery with no person, no golden-hour glow, no tropical white sand, no palm trees, no studio backdrop
+
+━━━━━━━━━━ 3 / 15 ━━━━━━━━━━
+存成：p-dabear.png
+清水斷崖公路停車彎，四十多歲壯碩男司機戴深色帽、穿黑色風衣，伸臂沿斷崖線向乘客解說，身體轉向內陸讓晨光打在臉上，海霧軟化遠景。
+
+Documentary editorial photograph of a chartered-van driver, a heavy-set Han Taiwanese man in his mid forties, broad frame and big hands, buzz cut under a plain dark cap, sun-reddened neck, black nylon windbreaker half-unzipped over a faded tee. He stands at a highway lay-by on the Qingshui Cliffs, Hualien, one arm out along the cliff line, mid-sentence to passengers outside the frame, turned inland so the morning sun lights his face rather than backlighting him. Grey marble walls falling straight into the Pacific, sea haze softening the distance. Wide 16:9 frame, waist-up, subject right of centre, head in the upper-middle third, steel guardrail and open sea in the lower-left, plain sky in the upper-right. 50mm lens, f/4, muted film colour, fine grain, real skin texture and sun lines.
+
+Negative prompt:
+no text, no letters, no logos, no watermarks, no legible brand badges on the vehicle, no likeness of any real living person, no children's faces, nothing sexualised, no plastic 3D-render look, no HDR clown colour, no stock-photo smile, no fashion retouching, no studio lighting, no heroic low angle, no empty landscape without a person, no white sand, no palm trees, no tropical resort look, no tour bus, no crowd of tourists, no backlit silhouette, no face in shadow
+
+━━━━━━━━━━ 4 / 15 ━━━━━━━━━━
+存成：p-akai.png
+深夜中山區巷弄，二十多歲男代駕站在自用轎車駕駛座門邊，手機放低、抬頭望向巷口找客人，霓虹與路燈斜掃過臉。
+
+Documentary editorial photograph, environmental portrait of a slight Han Taiwanese man in his late twenties, a night-shift driver, longish brown-tinted fringe with ears showing, plain black zip hoodie over a white tee, thin crossbody strap. He stands at the open driver's door of a small sedan at the kerb, phone lowered in one hand, chin up, scanning the lane for his passenger. Back lane in Zhongshan District late at night, blurred unreadable shop-sign glow, wet asphalt, mixed neon and streetlight raking across his face. Wide 16:9 frame, waist-up, subject right of centre, head in the upper-middle third, dark wet road in the lower-left, plain shuttered wall in the upper-right. 35mm lens, f/1.8, visible grain, cool film colour.
+
+Negative prompt:
+no text, no letters, no readable signage, no watermarks, no logos, no legible vehicle badges or number plates, no likeness of any real living person, no children's faces, nothing sexualised, no plastic 3D render, no CGI, no HDR clown colour, no cyberpunk over-saturation, no stock-photo smile, no fashion retouching, no beauty filter, no heroic low angle, no empty street with no person, no daylight, no face lit only by a phone screen, no downturned head, no face hidden in shadow, no back of head
+
+━━━━━━━━━━ 5 / 15 ━━━━━━━━━━
+存成：p-xiaomi.png
+萬華剝皮寮紅磚騎樓，三十出頭短髮女導覽員雙手推動老式木摺門示範舊店面怎麼開門，回頭邊說邊使力，午前深騎樓陰影。
+
+Documentary editorial photograph of a walking guide, a petite Han Taiwanese woman in her early thirties, small shoulders, a short bob tucked behind one ear, no glasses, a mustard linen shirt over a plain tee, a flat hip pouch and no shoulder bag. Both hands on the timber, she draws an old wooden folding shopfront shutter half closed to show her group how the shop used to open, leaning her weight into it, face turned back over her shoulder mid-sentence. The red-brick arcade of Bopiliao Historic Block in Wanhua, Taipei, late morning, deep arcade shade against a bright street beyond the arches. Wide 16:9 frame, waist-up, subject right of centre, head in the upper-middle third, worn arcade floor in the lower-left, arch shadow in the upper-right. 35mm lens, f/2.8, soft falloff, restrained film colour, natural skin.
+
+Negative prompt:
+no text, no letters, no signage lettering, no logos, no watermarks, no likeness of any real living person, no children's faces, nothing sexualised, no plastic 3D-render look, no HDR clown colour, no stock-photo smile, no fashion retouching, no studio backdrop, no traditional costume or qipao, no lanterns as props, no empty street without a person, no back of head
+
+━━━━━━━━━━ 6 / 15 ━━━━━━━━━━
+存成：p-azhe.png
+台北大稻埕迪化街老屋立面前，四十多歲戴圓框眼鏡的導覽員舉著舊照片對照建築細節，午後反射光。
+
+Documentary editorial photograph of a Taiwanese cultural walking guide, a man in his late forties with a receding hairline, grey at the temples, round wire glasses, a slight paunch, wearing an olive utility gilet over a rolled-sleeve shirt with a notebook in the chest pocket. He holds an old photographic print up against a baroque shophouse facade on Dihua Street in Dadaocheng, Taipei, comparing the ironwork and plaster mouldings, awnings above the pavement, afternoon light reflecting warm off the street. Wide 16:9 frame, three-quarter body right of centre, empty pavement lower-left and plain plaster wall upper-right. 35mm lens, f/2.8, muted film colour.
+
+Negative prompt:
+no text, no lettering, no legible shop signs, no logos, no watermarks, no likeness of any real person, no children's faces, nothing sexualised, no 3D render look, no plastic skin, no HDR clown colour, no stock photo smile, no fashion retouching, no perfect teeth, no heroic low angle, no studio backdrop, no empty street without a person, no red lanterns strung across the frame, no dense crowd, no traditional costume
+
+━━━━━━━━━━ 7 / 15 ━━━━━━━━━━
+存成：p-ada.png
+四十多歲短銀髮台灣女導遊在信義區空橋上按著領口導覽麥克風、回頭清點團員，午後硬光在甲板上打出條狀陰影。
+
+Documentary editorial photograph of a city walking guide, a tall spare Han Taiwanese woman in her mid forties, upright and angular, hair cropped short and mostly silver, no eyewear at all, a plain black soft-shell jacket over a grey tee, a small radio-guide transmitter clipped to her collar. One hand is raised to the collar mic, the other flat on the walkway rail, head turned back along the deck as she counts her group in. An elevated pedestrian walkway in Taipei's Xinyi district, the shoulder of a tall tower soft behind her, late afternoon with hard bars of shadow from the canopy falling across the deck and her sleeve. Wide 16:9 frame, waist-up, subject centred, head in the upper-middle third, walkway deck in the lower-left, plain out-of-focus sky in the upper-right. 50mm lens, f/2.8, restrained film colour.
+
+Negative prompt:
+no text, no lettering, no signage, no logos, no watermarks, no legible building or brand names, no likeness of any real living person, no children's faces, nothing sexualised, no plastic 3D-render look, no HDR clown colour, no stock-photo smile, no fashion retouching, no glamour lighting, no heroic low angle, no empty cityscape without a person, no lens flare, no golden-hour backlit glow, no sunglasses pushed up on the head
+
+━━━━━━━━━━ 8 / 15 ━━━━━━━━━━
+存成：p-hualien-car.png
+二十多歲阿美族男司機在芭崎眺望台停車場伸手拉緊車頂行李綑帶，低頭回答旅客問題，上午高雲。
+
+Documentary editorial photograph of a chartered-van driver, an Amis Indigenous Taiwanese man in his late twenties, slight and narrow-framed, long hair tied in a short tail at the nape, a wispy moustache, a loose faded grey long-sleeve fishing shirt with the collar up and a towel round his neck, no sunglasses. He reaches up to tighten a ratchet strap over luggage on the van's roof rack, both arms raised and the shirt pulled tight across his back, face turned down toward a guest to answer a question. The Baqi lookout car park on the Hualien coastal highway, the bay curving south far below and well out of focus, mid-morning with high cloud. Wide 16:9 frame, waist-up, subject right of centre, head in the upper-middle third, van roofline and bay in the lower-left, open sky in the upper-right. 50mm lens, f/2.8, film-like colour.
+
+Negative prompt:
+no text, no lettering, no logos, no watermarks, no legible vehicle badges or number plates, no likeness of any real living person, no children's faces, nothing sexualised, no plastic 3D-render look, no HDR clown colour, no stock-photo smile, no fashion retouching, no heroic low angle, no white sand, no palm trees, no turquoise tropical water, no ceremonial Indigenous costume, no feather headdress, no sunglasses, no empty landscape without a person, no drone view
+
+━━━━━━━━━━ 9 / 15 ━━━━━━━━━━
+存成：p-hualien-city-guide.png
+三十出頭的台灣女導覽員在花蓮舊鐵道行人徒步區倒退著走並向團員解說，臉朝鏡頭左側清楚可見，藍調時分路燈初亮。
+
+Documentary editorial photograph of a city walking guide, a slim Han Taiwanese woman in her early thirties of medium height, long hair in a single braid over one shoulder, a mint green oversized shirt with sleeves rolled, a canvas tote. She walks backwards while talking to her group, face turned toward camera-left and clearly visible, never a back view. The old railway pedestrian street in Hualien city, old rail markers set into the paving, low shopfronts, blue hour with the street lamps just switched on. Wide 16:9 frame, three-quarter body, subject slightly right of centre, head in the upper-middle third, empty paving in the lower-left, dim sky in the upper-right. 35mm lens, f/2, film-like colour, slight grain.
+
+Negative prompt:
+no text, no lettering, no shop signs, no logos, no watermarks, no likeness of any real living person, no children's faces, nothing sexualised, no plastic 3D-render look, no HDR clown colour, no stock-photo smile, no fashion retouching, no heroic low angle, no back of head, no face turned away, no face hidden in shadow, no neon night-market saturation, no empty street without a person
+
+━━━━━━━━━━ 10 / 15 ━━━━━━━━━━
+存成：p-qixingtan-car.png
+清晨四點半新城天主堂前廣場，六十多歲清瘦太魯閣族男司機戴毛帽與粗框老花眼鏡，在車尾門倒熱茶，蒸氣升起，天邊微紅、車燈亮著。
+
+Documentary editorial photograph of a shuttle driver, a Truku Indigenous Taiwanese man in his mid sixties, very lean with a long neck and hollow cheeks, white stubble, a navy knitted watch cap pulled down to the eyebrows, thick-rimmed reading glasses on a cord, a quilted navy overshirt over a thermal top. He pours hot tea from a steel thermos into a cup balanced on the open tailgate of his plain silver seven-seat van before a dawn run, steam rising past his hands, glancing sideways at a waiting passenger. The forecourt of Xincheng Catholic Church in Hualien, the boat-shaped chapel and banyan arch dark behind, half past four with the sky just pinking and the van's lights on. Wide 16:9 frame, waist-up, subject right of centre, head in the upper-middle third, dark forecourt in the lower-left, pale dawn sky in the upper-right. 50mm lens, f/2, available light, visible grain.
+
+Negative prompt:
+no text, no letters, no logos, no watermarks, no legible brand badges or emblems on the van, no number plate characters, no crosses with lettering, no likeness of any real living person, no children's faces, nothing sexualised, no plastic 3D-render look, no HDR clown colour, no stock-photo smile, no fashion retouching, no white sand, no palm trees, no tropical beach, no ceremonial Indigenous dress, no empty sunrise seascape without a person
+
+━━━━━━━━━━ 11 / 15 ━━━━━━━━━━
+存成：p-qixingtan-guide.png
+花蓮七星潭礫石灘日出，四十多歲台灣女導覽員戴毛帽穿紅風衣，伸手攔住團員避開湧浪並回頭說話，側光打亮臉，北方是清水斷崖。
+
+Documentary editorial photograph of a coastal guide at Qixingtan, Hualien. A compact sturdy Han Taiwanese woman in her late forties, hair tied back under a knitted beanie against the cold, a red windbreaker over a fleece, a head torch round her neck, wet boots. She stands square on the shifting grey pebbles with one arm held out flat and low, holding her group back from an incoming surge of surf, head turned to speak to them and side-on to the low sun so her face is lit rather than backlit, loose hair whipped across her cheek by the onshore wind. The grey pebble bank of Qixingtan, the Qingshui Cliffs headland running north behind her, dawn light, cold blue shadow between the stones. Wide 16:9 frame, waist-up and close, subject slightly right of centre, head in the upper-middle third, empty pebbles and surf in the lower-left, plain sky and headland in the upper-right. 50mm lens, f/2.8, background soft, the woman unmistakably the subject.
+
+Negative prompt:
+no text, no lettering, no logos, no watermarks, no likeness of any real person, no children's faces, nothing sexualised, no 3D render look, no plastic skin, no HDR clown colour, no stock photo smile, no fashion retouching, no perfect teeth, no heroic low angle, no studio backdrop, no empty beach without a person, no white sand, no palm trees, no turquoise tropical water, no beach umbrellas, no ceremonial dress, no crouching pose, no silhouette, no face in shadow, no small figure lost in a landscape
+
+━━━━━━━━━━ 12 / 15 ━━━━━━━━━━
+存成：p-fucheng-car.png
+台南安平樹屋外磚鋪小街，六十出頭銀髮包車司機站在車頭旁把紙本地圖拿在胸前講解，榕樹根爬過圍牆，樹冠下均勻柔和的上午光。
+
+Documentary editorial photograph of a chartered-van driver, a lean wiry Han Taiwanese man in his early sixties, slightly narrow-shouldered, silver hair side-parted, reading glasses hanging on a cord, a pale blue short-sleeve button shirt tucked into dark trousers with a cloth belt. He stands upright beside the bonnet of his silver seven-seat van holding a folded paper map at chest height, chin up, mid-sentence to a guest. The narrow brick-paved street outside the Anping Tree House compound in Tainan, the old red-brick warehouse wall and the banyan roots spilling over its coping visible beyond the low fence behind him, open shade under the banyan canopy, even soft mid-morning light with no hard dappled patches. Wide 16:9 frame, three-quarter body, subject right of centre, head in the upper-middle third, empty brick paving in the lower-left, plain shaded wall in the upper-right. 50mm lens, f/2.8, film-like colour, real skin and sun lines.
+
+Negative prompt:
+no text, no lettering, no signage, no map labels, no logos, no watermarks, no legible vehicle badges, no likeness of any real living person, no children's faces, nothing sexualised, no 3D render look, no plastic skin, no HDR clown colour, no stock-photo smile, no fashion retouching, no perfect teeth, no heroic low angle, no studio backdrop, no empty scenery without a person, no tour-group crowd, no temple interior, no tropical resort look, no hard dappled light in the corners, no leaning over the bonnet
+
+━━━━━━━━━━ 13 / 15 ━━━━━━━━━━
+存成：p-tainan-guide.png
+台南中西區廟埕，五十多歲女導覽員一手撐在門枕石上、半轉身講解，另一手在腰際比劃，香煙在上午光線中飄散。
+
+Documentary editorial photograph of a walking-tour guide, a short sturdy Han Taiwanese woman in her late fifties, short permed curls greying at the roots, a floral short-sleeve blouse, a cloth crossbody bag, a folded paper fan tucked under one arm. She rests a palm flat on the worn stone door-drum at the temple threshold with her weight on that arm, half-turned back and mid-sentence, her other hand gesturing low at her hip. A temple forecourt in Tainan West Central District, incense smoke drifting, old carved brackets and swept stone paving, mid-morning shafts of light through the smoke. Wide 16:9 frame, waist-up, subject slightly right of centre, head in the upper-middle third, empty swept stone in the lower-left, smoke haze in the upper-right. 50mm lens, f/2.5, warm restrained film colour, real skin.
+
+Negative prompt:
+no text, no letters, no readable temple plaques or couplets, no watermarks, no logos, no likeness of any real living person, no children's faces, nothing sexualised, no plastic 3D render, no CGI, no HDR clown colour, no stock-photo smile, no fashion retouching, no glamour lighting, no heroic low angle, no empty temple with no person, no ceremonial costume, no tourist crowds filling the frame, no upward pointing gesture
+
+━━━━━━━━━━ 14 / 15 ━━━━━━━━━━
+存成：p-ruifang-car.png
+新北水湳洞陰陽海展望點，五十多歲司機掀起引擎蓋、一手扶水箱蓋一手拿油布，回頭看乘客，陰天平光。
+
+Documentary editorial photograph of a chartered-van driver, a weathered Han Taiwanese man in his mid fifties, medium build with a slight stoop, short salt-and-pepper hair, aviator sunglasses, a grey polo under a padded driver's gilet, keys clipped at the hip. The bonnet of his silver seven-seat van is propped open and he stands behind it with one hand on the coolant cap and an oily rag in the other, glancing back over his shoulder at his passengers. The Yin-Yang Sea overlook above Shuinandong in New Taipei, the yellow-and-blue bay far below, overcast midday, silver flat light. Wide 16:9 frame, waist-up, subject right of centre, head in the upper-middle third, the bay open and empty in the lower-left, grey sky in the upper-right. 50mm lens, f/2.8, shallow depth of field, restrained film colour.
+
+Negative prompt:
+no text, no lettering, no logos, no watermarks, no legible vehicle badges, no likeness of any real person, no children's faces, nothing sexualised, no 3D render look, no plastic skin, no HDR clown colour, no stock photo smile, no fashion retouching, no perfect teeth, no heroic low angle, no studio backdrop, no empty landscape without a person, no blue sky, no sunset colour, no red lanterns, no sky lanterns, no white sand beach, no engine bay filling the frame
+
+━━━━━━━━━━ 15 / 15 ━━━━━━━━━━
+存成：p-jiufen-guide.png
+六十出頭的台灣男導覽員在金瓜石日式礦工宿舍間的石階上回身向坡上講解，黃昏只有門口燈泡與一盞路燈。
+
+Documentary editorial photograph of a local history guide, a thin slightly stooped Han Taiwanese man in his early sixties with bony hands, white cropped hair, deep sun lines, thin wire glasses, a worn brown canvas jacket over a checked shirt, a cotton cap held in one hand. He pauses on a step and half-turns back to talk uphill. Stone steps between the old Japanese-era miners' quarters at Jinguashi, Ruifang, New Taipei: mossy concrete retaining walls, weathered timber boarding, black-tar and corrugated roofs stepping down the hillside, one bare bulb over a doorway and a single street lamp just coming on. Dusk, the hillside gone deep blue. Wide 16:9 frame, three-quarter body, subject centred, head in the upper-middle third, steps falling away in the lower-left, dim hillside in the upper-right. 35mm lens, f/2, film-like colour, grain.
+
+Negative prompt:
+no text, no lettering, no logos, no watermarks, no likeness of any real living person, no children's faces, nothing sexualised, no plastic 3D-render look, no HDR clown colour, no stock-photo smile, no fashion retouching, no perfect teeth, no heroic low angle, no tourist crowds, no red lanterns, no paper lanterns, no hanging festival lanterns, no neon, no empty street without a person
+
+
+════════════════════════════════════════════════════════
+第二批：其餘 25 位
+════════════════════════════════════════════════════════
+
+━━━━━━━━━━ 1 / 25 ━━━━━━━━━━
+存成：p-taichung-guide.png
+二十多歲台灣男導覽員在台中第二市場清晨攤前掀開竹蒸籠蓋，蒸氣從臉旁升起，燈泡暖光。
+
+Documentary editorial photograph of a market walking guide, a tall lanky Han Taiwanese man in his late twenties with narrow shoulders, medium curly hair, thick black-framed glasses fogged along the lower edge, a short-sleeve check shirt open over a plain tee, a cotton tote on his shoulder. At a stall counter he lifts the lid off a stacked bamboo steamer with both hands, steam rolling up past his face, eyebrows up mid-sentence to the group. The morning arcade of Taichung Second Market, produce stalls and hanging bare bulbs, early morning warm bulb light against grey daylight. Wide 16:9 frame, waist-up, subject right of centre, head in the upper-middle third, wet market floor in the lower-left, dim ceiling in the upper-right. 35mm lens, f/2, film-like colour, visible grain.
+
+Negative prompt:
+no text, no lettering, no shop signs, no price tags, no logos, no watermarks, no likeness of any real living person, no children's faces, nothing sexualised, no plastic 3D-render look, no HDR clown colour, no stock-photo smile, no fashion retouching, no heroic low angle, no empty market interior without a person, no raw meat close-up, no oversaturated food styling, no face hidden by steam
+
+━━━━━━━━━━ 2 / 25 ━━━━━━━━━━
+存成：p-jiaoxi-guide.png
+三十多歲台灣男導遊在礁溪五峰旗步道濕石階上扶欄回身講解，樹蔭斑駁上午光。
+
+Documentary editorial photograph of a trail guide, a slim wiry Han Taiwanese man in his mid thirties, short hair damp with sweat under a soft sun cap, an orange quick-dry long-sleeve top, trekking poles in one hand. He pauses on the steps with his other hand on the rail, half-turned to talk downhill. The Wufengqi waterfall trail in Jiaoxi, wet stone steps, a tier of the waterfall visible through the trees behind, mid-morning dappled light through the canopy. Wide 16:9 frame, three-quarter body, subject right of centre, head in the upper-middle third, wet steps lower-left, dark foliage upper-right. 35mm lens, f/2.8.
+
+Negative prompt:
+no text, no lettering, no logos, no watermarks, no likeness of any real living person, no children's faces, nothing sexualised, no plastic 3D-render look, no HDR clown colour, no stock-photo smile, no fashion retouching, no heroic low angle, no technical alpine climbing gear, no rope or helmet, no tropical jungle, no empty waterfall scenery without a person
+
+━━━━━━━━━━ 3 / 25 ━━━━━━━━━━
+存成：p-chenggong-guide.png
+清晨四點半天未亮的三仙台潮間帶，六十多歲阿美族女導覽員站直身把貝殼舉到臉旁講解，頭燈照亮臉，八拱橋只是遠處剪影。
+
+Documentary editorial photograph of a coastal foraging guide, a short stout Amis Indigenous Taiwanese woman in her mid sixties with thick working hands, grey hair wrapped in a plain printed headcloth, a faded long-sleeve work shirt, rubber boots, a small head torch on a cord round her neck, a woven collecting basket at her hip. She stands upright at the edge of a tide pool and holds a limpet up beside her own face to show the group, half turned toward them, the tilted head torch throwing light across her face so it reads clearly. The intertidal rock shelf at Sanxiantai in Chenggong, Taitung: dark pitted rock and shallow pools, the eight-arch footbridge only a small soft silhouette far behind. Half past four in the morning, true pre-dawn twilight, the sun still below the sea, one faint warm band on the eastern horizon, cool blue light on wet rock. Wide 16:9 frame, waist-up and close, camera at her own eye level and never below it, subject right of centre, head in the upper-middle third, wet rock in the lower-left, pale twilight sky in the upper-right. 85mm lens, f/2.8, background compressed and out of focus, visible grain.
+
+Negative prompt:
+no text, no lettering, no logos, no watermarks, no likeness of any real living person, no children's faces, nothing sexualised, no plastic 3D-render look, no HDR clown colour, no stock-photo smile, no fashion retouching, no heroic low angle, no ceremonial Indigenous dress or headdress, no white sand, no palm trees, no tropical resort water, no empty seascape without a person, no sun disc above the horizon, no golden sunburst, no silhouette-only figure, no face hidden in shadow, no crouching or bent-over pose
+
+━━━━━━━━━━ 4 / 25 ━━━━━━━━━━
+存成：p-yehliu-car.png
+三十多歲台灣女司機靠在金山老街騎樓外的休旅車後視鏡旁抱胸等客，正午強光與深影。
+
+Documentary editorial photograph of a chartered-van driver, a Han Taiwanese woman in her late thirties of medium height and capable stance, shoulder-length hair clipped up off her neck, a sky-blue short-sleeve shirt, a small hand towel over one shoulder. She leans against the wing mirror of a silver eight-seat van at the kerb, arms folded, waiting for her group. The arcade entrance of Jinshan old street, low tiled shopfronts, midday hard overhead sun and deep arcade shade. Wide 16:9 frame, waist-up, subject slightly right of centre, head in the upper-middle third, pavement lower-left, arcade beam upper-right. 35mm lens, f/4.
+
+Negative prompt:
+no text, no lettering, no shop signs, no logos, no watermarks, no legible vehicle badges or number plates, no likeness of any real living person, no children's faces, nothing sexualised, no plastic 3D-render look, no HDR clown colour, no stock-photo smile, no fashion retouching, no heroic low angle, no honeycomb rock formations, no beach, no empty street without a person
+
+━━━━━━━━━━ 5 / 25 ━━━━━━━━━━
+存成：p-gaomei-guide.png
+四十出頭的台灣女導覽在高美濕地木棧道欄杆邊放下望遠鏡指向潮間帶，夕陽映在淺水上。
+
+Documentary editorial photograph of a wetland ecology guide, a Han Taiwanese woman in her early forties of medium build with tanned forearms, a low ponytail pulled through a wide visor cap, a pale lilac long-sleeve sun shirt, binoculars on a strap, mud on the hem. At the boardwalk rail she lowers the binoculars and points across the mudflat. The Gaomei wetland boardwalk over tidal flats, wind turbines on the skyline, sunset with orange sky mirrored in shallow water. Wide 16:9 frame, waist-up, subject right of centre, head in the upper-middle third, boardwalk planks lower-left, open sky upper-right. 50mm lens, f/2.8.
+
+Negative prompt:
+no text, no lettering, no logos, no watermarks, no likeness of any real living person, no children's faces, nothing sexualised, no plastic 3D-render look, no HDR clown colour, no stock-photo smile, no fashion retouching, no heroic low angle, no silhouette-only figure, no crowd of tourists, no purple-magenta sky, no empty sunset landscape without a person
+
+━━━━━━━━━━ 6 / 25 ━━━━━━━━━━
+存成：p-tamsui-car.png
+老梅石槽海堤步道，四十出頭男司機戴漁夫帽穿釣魚背心，伸手遞傘給下方遊客，退潮綠石槽與富貴角燈塔在後。
+
+Documentary editorial photograph, environmental portrait of a solid Han Taiwanese man in his early forties, a chartered-van driver, short hair under a navy bucket hat, navy fishing vest over a quick-dry tee, cargo shorts, thick forearms. He stands on the seawall path holding a folded umbrella out toward guests below the frame. Laomei green reef at low tide, algae-covered stone ridges running into the sea, Fugueijiao lighthouse small in the distance, late afternoon sun raking low across wet reef. Wide 16:9 frame, waist-up, subject right of centre, reef and wet sand in the lower-left, pale sky in the upper-right. 35mm lens, f/4, natural colour, salt haze.
+
+Negative prompt:
+text, letters, signage, watermarks, logos, legible vehicle badges, likeness of a real person, children's faces, sexualised content, plastic 3D render, CGI, HDR clown colour, stock-photo smile, fashion retouching, heroic low angle, empty coastline with no person, white sand, palm trees, turquoise tropical water, drone view
+
+━━━━━━━━━━ 7 / 25 ━━━━━━━━━━
+存成：p-kaohsiung-car.png
+西子灣海邊道路，六十多歲白眉男司機戴白便帽側坐在香檳金七人座駕駛座門口，膝上放著空白派車單，抬頭跟人說話，午後海面暖光。
+
+Documentary editorial photograph of a chartered-car driver, a Han Taiwanese man in his mid sixties, heavy-lidded and deeply tanned with thick white eyebrows and a short white crew cut under a soft white flat cap, a faded maroon short-sleeve shirt and dark trousers, a folded white cloth in the breast pocket. He sits sideways in the open driver's doorway of a champagne-gold seven-seat MPV, feet on the kerb, a blank paper job sheet resting on his knee and a pen in his hand, looking up mid-sentence at someone off frame. Seafront road at Sizihwan, container cranes of Kaohsiung harbour standing in the haze, late afternoon warm light off the strait. Wide 16:9 frame, waist-up, subject right of centre, head in the upper-middle third, kerb and sea in the lower-left, hazy sky in the upper-right. 50mm lens, f/2.8, soft film colour, real skin and sun lines.
+
+Negative prompt:
+no text, no letters, no signage, no writing on the paper, no watermarks, no logos, no legible vehicle badges or number plates, no likeness of any real living person, no children's faces, nothing sexualised, no plastic 3D render, no CGI, no HDR clown colour, no stock-photo smile, no fashion retouching, no wrinkle smoothing, no heroic low angle, no empty harbour view with no person, no night scene, no neon
+
+━━━━━━━━━━ 8 / 25 ━━━━━━━━━━
+存成：p-luodong-guide.png
+羅東夜市走道，二十多歲女導覽回頭把一碗小吃遞向團員，攤位燈光與蒸氣在夜色中。
+
+Documentary editorial photograph, environmental portrait of a small, slight Han Taiwanese woman in her late twenties, a night-market guide, high ponytail with a blunt fringe, black tee under an open denim shirt, small crossbody bag. She turns back toward her group, holding out a paper bowl of food. Aisle of Luodong night market, stall lights and steam rising, blurred unreadable signage and hanging bulbs, warm stall lighting on her face at night. Wide 16:9 frame, waist-up, subject right of centre, dark aisle floor in the lower-left, dim canopy in the upper-right. 35mm lens, f/1.8, slight motion blur in the crowd, warm grainy film colour.
+
+Negative prompt:
+text, letters, readable stall signs or menus, watermarks, logos, likeness of a real person, children's faces, sexualised content, plastic 3D render, CGI, HDR clown colour, stock-photo smile, fashion retouching, beauty filter, influencer posing, heroic low angle, empty market alley with no person, daylight, lanterns as decoration cliché
+
+━━━━━━━━━━ 9 / 25 ━━━━━━━━━━
+存成：p-chishang-car.png
+池上伯朗大道，近七十歲瘦削男司機把腳踏車立在身側捏煞車試手感、一邊跟客人說話，九人座白色小巴在肩後，平坦稻田被壓縮虛化，清晨低光。
+
+Documentary editorial photograph of a minibus driver, a small lean weathered Han Taiwanese man in his late sixties, sparse white hair under a mesh cap, deep facial creases, a long-sleeve plaid work shirt, cotton work trousers, plastic sandals. He stands holding a bicycle upright by the saddle and bars propped against his hip, one hand raised to test the brake lever, mid-sentence to a guest, his white nine-seat van close behind his shoulder. Mr Brown Avenue in Chishang, Taitung: a single farm lane running dead straight across the flat floor of the East Rift Valley, unbroken level green paddy on both sides thrown out of focus, no power poles and no wires anywhere in the sky, the low Coastal Mountain Range soft along the horizon. Early morning sun raking low across the rice. Wide 16:9 frame, waist-up and close, subject right of centre, head in the upper-middle third, handlebars and paddy edge in the lower-left, hazy mountain and sky in the upper-right. 85mm lens, f/2.8, landscape deliberately compressed and out of focus so the man reads as the subject, natural morning colour.
+
+Negative prompt:
+no text, no letters, no signage, no watermarks, no logos, no legible vehicle badges or number plates, no likeness of any real living person, no children's faces, nothing sexualised, no plastic 3D render, no CGI, no HDR clown colour, no stock-photo smile, no fashion retouching, no heroic low angle, no empty rice-field landscape with no person, no lone-tree postcard framing, no drone view, no golden autumn harvest colour, no terraced hillside paddies, no stepped rice fields, no power lines, no wires in the sky
+
+━━━━━━━━━━ 10 / 25 ━━━━━━━━━━
+存成：p-guangfu-car.png
+光復大農大富林道，三十出頭阿美族男司機從七人座後車廂搬出冰桶，午後樹影拉長在自行車道上。
+
+Documentary editorial photograph, environmental portrait of a tall, lean Amis Indigenous Taiwanese man in his early thirties, a chartered-van driver in ordinary 2020s work clothes, short fade, a small plain hoop earring, rust-orange t-shirt with sun sleeves, work gloves tucked into his belt. He lifts a cooler box out of the boot of a silver seven-seat van. Danongdafu forest park in Guangfu, an avenue of trees over the cycle path, flower beds beside it, late afternoon with long tree shadows across the tarmac. Wide 16:9 frame, waist-up, subject centred, path and shadow in the lower-left, tree canopy in the upper-right. 50mm lens, f/2.8, natural colour.
+
+Negative prompt:
+text, letters, signage, watermarks, logos, legible vehicle badges or number plates, likeness of a real person, children's faces, sexualised content, plastic 3D render, CGI, HDR clown colour, stock-photo smile, fashion retouching, heroic low angle, empty flower-field landscape with no person, ceremonial or tribal costume, feather headdress, tourism-poster styling
+
+━━━━━━━━━━ 11 / 25 ━━━━━━━━━━
+存成：p-yehliu-guide.png
+新北萬里野柳蜂窩岩平台，四十多歲男地質導覽站在紅色圍繩內，手掌懸空不碰岩石，在空中比出蕈狀岩頸部的風化線，清晨低光掃過岩面。
+
+Documentary editorial photograph, environmental portrait of a medium-broad Han Taiwanese man in his late forties, thick through the middle, a geology walking guide, short hair under a khaki wide-brim sun hat, greying sideburns, khaki field vest with many pockets, a hand lens on a cord. He stands behind the low rope line on the marked visitor path, one open palm held a hand's width clear of a mushroom rock without touching it, tracing the wind-cut neck in the air as he explains the erosion. Yehliu Geopark platform in Wanli, New Taipei: honeycomb-pitted sandstone underfoot, more mushroom rocks and the open sea behind, early morning sun raking low across the stone. Wide 16:9 frame, waist-up, subject right of centre, head in the upper-middle third, pitted rock floor in the lower-left, sea and sky in the upper-right. 35mm lens, f/4, natural colour.
+
+Negative prompt:
+text, letters, signage, watermarks, logos, likeness of a real person, children's faces, sexualised content, plastic 3D render, CGI, HDR clown colour, stock-photo smile, fashion retouching, heroic low angle, empty rock landscape with no person, Queen's Head postcard framing, tourist queues, drone view, sunset orange sky, hand touching the rock, desert hoodoo landscape
+
+━━━━━━━━━━ 12 / 25 ━━━━━━━━━━
+存成：p-luodong-car.png
+南方澳漁港碼頭，四十多歲短髮女司機拿著板夾站在九人座車側門邊清點乘客，背後是漁船與跨港大橋。
+
+Documentary editorial photograph, environmental portrait of a strong, square-shouldered Han Taiwanese woman in her mid forties, a chartered-van driver, short cropped hair with a silver streak tucked behind the ears, navy zip fleece gilet over a white polo, keys clipped at her belt. She stands at the open sliding door of a nine-seat van with a clipboard, counting guests aboard. Quay at Nanfang'ao fishing harbour, moored fishing boats and the arch of the harbour bridge behind, early morning cold clear light off the water. Wide 16:9 frame, three-quarter body, subject right of centre, quay edge in the lower-left, bridge span in the upper-right. 50mm lens, f/2.8, cool restrained film colour.
+
+Negative prompt:
+text, letters, signage, boat name boards, watermarks, logos, legible vehicle badges or number plates, likeness of a real person, children's faces, sexualised content, plastic 3D render, CGI, HDR clown colour, stock-photo smile, fashion retouching, heroic low angle, empty harbour landscape with no person, sunset colour, drone view
+
+━━━━━━━━━━ 13 / 25 ━━━━━━━━━━
+存成：p-hualien-guide.png
+太魯閣砂卡礑步道，四十出頭阿美族女導覽員盤髮、穿橄欖綠工作衫，扶著欄杆指認岩壁蕨類，清晨峽谷冷光與清澈溪水。
+
+Documentary editorial photograph, three-quarter body environmental portrait of an Amis Indigenous Taiwanese woman in her early forties, compact and strong with sun-darkened forearms, long black hair in a low working bun, faded olive field shirt, trail trousers, small daypack, no jewellery. One hand rests on the walkway rail, the other points at a fern growing out of the rock face as she explains it. Shakadang Trail in Taroko Gorge, Hualien: a narrow walkway blasted into grey-and-white banded marble, the clear blue-green Shakadang stream running over pale marble boulders below, early morning, cool gorge shade against the bright water. Wide 16:9 frame, subject right of centre, head in the upper-middle third, stream and rail in the lower-left, dark marble wall in the upper-right. 35mm lens, f/4, natural contrast, film-like colour.
+
+Negative prompt:
+no text, no letters, no logos, no watermarks, no likeness of any real living person, no children's faces, nothing sexualised, no plastic 3D-render look, no HDR clown colour, no stock-photo smile, no fashion retouching, no ceremonial or tribal costume, no feathered headdress, no facial tattoo, no studio lighting, no turquoise tropical lagoon colour, no empty gorge landscape without a person
+
+━━━━━━━━━━ 14 / 25 ━━━━━━━━━━
+存成：p-tamsui-guide.png
+淡水紅毛城砲台平臺，三十多歲長髮女導覽員捧著護貝老地圖解說，河口夕陽與觀音山在後。
+
+Documentary editorial photograph, waist-up environmental portrait of a Han Taiwanese woman in her mid-thirties, average build, long straight hair worn loose with sunglasses pushed up on her head, navy-and-white striped long-sleeve top, small shoulder bag. She holds a laminated old map at chest height, mid-sentence to a small group outside the frame. Setting is the red brick wall and cannon terrace of Fort San Domingo in Tamsui, the river mouth and Guanyin Mountain behind, golden hour with the sun low over the water. Wide 16:9 frame, subject slightly right of centre, terrace stonework in the lower-left, warm sky in the upper-right. 50mm lens, f/2.8, gentle backlight, film-like colour.
+
+Negative prompt:
+no text, no letters, no readable map labels, no logos, no watermarks, no likeness of any real living person, no children's faces, nothing sexualised, no plastic 3D-render look, no HDR clown colour, no stock-photo smile, no fashion retouching, no studio backdrop, no lens flare stars, no empty sunset landscape without a person
+
+━━━━━━━━━━ 15 / 25 ━━━━━━━━━━
+存成：p-kaohsiung-guide.png
+高雄鹽埕夜間老街，五十出頭短髮女導覽員穿珊瑚色polo衫，用手電筒照老磁磚牆面向團員解說，暖色店光。
+
+Documentary editorial photograph, waist-up environmental portrait of a sturdy Han Taiwanese woman in her early fifties, short practical hair dyed dark brown, reading glasses pushed up on her head, coral polo shirt, bum bag at the waist, a small torch on a wrist strap. She aims the torch beam at old tilework while her other hand gestures back to her group. A night lane in Yancheng, Kaohsiung, outside an old tiled shopfront, warm shop light spilling onto the pavement after dark, mixed street colour. Wide 16:9 frame, subject waist-up centred, dark road surface in the lower-left, shuttered upper storey in the upper-right. 35mm lens, f/2, available light, grain in the shadows.
+
+Negative prompt:
+no text, no letters, no shop signage lettering, no neon words, no logos, no watermarks, no likeness of any real living person, no children's faces, nothing sexualised, no plastic 3D-render look, no HDR clown colour, no stock-photo smile, no fashion retouching, no studio flash look, no cyberpunk colour grade, no empty night street without a person
+
+━━━━━━━━━━ 16 / 25 ━━━━━━━━━━
+存成：p-taitung-car.png
+鹿野高台草坡，五十出頭卑南族男司機背對縱谷、雙手把草帽戴回頭上，抬下巴跟客人說話，背景壓縮虛化，上午強光。
+
+Documentary editorial photograph of a chartered-van driver, a broad barrel-chested Puyuma Indigenous Taiwanese man in his early fifties, short grey-flecked hair, sun sleeves on both arms over a faded blue short-sleeve work shirt, a canvas belt. Standing with his back to the valley, both hands raised as he settles a wide straw sun hat back onto his head, chin lifted, mid-sentence to guests out of frame. The mown grass ridge of Luye Highland above the East Rift Valley, the valley floor dropping away soft and out of focus behind him, his plain silver seven-seat van only a blur at the frame edge, mid-morning with strong valley light. Wide 16:9 frame, waist-up and close, subject right of centre, head in the upper-middle third, grass slope in the lower-left, open sky in the upper-right. 85mm lens, f/2.8, compressed background, clean natural colour, slight film grain.
+
+Negative prompt:
+no text, no letters, no logos, no watermarks, no legible brand badges or emblems on the van, no number plate characters, no likeness of any real living person, no children's faces, nothing sexualised, no plastic 3D-render look, no HDR clown colour, no stock-photo smile, no fashion retouching, no ceremonial Indigenous costume, no feather headdress, no hot-air balloon festival crowd, no paragliders in sharp focus, no empty landscape without a person, no drone view
+
+━━━━━━━━━━ 17 / 25 ━━━━━━━━━━
+存成：p-chishang-guide.png
+台東池上大坡池旁田埂，五十多歲女導覽員包著靛藍頭巾，攤開手心的稻穀用拇指搓開穀粒講解，上午亮而均勻的陰天光。
+
+Documentary editorial photograph of a rural walking guide, a small sinewy Han Taiwanese woman in her mid fifties with strong cracked hands, greying hair under a plain indigo headscarf knotted under the chin, a grey long-sleeve work shirt buttoned at the wrist, mud dried on her knees. She holds a loose handful of unhusked rice grains in one open palm and rubs a grain apart with her thumb, head tilted down over her hands but her face still readable in three-quarter profile, mid-sentence. A paddy bund beside Dapo Pond at Chishang, Taitung, green rice running away behind her and the Coastal Range flat and hazy above it, late morning under bright even overcast. Wide 16:9 frame, waist-up, subject centred, head in the upper-middle third, bund grass in the lower-left, pale sky in the upper-right. 85mm lens, f/2.8, cool restrained colour, soft film grain.
+
+Negative prompt:
+no text, no letters, no logos, no watermarks, no likeness of any real living person, no children's faces, nothing sexualised, no plastic 3D-render look, no HDR clown colour, no stock-photo smile, no fashion retouching, no studio lighting, no conical bamboo hat cliché, no wide-brim sun hat, no binoculars, no lotus-pond postcard look, no empty misty landscape without a person, no terraced hillside paddies
+
+━━━━━━━━━━ 18 / 25 ━━━━━━━━━━
+存成：p-guangfu-guide.png
+花蓮光復馬太鞍濕地，三十多歲阿美族女導覽員穿墨綠青蛙裝站在水中，提起巴拉告的中空竹筒。
+
+Documentary editorial photograph, three-quarter body environmental portrait of an Amis Indigenous Taiwanese woman in her late thirties, medium sturdy build with a broad back, hair in a bun held by a plain cloth band, dark green rubber waders over a t-shirt with the sleeves pushed up. She stands knee-deep in the water, lifting a dripping bundle of hollow bamboo from a palakaw fish trap. Mataian Wetland in Guangfu, Hualien: a shallow channel, stacked hollow-bamboo traps, water lettuce on the surface, mid-morning under bright overcast. Wide 16:9 frame, subject right of centre, open water in the lower-left, reed bank in the upper-right. 35mm lens, f/4, flat soft light, natural colour.
+
+Negative prompt:
+no text, no letters, no logos, no watermarks, no likeness of any real living person, no children's faces, nothing sexualised, no plastic 3D-render look, no HDR clown colour, no stock-photo smile, no fashion retouching, no ceremonial Amis costume, no beaded headdress, no festival dance pose, no studio lighting, no empty wetland scenery without a person
+
+━━━━━━━━━━ 19 / 25 ━━━━━━━━━━
+存成：p-pingxi-guide.png
+平溪單軌鐵道旁，五十多歲戴帽男導覽員穿深藍鐵道式工作外套，沿著鐵軌指向列車來向，午後斜光。
+
+Documentary editorial photograph, three-quarter body environmental portrait of a medium-slim, upright Han Taiwanese man in his mid-fifties, greying short hair under a plain cap, trimmed moustache, dark blue railway-style work jacket with no insignia over a shirt. He stands beside the track and points along the rails to where the train will appear, mid-sentence. Pingxi, New Taipei: a single-track railway running between green hills, a level crossing beside weathered shophouses, late afternoon with warm light coming down the rails. Wide 16:9 frame, subject right of centre, ballast and rails in the lower-left, hillside in the upper-right. 50mm lens, f/4, warm film colour, soft grain.
+
+Negative prompt:
+no text, no letters, no station name boards, no logos, no watermarks, no railway company insignia, no likeness of any real living person, no children's faces, nothing sexualised, no plastic 3D-render look, no HDR clown colour, no stock-photo smile, no fashion retouching, no sky lanterns filling the sky, no crowds of tourists on the tracks, no empty railway scene without a person
+
+━━━━━━━━━━ 20 / 25 ━━━━━━━━━━
+存成：p-taichung-car.png
+清晨台中和平區谷關大甲溪畔停靠處，五十多歲壯碩司機把偏光眼鏡推到額頭，拿抹布擦前擋風玻璃，兩側森林稜線與河谷冷霧。
+
+Documentary editorial photograph of a chartered-van driver, a broad thickset Han Taiwanese man in his late fifties with a short neck, grey short back and sides, dark polarised glasses pushed up on his forehead so his eyes are clearly visible, a white uniform-style short-sleeve shirt with plain epaulettes and dark trousers. He wipes the windscreen of his black eight-seat van with a folded cloth at a roadside pull-in above the Dajia River at Guguan, Heping District, Taichung: steep dark forested ridges closing in on both sides, pale boulders in the riverbed, cold mist lying along the water, early morning before the sun clears the ridge. Wide 16:9 frame, three-quarter body, subject right of centre, head in the upper-middle third, empty tarmac and guardrail in the lower-left, blank white sky in the upper-right. 50mm lens, f/4, cool muted film colour.
+
+Negative prompt:
+no text, no lettering, no logos, no watermarks, no legible vehicle badges, no epaulette insignia, no likeness of any real person, no children's faces, nothing sexualised, no 3D render look, no plastic skin, no HDR clown colour, no stock photo smile, no fashion retouching, no perfect teeth, no heroic low angle, no studio backdrop, no empty river scenery without a person, no golden sunset light, no lake, no boats, no Sun Moon Lake, no eyes hidden behind dark lenses
+
+━━━━━━━━━━ 21 / 25 ━━━━━━━━━━
+存成：p-jiaoxi-car.png
+宜蘭太平山林道髮夾彎，四十多歲短鬚司機穿芥黃刷毛上衣，站在車頭前戴上白棉手套並拉緊袖口，抬頭看路，杉林起霧的清晨。
+
+Documentary editorial photograph of a chartered-van driver, an upright Han Taiwanese man in his mid forties of medium athletic build, close-cropped hair going grey at the front, a neat short beard, a mustard fleece pullover with the zip half down. He stands at the front bumper of his nine-seat van pulling on a pair of white cotton driving gloves, tugging the cuff of one tight, head lifted to look up the road. A hairpin bend on the Taipingshan forest road in Yilan, cypress trunks and drifting mist around him, wet tarmac underfoot, cool diffuse morning light. Wide 16:9 frame, waist-up, subject slightly right of centre, head in the upper-middle third, wet road in the lower-left, misted trees in the upper-right. 50mm lens, f/2.8, low-contrast film colour, honest skin.
+
+Negative prompt:
+no text, no lettering, no logos, no watermarks, no legible vehicle badges, no phone screen, no likeness of any real person, no children's faces, nothing sexualised, no 3D render look, no plastic skin, no HDR clown colour, no stock photo smile, no fashion retouching, no perfect teeth, no heroic low angle, no studio backdrop, no empty forest scenery without a person, no tropical palms, no bright hard sunshine
+
+━━━━━━━━━━ 22 / 25 ━━━━━━━━━━
+存成：p-taitung-guide.png
+台東鐵花村榕樹廣場黃昏，四十出頭的卑南族導覽員靠著矮牆講解，腳邊放吉他盒，燈籠暖光。
+
+Documentary editorial photograph of a Puyuma Indigenous Taiwanese guide, a wiry man in his early forties, hair tied in a short knot at the nape, stubble beard, wearing a charcoal henley and a plain woven wrist band, everyday 2020s field clothing. He leans on a low wall in the banyan courtyard of Tiehua Village in Taitung City, a guitar case at his feet, mid-sentence talking to guests, paper lanterns strung overhead at dusk, warm lantern light against a deep blue sky. Wide 16:9 frame, waist-up centred, dark ground lower-left, lantern bokeh upper-right. 50mm lens, f/1.8, grainy available-light film colour.
+
+Negative prompt:
+no text, no lettering, no legible posters, no logos, no watermarks, no likeness of any real person, no children's faces, nothing sexualised, no 3D render look, no plastic skin, no HDR clown colour, no stock photo smile, no fashion retouching, no perfect teeth, no heroic low angle, no studio backdrop, no empty venue without a person, no ceremonial dress, no feather headdress, no tribal costume, no stage performance shot
+
+━━━━━━━━━━ 23 / 25 ━━━━━━━━━━
+存成：p-chenggong-car.png
+台東長濱金剛大道，四十多歲阿美族司機一手撐在車頭側翼，被客人的話逗笑，背後筆直農路與太平洋被壓縮虛化，上午硬光。
+
+Documentary editorial photograph of an Amis Indigenous Taiwanese chartered-van driver, a stocky man in his mid forties with strong arms and a thick neck, short spiky hair with sun-bleached tips, sunglasses on, a navy short-sleeve shirt worn open over a plain tee, quick-dry shorts, sweat at the collar. He stands close to camera at his van's front wing, one hand braced on the wing, caught in an unposed laugh at something a guest said. Jingang Boulevard, the ridge farm road in Changbin, Taitung, the straight road and the Pacific horizon thrown well out of focus behind him. Mid-morning high hard sun. Wide 16:9 frame, waist-up and close, subject right of centre, head in the upper-middle third, road surface in the lower-left, sea and sky in the upper-right. 85mm lens, f/2.8, the landscape compressed and soft so the man clearly reads as the subject.
+
+Negative prompt:
+no text, no lettering, no logos, no watermarks, no legible vehicle badges, no likeness of any real person, no children's faces, nothing sexualised, no 3D render look, no plastic skin, no HDR clown colour, no stock photo smile, no fashion retouching, no perfect teeth, no heroic low angle, no studio backdrop, no empty road landscape without a person, no drone or aerial view, no ceremonial dress, no palm-lined tropical beach, no sharp postcard vista
+
+━━━━━━━━━━ 24 / 25 ━━━━━━━━━━
+存成：p-taroko-car.png
+花蓮太魯閣燕子口大理岩峽谷路邊，五十多歲太魯閣族接駁司機從箱子裡發白色安全帽給旅客，正午強光。
+
+Documentary editorial photograph of a Truku Indigenous Taiwanese shuttle driver, a tough man in his late fifties with slightly bowed shoulders, short grey hair and a weathered face, no glasses, wearing a beige work shirt with the sleeves rolled, a plain lanyard and canvas trousers. He hands out plain white safety helmets from a crate beside his nine-seat van on the Swallow Grotto road in Taroko Gorge, Hualien, pitted marble cliff walls and a tunnel mouth behind him, midday sun burning the cliff top while the gorge floor stays in deep shade. Wide 16:9 frame, waist-up right of centre, road and crate lower-left, lit cliff upper-right. 50mm lens.
+
+Negative prompt:
+no text, no lettering, no logos, no watermarks, no helmet branding, no legible vehicle badges, no likeness of any real person, no children's faces, nothing sexualised, no 3D render look, no plastic skin, no HDR clown colour, no stock photo smile, no fashion retouching, no perfect teeth, no heroic low angle, no studio backdrop, no empty gorge scenery without a person, no green jungle canyon, no waterfall centrepiece, no ceremonial dress
+
+━━━━━━━━━━ 25 / 25 ━━━━━━━━━━
+存成：p-qingshui-car.png
+台中梧棲漁港碼頭，三十多歲司機提著保麗龍魚箱走向停在後方的七人座，午後濕地面反光。
+
+Documentary editorial photograph of a Taiwanese chartered-van driver, a compact man in his mid thirties with strong shoulders, short damp hair, no hat and no glasses, a charcoal polo with a hand towel tucked at the collar, rubber boots. He carries a polystyrene fish box toward his silver seven-seat van parked beyond, walking the quay at Wuqi fishing harbour in Taichung, moored boats and stacked ice trays around him, early afternoon glare bouncing off wet concrete. Wide 16:9 frame, waist-up centred, wet quay in the lower-left, masts and sky upper-right. 35mm lens, f/2.8, honest film colour, sweat and sun on the skin.
+
+Negative prompt:
+no text, no lettering, no boat name lettering, no logos, no watermarks, no legible vehicle badges, no likeness of any real person, no children's faces, nothing sexualised, no 3D render look, no plastic skin, no HDR clown colour, no stock photo smile, no fashion retouching, no perfect teeth, no heroic low angle, no studio backdrop, no empty harbour scenery without a person, no sunset colour, no gory fish close-up, no market crowd
+
