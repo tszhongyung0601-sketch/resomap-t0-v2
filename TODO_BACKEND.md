@@ -22,6 +22,12 @@ V2 是純前端原型。這份清單是「要變成真的產品，後端必須�
 - 前端影響：`data/index.ts` 的同步 lookup（`poi(id)`、`merchant(id)`）要改成 async 或加一層 cache。
   這是 V2 最大的一次改動，但範圍限縮在 `data/` 與呼叫它的 `lib/`。
 
+### 2b. Image / Media Storage
+- 現況：商家與服務者的照片是 `public/demo/` 的固定檔案，或借用 T0 的 CC 授權景點照。
+- 需要：商家與服務者自行上傳、裁切成 card / hero 兩種尺寸、CDN、內容審核（人臉、版權）、
+  以及**每張圖的授權與來源欄位**（借用他人照片必須存得下出處）。
+- 前端影響：`lib/photo.ts` 的 `shotFor()` 換資料來源；`RecordPhoto` 與 `RecordPhotoCredit` 不動。
+
 ### 3. Audio Storage + Transcoding
 - 現況：**完全沒有音檔。** 所有「語音」都是瀏覽器 TTS 即時合成文字稿。
 - 需要：物件儲存（S3 / R2）、轉檔成統一格式與位元率、CDN、串流播放、時長驗證（30 秒 – 5 分鐘）。
@@ -120,3 +126,4 @@ V2 是純前端原型。這份清單是「要變成真的產品，後端必須�
 | 播放器 | `lib/speech.ts` `VoicePlayer` 介面 | 換成真的 `<audio>` 實作，播放器 UI 不動 |
 | 店家精選上限 | `lib/audio.ts` `FEATURED_CAP` | 業務要調整，改一個常數，且擋在程式裡不是靠資料乖 |
 | 事件 | `src/types.ts` `EventName` | union 已定義，`track()` 加一個 API 送出 |
+| 圖片 | `lib/photo.ts` `shotFor()` + `Shot` | 兩種尺寸與授權欄位已經是介面的一部分 |

@@ -48,8 +48,9 @@ npm run lint     # oxlint
 2. 景點頁 →「語音導覽」區塊：最上面兩則是 **★ 店家精選**（付費商家買的位置）
 3. 「全部 7 則」→ 語音清單：中文 / English / 日本語 / 한국어 / ไทย，可搜尋
 4. 播任一則 → 播放器：進度、±10 秒、讚 / 不推 / 留言 / 分享
-5. **播完 → 出現「探索附近」** → 周邊推薦
-6. 周邊推薦 → 切 5km / 10km，數字會真的變（11 筆 → 19 筆）
+5. **播完 → 「接下來想做什麼？」** 五個選項（看附近美食 / 找伴手禮 / 找包車 /
+   找私人導遊 / 找 Local tour），各自帶 5km 內的筆數，點下去直接進那份清單
+6. 或按「全部周邊推薦」→ 五個問題的圖片型分類頁 → 切 5km / 10km，數字會真的變（11 → 19）
 7. 包車司機 → 三位：兩位掛 **ResoMap 推薦夥伴**，一位掛 **審核中**
    （付費 ✚ 通過審核才有標章，付費本身不夠）
 8. 右上「排序方式」→ 攤開排序權重：距離 40%、評價 25%、付費曝光 15%、審核 10%、相關度 10%
@@ -107,7 +108,7 @@ src/
     affiliateOffers.ts  Booking / Agoda / Trip.com / Klook / KKday 的商品，affiliateUrl 全空
     reviews.ts          評價樣本
     subscriptionPlans.ts 四種方案，價格全為 null
-    nearbyCategories.ts  周邊推薦的七個入口，分站內 / 聯盟兩組
+    nearbyCategories.ts  周邊推薦的五個問題與七張分類卡
   lib/
     ── T0 ──
     adapt.ts / geo.ts / speech.ts / track.ts / saved.ts / maps.ts / trip.ts / story.ts …
@@ -117,21 +118,47 @@ src/
     contact.ts     有 URL 就真的開，沒有就回 false 讓畫面說明
     reactions.ts   讚 / 不推 / 留言（localStorage）
     account.ts     訂閱方案與專業身份（localStorage，身份互斥由結構保證）
+    photo.ts       商家 / 服務者 / 分類卡的照片：T0 真照片（附授權）優先，Demo 圖次之
   components/
     ── T0 ──
     AppShell / ui.tsx / MapView / Cover / DealCard / AdaptCard / Story / BrandBar
     ── V2 ──
     Trade.tsx        推薦夥伴章、星等、聯絡 Sheet、Demo 連結 Sheet
-    NearbyCards.tsx  商家卡、服務者卡、聯盟卡
+    NearbyCards.tsx  商家卡、服務者卡、聯盟卡（大圖在上，資訊做減法）
     AudioRow.tsx     語音列（完整版與精簡版）
+  scripts/
+    build-demo-photos.mjs  來源圖 → webp card 720 / hero 1280（18 MB → 1.1 MB）
   screens/          T0 的 15 個 ＋ V2 的 9 個
 ```
 
 ---
 
+## 圖片
+
+優先順序照著「T0 既有 → HTTP Demo 實拍 → 生成海報圖」：
+
+- **景點**：T0 既有的 53 張 CC 授權真照片，附出處。
+- **商家（旅館與部分餐廳）**：借用該店所在街道的那一張 T0 真照片，詳情頁顯示
+  「周邊實景照片：作者 / 授權」——CC 授權要求出處，這是條款不是裝飾。
+- **土產店、部分餐廳、司機、導遊、分類卡**：HTTP Demo 的實拍素材，
+  經 `scripts/build-demo-photos.mjs` 轉成 webp 兩尺寸。人像是生成影像，畫面上標示示意。
+- **都沒有的時候**：T0 的 `Generated` 硬邊海報圖。不是 emoji placeholder，是設計過的圖，
+  而且它永遠墊在照片底下，所以載入失敗會降級成海報而不是破圖。
+
+全部 `loading="lazy"`。
+
+## Performance
+
+| | 前 | 後 |
+|---|---|---|
+| 初始 JS | 單一 chunk 916 kB | entry 250 kB + react 174 kB + leaflet 159 kB |
+| 其餘畫面 | 全部打包在一起 | 40 個按需 chunk，點到才載 |
+| 圖片 | — | webp、兩種尺寸、全部 lazy |
+| runtime 相依 | leaflet / react-leaflet | **沒有新增任何一個** |
+
 ## V2 的硬規則
 
-在 T0 那八條之外，這一版又多了五條：
+在 T0 那八條之外，這一版又多了六條：
 
 - **「ResoMap 推薦夥伴」不能用買的。**
   `isVerifiedPartner = isPaid && reviewStatus === "approved"`，是推導不是欄位。
@@ -143,6 +170,9 @@ src/
 - **按鈕的行為來自資料，不是來自按鈕。**
   `contact.lineUrl` 有值就真的開 LINE；沒有值就出 Sheet 說明會發生什麼事。
   所以簽下一個 LINE 官方帳號之後，是改資料，不是改程式。
+- **商業模式不寫在使用者臉上。**
+  周邊推薦的標題是「吃什麼？」「今晚住哪？」，不是「ResoMap 付費服務」。
+  來源是每張卡底部一行 11px 灰字，完整說明放頁尾。看得到，但不是他來的目的。
 - **沒有決定的價格就不要寫。**
   `subscriptionPlans.ts` 的 `priceTwd` 全部是 `null`，畫面顯示「價格待確認」。
   寫一個看起來合理的 NT$ 990 進去，它就會變成會議上被引用的數字。
@@ -154,7 +184,7 @@ src/
 - 全部假資料。POI 與商家座標為真，價格為市場行情估值。
 - **ResoMap 目前與 Klook、KKday、Booking.com、Agoda、Trip.com 皆無合作關係。**
   `affiliateOffers.ts` 裡每一筆的 `affiliateUrl` 都是空字串，這是誠實的狀態，不是待辦。
-- 商家、司機、導遊全部是虛構的。名字是編的，座標是真的街道。
+- 商家、司機、導遊全部是虛構的。名字是編的，座標是真的街道，人像是生成影像。
 - 聯絡方式只放 LINE / WhatsApp 的通用入口（不指向任何帳號）。電話與預約一律留空 —
   假資料裡放一個看起來合理的手機號碼，響的是別人的電話。
 - 沒有帳號、沒有付款、沒有後端。訂閱、身份、讚、留言、上傳記錄都只存在瀏覽器 localStorage。

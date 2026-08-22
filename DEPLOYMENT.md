@@ -58,6 +58,15 @@ Pages 服務在 `/resomap-t0-v2/`，不是 `/`。三個地方必須一致：
 
 ---
 
+## Bundle
+
+`vite.config.ts` 用 `manualChunks` 把 React 與 Leaflet 切出去，`App.tsx` 用 `lazy()`
+把非首屏的畫面切成按需 chunk。**Rolldown 的 `manualChunks` 只吃函式，不吃物件**——
+寫成物件會在 `tsc -b` 就被擋下來，那是刻意的。
+
+`scripts/build-demo-photos.mjs` 產生 `public/demo/*.webp`，**輸出有進版控**，
+所以正式 build 不需要 sharp，CI 也不用裝原生相依。只有新增來源圖時才要重跑。
+
 ## SPA 路由
 
 這個 App **沒有 URL router**：route stack 活在 `App.tsx` 的 `useState` 裡，
