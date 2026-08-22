@@ -1,6 +1,15 @@
 import { useEffect, useMemo, useState } from "react";
-import { MapContainer, Marker, Polyline, TileLayer, useMap, useMapEvents } from "react-leaflet";
+import {
+  Circle,
+  MapContainer,
+  Marker,
+  Polyline,
+  TileLayer,
+  useMap,
+  useMapEvents,
+} from "react-leaflet";
 import { divIcon, type LatLngBoundsExpression } from "leaflet";
+import type { ReactNode } from "react";
 import { bounds, cluster } from "../lib/geo";
 import type { Poi } from "../types";
 
@@ -31,6 +40,65 @@ export interface MapPin {
    * home screen. Undefined keeps the original white pin every other map uses.
    */
   tone?: "story" | "plain";
+  /**
+   * The map home's pin: a filled orange disc with a white headphone in it.
+   *
+   * Distinct from `tone: "story"` on purpose. That one is a two-colour code with
+   * a legend beside it, answering 「哪裡有得聽」 across a whole island. This is a
+   * single kind of pin on a map where everything has a guide, so it does not
+   * need a key — it needs to be recognisable at a glance from two metres away,
+   * which is what the icon inside it is for.
+   */
+  audio?: boolean;
+  /**
+   * Somewhere OpenStreetMap knows about that ResoMap has nothing to say about.
+   *
+   * Drawn as a small grey dot rather than a pin, and deliberately quieter than
+   * everything else on the map: it is context, not a destination. The 32px box
+   * around the 13px dot is the touch target — the dot stays small, the tap
+   * stays reachable.
+   */
+  context?: boolean;
+  /** Drawn larger, with a ring. One at a time. */
+  selected?: boolean;
+}
+
+/**
+ * The headphone, as SVG rather than the 🎧 emoji.
+ *
+ * An emoji is a different glyph on every platform, cannot be recoloured, and at
+ * 18px inside a filled disc renders as a dark smudge on half of them. This is
+ * the same shape `Headphones` in ui.tsx draws, written out inline because
+ * Leaflet's `divIcon` takes an HTML string and not a React element.
+ */
+const HEADPHONE_SVG = `<svg width="19" height="19" viewBox="0 0 24 24" fill="none"
+  stroke="#fff" stroke-width="2.2" aria-hidden="true">
+  <path d="M4 14v-2a8 8 0 0116 0v2" stroke-linecap="round"/>
+  <rect x="2.4" y="13.4" width="4.6" height="7.2" rx="2.3" fill="#fff" stroke="none"/>
+  <rect x="17" y="13.4" width="4.6" height="7.2" rx="2.3" fill="#fff" stroke="none"/>
+</svg>`;
+
+/**
+ * "There is something to listen to here", at a glance.
+ *
+ * 40px normally and 48px when selected — big enough to read the icon inside,
+ * small enough that seven of them on a phone screen are still a map rather than
+ * a wall of badges. The selected one also gets a soft ring, which is cheaper to
+ * read than a colour change and survives being next to an unselected twin.
+ */
+function audioIcon(selected: boolean) {
+  const size = selected ? 48 : 40;
+  const ring = selected
+    ? "box-shadow:0 0 0 5px rgba(255,98,16,.22),0 4px 12px rgba(0,0,0,.3);"
+    : "box-shadow:0 2px 8px rgba(0,0,0,.28);";
+  return divIcon({
+    className: "",
+    html: `<div style="width:${size}px;height:${size}px;border-radius:99px;
+      background:#ff6210;border:2.5px solid #fff;display:grid;place-items:center;
+      ${ring}transition:width .15s,height .15s">${HEADPHONE_SVG}</div>`,
+    iconSize: [size, size],
+    iconAnchor: [size / 2, size / 2],
+  });
 }
 
 function pinIcon(pins: MapPin[], activeId: string | null) {
@@ -50,6 +118,23 @@ function pinIcon(pins: MapPin[], activeId: string | null) {
 
   const p = pins[0];
   const on = p.poi.id === activeId;
+
+  /* Checked before every other style: on the map home this is the only pin
+     language there is, and it must not be overridden by `order` or `tone`. */
+  if (p.audio) return audioIcon(Boolean(p.selected) || on);
+
+  if (p.context) {
+    const d = p.poi.id === activeId ? 17 : 13;
+    return divIcon({
+      className: "",
+      html: `<div style="width:32px;height:32px;display:grid;place-items:center">
+        <div style="width:${d}px;height:${d}px;border-radius:99px;background:#8d96a8;
+          border:2px solid rgba(255,255,255,.92);
+          box-shadow:0 1px 4px rgba(0,0,0,.25)"></div></div>`,
+      iconSize: [32, 32],
+      iconAnchor: [16, 16],
+    });
+  }
 
   if (p.order != null) {
     return divIcon({
@@ -100,6 +185,76 @@ function pinIcon(pins: MapPin[], activeId: string | null) {
     iconSize: [34, 34],
     iconAnchor: [17, 17],
   });
+}
+
+/**
+ * "You are here", drawn the way every map app has taught people to read it.
+ *
+ * A blue disc with a white collar, sitting inside a translucent blue circle that
+ * is the accuracy of the fix. The vocabulary is borrowed because it is already
+ * universal; the pixels are this app's own, and nothing is copied from anybody's
+ * asset library.
+ *
+ * Deliberately smaller than an attraction pin — 16px against 40px. On a map
+ * where the orange discs are the things you can go and do, a dot that competes
+ * with them for attention is a dot in the way. It is drawn last so it stays
+ * above the tiles and above the ordinary pins, which is what `pane` and the
+ * render order below are for.
+ */
+const MEd = 18;
+
+function meIcon() {
+  return divIcon({
+    className: "",
+    html: `<div style="width:${MEd}px;height:${MEd}px;border-radius:99px;
+      background:#2F6FED;border:3px solid #fff;
+      box-shadow:0 1px 4px rgba(0,0,0,.35)"></div>`,
+    iconSize: [MEd, MEd],
+    iconAnchor: [MEd / 2, MEd / 2],
+  });
+}
+
+/**
+ * Where the traveller is, and how sure the browser is about it.
+ *
+ * `accuracy` is metres and comes from `coords.accuracy` for a real fix. For the
+ * demo position it is a fixed, modest figure — the circle is a visual hint, and
+ * no number is ever printed, because a precision claim over a hard-coded
+ * coordinate would be the one lie on the screen.
+ */
+export function MeMarker({
+  at,
+  accuracy,
+}: {
+  at: [number, number];
+  accuracy: number;
+}) {
+  return (
+    <>
+      <Circle
+        center={at}
+        radius={accuracy}
+        interactive={false}
+        pathOptions={{
+          color: "#2F6FED",
+          weight: 1,
+          opacity: 0.35,
+          fillColor: "#2F6FED",
+          fillOpacity: 0.12,
+        }}
+      />
+      <Marker
+        position={at}
+        icon={meIcon()}
+        interactive={false}
+        /* Above every attraction pin. Leaflet stacks markers by latitude by
+           default, so a pin north of the traveller would otherwise sit on top
+           of the dot that is supposed to be them. */
+        zIndexOffset={1000}
+        alt="目前位置"
+      />
+    </>
+  );
 }
 
 /**
@@ -167,6 +322,23 @@ function Fit({ to, focus }: { to: LatLngBoundsExpression | null; focus: Focus | 
   return null;
 }
 
+/**
+ * Move the map because something outside it asked.
+ *
+ * Keyed on `token` rather than on the coordinate: pressing 定位 twice from two
+ * different corners of the map has to work both times, and two identical
+ * coordinates would otherwise look like "nothing changed" to the effect.
+ */
+function FlyTo({ to }: { to?: { at: [number, number]; zoom?: number; token: number } | null }) {
+  const map = useMap();
+  useEffect(() => {
+    if (!to) return;
+    map.flyTo(to.at, to.zoom ?? map.getZoom(), { duration: 0.8 });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [to?.token]);
+  return null;
+}
+
 export function MapView({
   pins,
   centre,
@@ -176,7 +348,9 @@ export function MapView({
   spread,
   activeId,
   showMe,
+  flyTo,
   onPick,
+  children,
 }: {
   pins: MapPin[];
   centre: [number, number];
@@ -199,7 +373,18 @@ export function MapView({
   activeId?: string | null;
   /** A stand-in "you are here" dot. Mock: nothing asks for real geolocation. */
   showMe?: [number, number];
+  /**
+   * Somewhere the map should move to, and when.
+   *
+   * `at` alone is not enough to drive a pan: the same coordinate handed in twice
+   * has to move the map twice, because the traveller may have dragged away in
+   * between and pressed the locate button again. The `token` changes on every
+   * request, which is what makes the effect fire.
+   */
+  flyTo?: { at: [number, number]; zoom?: number; token: number } | null;
   onPick?: (poi: Poi) => void;
+  /** Layers rendered inside the map container — the "you are here" dot. */
+  children?: ReactNode;
 }) {
   const [z, setZ] = useState(zoom);
   const [focus, setFocus] = useState<Focus | null>(null);
@@ -242,6 +427,7 @@ export function MapView({
       <TileLayer url="https://tile.openstreetmap.org/{z}/{x}/{y}.png" maxZoom={18} />
       <Watch onZoom={setZ} />
       <Fit to={box} focus={focus} />
+      <FlyTo to={flyTo} />
 
       {line.length > 1 && (
         <Polyline
@@ -249,6 +435,8 @@ export function MapView({
           pathOptions={{ color: "#ff6210", weight: 3.5, opacity: 0.75, dashArray: "1 7", lineCap: "round" }}
         />
       )}
+
+      {children}
 
       {showMe && (
         <Marker
@@ -269,6 +457,17 @@ export function MapView({
           key={g.items[0].poi.id + i}
           position={[g.lat, g.lng]}
           icon={pinIcon(g.items, activeId ?? null)}
+          /* Selected above the blue dot, the blue dot (1000) above an ordinary
+             pin, an ordinary pin above a grey context dot. Two attractions 250 m
+             apart overlap at neighbourhood zoom, and the one the traveller just
+             tapped is the one that must come forward. */
+          zIndexOffset={
+            g.items.some((p) => p.selected || p.poi.id === activeId)
+              ? 1200
+              : g.items.some((p) => p.context)
+                ? 0
+                : 400
+          }
           eventHandlers={{
             click: () => {
               if (g.items.length === 1) {
