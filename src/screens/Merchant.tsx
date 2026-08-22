@@ -2,11 +2,18 @@ import { useMemo, useState } from "react";
 import { poi } from "../data";
 import { merchant as merchantOf } from "../data/merchants";
 import { BY_DEST } from "../data/destinations";
-import { PARTNER_RULE } from "../data/subscriptionPlans";
 import { RecordPhoto, RecordPhotoCredit } from "../components/Cover";
 import { MapCredit, MapView } from "../components/MapView";
 import { AudioRowMini } from "../components/AudioRow";
-import { ContactSheet, PartnerBadge, PendingBadge, Stars } from "../components/Trade";
+import {
+  ContactSheet,
+  InfoButton,
+  InfoSheet,
+  PartnerBadge,
+  PendingBadge,
+  Stars,
+} from "../components/Trade";
+import { SHORT_DISCLOSURE, type InfoTopic } from "../data/info";
 import { Button, Note, Screen, Section, Tag } from "../components/ui";
 import { ALL_AUDIO } from "../lib/audio";
 import { isVerifiedPartner } from "../lib/nearby";
@@ -40,6 +47,7 @@ const SCENE: Record<string, PoiKind> = {
 export function Merchant({ id }: { id: string }) {
   const nav = useNav();
   const [contact, setContact] = useState(false);
+  const [info, setInfo] = useState<InfoTopic | null>(null);
   const m = merchantOf(id);
 
   const featured = useMemo(
@@ -115,12 +123,15 @@ export function Merchant({ id }: { id: string }) {
           />
         </div>
 
-        {/* 推薦夥伴 already means paid and reviewed, and 會員狀態 below spells
-            it out in words. 贊助 is for the case the mark cannot cover: paid,
-            not yet approved, and still ranked with the paid weight. */}
+        {/* The mark, and an ⓘ beside it. What earns it is two sentences one
+            tap away — it used to be a full paragraph at the foot of the page,
+            printed for every reader whether or not they wondered. */}
         <div className="mt-2 flex flex-wrap items-center gap-1.5">
           {verified ? (
-            <PartnerBadge />
+            <>
+              <PartnerBadge />
+              <InfoButton topic="partner" onOpen={setInfo} />
+            </>
           ) : (
             <>
               {m.reviewStatus === "pending" && <PendingBadge />}
@@ -138,7 +149,7 @@ export function Merchant({ id }: { id: string }) {
               {m.promo}
             </div>
             <p className="mt-1 text-[12px] leading-relaxed text-ink-3">
-              優惠內容由商家自行提供與維護，Demo 版本不驗證。
+              優惠由商家自行提供與維護。
             </p>
           </div>
         )}
@@ -174,8 +185,7 @@ export function Merchant({ id }: { id: string }) {
       {featured.length > 0 && (
         <Section title="店家語音" tight>
           <p className="px-5 pb-2.5 text-[12.5px] leading-relaxed text-ink-3">
-            這些是商家自己錄的內容，會置頂在「{featured[0] ? poiName(featured[0].poiId) : ""}
-            」的語音清單最上面，每個景點最多兩則。
+            置頂在「{featured[0] ? poiName(featured[0].poiId) : ""}」的語音清單。
           </p>
           <div className="space-y-2 px-5">
             {featured.map((a) => (
@@ -215,10 +225,7 @@ export function Merchant({ id }: { id: string }) {
         </div>
       </Section>
 
-      <Note>
-        {PARTNER_RULE} 店家資訊、優惠與評價皆為 Demo 資料，由商家自行提供，ResoMap
-        與本店無實際合作關係。
-      </Note>
+      <Note>{SHORT_DISCLOSURE.resomap}</Note>
       <div className="h-24 shrink-0" />
 
       <ContactSheet
@@ -227,6 +234,7 @@ export function Merchant({ id }: { id: string }) {
         open={contact}
         onClose={() => setContact(false)}
       />
+      <InfoSheet topic={info} onClose={() => setInfo(null)} />
     </Screen>
   );
 }

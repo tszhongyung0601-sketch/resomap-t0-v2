@@ -28,6 +28,8 @@ export type NearbySource = "resomap" | "partner";
 
 export interface NearbyCard {
   cat: NearbyCat;
+  /** Which two sentences the ⓘ on this card opens. */
+  info: "partner" | "affiliate";
   /** The card's own line — what you get, not what it is called internally. */
   title: string;
   sub: string;
@@ -57,9 +59,10 @@ export const NEARBY_SECTIONS: NearbySection[] = [
       {
         cat: "restaurant",
         title: "附近推薦餐廳",
-        sub: "在地小吃與餐館，走得到的距離",
+        sub: "在地小吃與餐館",
         source: "resomap",
         label: "ResoMap 精選",
+        info: "partner",
         emoji: "🍜",
         photo: "jingmei-snack",
       },
@@ -75,6 +78,7 @@ export const NEARBY_SECTIONS: NearbySection[] = [
         sub: "老舖、名產與可以只買一小包的店",
         source: "resomap",
         label: "ResoMap 精選",
+        info: "partner",
         emoji: "🛍️",
         photo: "souvenir-shop-1",
       },
@@ -90,6 +94,7 @@ export const NEARBY_SECTIONS: NearbySection[] = [
         sub: "深度導覽、客製路線",
         source: "resomap",
         label: "ResoMap 精選",
+        info: "partner",
         emoji: "🧭",
         photo: "guide-1",
         half: true,
@@ -100,6 +105,7 @@ export const NEARBY_SECTIONS: NearbySection[] = [
         sub: "機場接送、包車旅遊",
         source: "resomap",
         label: "ResoMap 精選",
+        info: "partner",
         emoji: "🚐",
         photo: "driver-1",
         half: true,
@@ -116,6 +122,7 @@ export const NEARBY_SECTIONS: NearbySection[] = [
         sub: "一日遊、體驗行程，由合作平台出團",
         source: "partner",
         label: "聯盟合作 · Klook / KKday",
+        info: "affiliate",
         emoji: "🎫",
         photoFromPoi: "jiufen",
       },
@@ -131,6 +138,7 @@ export const NEARBY_SECTIONS: NearbySection[] = [
         sub: "ResoMap 商家的住宿",
         source: "resomap",
         label: "ResoMap 精選",
+        info: "partner",
         emoji: "🛏️",
         photoFromPoi: "jiaoxi",
         half: true,
@@ -141,6 +149,7 @@ export const NEARBY_SECTIONS: NearbySection[] = [
         sub: "更多房型與即時房況",
         source: "partner",
         label: "聯盟合作 · Booking / Agoda",
+        info: "affiliate",
         emoji: "🏨",
         photoFromPoi: "beitou",
         half: true,
@@ -163,10 +172,11 @@ export const RANGES = [5000, 10000] as const;
 export type Range = (typeof RANGES)[number];
 
 /**
- * The line at the foot of 周邊推薦, and the only place the model is spelled out.
+ * The line at the foot of 周邊推薦.
  *
- * It is a footnote rather than a heading on purpose. Everything in it is true
- * and a traveller can read it; none of it is what they came for.
+ * One sentence. It used to be four, spelling out review, paid weighting and
+ * every platform ResoMap has no agreement with — all true, none of it what
+ * somebody deciding where to eat came for. The detail moved behind the ⓘ on
+ * each card and into 我的 → 關於這個 Demo.
  */
-export const NEARBY_DISCLOSURE =
-  "ResoMap 精選為站內商家與專業會員，需通過審核才會上架，付費訂閱者在排序上有加權且卡片上一律標示。聯盟合作內容由 Booking、Agoda、Klook、KKday 等平台提供，ResoMap 目前與各平台皆無合作關係。分類示意圖與商家照片為 Demo 素材。";
+export const NEARBY_DISCLOSURE_SHORT = "商家與服務者資料由提供者自行填寫，皆為示意資料。";

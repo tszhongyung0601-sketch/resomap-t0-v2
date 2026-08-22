@@ -1,9 +1,15 @@
 import { useMemo, useState } from "react";
 import { provider as providerOf } from "../data/providers";
 import { BY_DEST } from "../data/destinations";
-import { PARTNER_RULE } from "../data/subscriptionPlans";
 import { reviewsFor } from "../data/reviews";
-import { ContactSheet, PartnerBadge, PendingBadge } from "../components/Trade";
+import {
+  ContactSheet,
+  InfoButton,
+  InfoSheet,
+  PartnerBadge,
+  PendingBadge,
+} from "../components/Trade";
+import { SHORT_DISCLOSURE, type InfoTopic } from "../data/info";
 import { Avatar, Button, Note, Screen, Section, Tag } from "../components/ui";
 import { RecordPhoto, RecordPhotoCredit } from "../components/Cover";
 import { isVerifiedPartner } from "../lib/nearby";
@@ -27,6 +33,7 @@ import { PROVIDER_KIND_LABELS } from "../types";
 export function Provider({ id }: { id: string }) {
   const nav = useNav();
   const [contact, setContact] = useState(false);
+  const [info, setInfo] = useState<InfoTopic | null>(null);
   const p = providerOf(id);
   const reviews = useMemo(() => reviewsFor(id), [id]);
 
@@ -72,10 +79,14 @@ export function Provider({ id }: { id: string }) {
         <div className="min-w-0 flex-1">
           <h1 className="truncate text-[21px] font-bold text-ink">{p.name}</h1>
           {p.org && <div className="mt-0.5 truncate text-[13px] text-ink-3">{p.org}</div>}
-          {/* One mark. See NearbyCards.tsx — 推薦夥伴 subsumes 贊助. */}
+          {/* One mark, with its explanation one tap away rather than printed
+              in full at the foot of every page. */}
           <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
             {verified ? (
-              <PartnerBadge />
+              <>
+                <PartnerBadge />
+                <InfoButton topic="partner" onOpen={setInfo} />
+              </>
             ) : (
               <>
                 {p.reviewStatus === "pending" && <PendingBadge />}
@@ -198,9 +209,7 @@ export function Provider({ id }: { id: string }) {
         </div>
       </Section>
 
-      <Note>
-        {PARTNER_RULE} 個人資料、價格與評價皆為 Demo 資料，由服務提供者自行填寫。
-      </Note>
+      <Note>{SHORT_DISCLOSURE.resomap}</Note>
       <div className="h-4 shrink-0" />
 
       <div className="sticky bottom-0 z-20 mt-auto shrink-0 border-t border-line bg-bg/95 px-5 pb-5 pt-3 backdrop-blur">
@@ -213,6 +222,7 @@ export function Provider({ id }: { id: string }) {
         open={contact}
         onClose={() => setContact(false)}
       />
+      <InfoSheet topic={info} onClose={() => setInfo(null)} />
     </Screen>
   );
 }

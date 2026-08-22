@@ -4,8 +4,9 @@ import { BY_DEST } from "../data/destinations";
 import { PoiImage } from "../components/Cover";
 import { AudioRow } from "../components/AudioRow";
 import { Empty, Headphones, Note, Screen, Tag, TopBar } from "../components/ui";
+import { InfoButton, InfoSheet } from "../components/Trade";
+import type { InfoTopic } from "../data/info";
 import {
-  FEATURED_CAP,
   audiosFor,
   featuredAudiosFor,
   languagesFor,
@@ -36,6 +37,7 @@ import { POI_KIND_LABELS } from "../types";
 export function Audios({ poiId }: { poiId: string }) {
   const nav = useNav();
   const [q, setQ] = useState("");
+  const [info, setInfo] = useState<InfoTopic | null>(null);
   const p = poi(poiId);
 
   const featured = useMemo(() => featuredAudiosFor(poiId), [poiId]);
@@ -137,15 +139,14 @@ export function Audios({ poiId }: { poiId: string }) {
         <>
           {shownFeatured.length > 0 && (
             <section className="mt-6">
-              {/* One quiet line, not a paragraph about the business model. The
-                  mark on each row already says 店家精選, and the full rule —
-                  who may buy this, how many, and that position is what was
-                  bought — sits with the other disclosures at the foot of the
-                  page, which is where a disclosure belongs. */}
-              <div className="mb-2.5 flex items-baseline gap-2 px-5">
+              {/* A heading and an ⓘ. The rule behind it — who may buy this
+                  slot, how many, that position is what was bought — is two
+                  sentences one tap away, not a paragraph printed above a list
+                  somebody is trying to listen to. */}
+              <div className="mb-2.5 flex items-center gap-2 px-5">
                 <h2 className="text-[15px] font-bold text-ink">店家精選</h2>
-                <span className="num ml-auto text-[11.5px] text-ink-3">
-                  店家自己錄的，最多 {FEATURED_CAP} 則
+                <span className="ml-auto">
+                  <InfoButton topic="featured" onOpen={setInfo} />
                 </span>
               </div>
               <div className="space-y-2.5 px-5">
@@ -178,14 +179,11 @@ export function Audios({ poiId }: { poiId: string }) {
             </section>
           )}
 
-          <Note>
-            「店家精選」是通過審核的付費商家在自己所在景點置頂的內容，每個景點最多
-            {FEATURED_CAP} 則，位置為付費取得、內容由商家自行錄製，並一律標示。
-            播放次數與喜歡數皆為 Demo 資料；旅人上傳的語音在正式版需經 ResoMap
-            審核後才會上架。
-          </Note>
+          <Note>旅人上傳的語音需經 ResoMap 審核後上架。播放次數與喜歡數為示意資料。</Note>
         </>
       )}
+
+      <InfoSheet topic={info} onClose={() => setInfo(null)} />
 
       {/* In flow as well as sticky, so the last row is never covered by it. */}
       <div className="h-4 shrink-0" />

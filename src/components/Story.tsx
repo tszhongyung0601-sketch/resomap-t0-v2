@@ -14,7 +14,7 @@ import {
 import { createPlayer, formatClock, splitSentences, type VoicePlayer } from "../lib/speech";
 import { track } from "../lib/track";
 import { Button, Headphones, Segmented, Sheet, Tag, Thumb } from "./ui";
-import { nearbyCounts } from "../lib/nearby";
+import { getNearbyCountUnit, nearbyCounts } from "../lib/nearby";
 import { BY_DEST } from "../data/destinations";
 import type { NearbyCat } from "../data/nearbyCategories";
 import type { StoryLength } from "../types";
@@ -651,13 +651,15 @@ function NextUp({
   return (
     <div className="rm-in mt-3 flex-1 overflow-y-auto no-scrollbar">
       <div className="text-[16px] font-bold text-ink">接下來想做什麼？</div>
+      {/* 5 km is a search radius, not a walk. Calling it 走路五公里 promised
+          somebody they could reach a driver on foot. */}
       <p className="mt-1 text-[12.5px] leading-relaxed text-ink-3">
-        {placeName}走路五公里內的選擇。
+        {placeName} 5 公里內的推薦
       </p>
 
       {steps.length === 0 ? (
         <p className="mt-4 rounded-2xl bg-surface p-4 text-[13.5px] leading-relaxed text-ink-3">
-          這個地點五公里內還沒有合作的商家或服務。你可以先看看地圖上還有什麼。
+          這個範圍內還沒有推薦的商家或服務。
         </p>
       ) : (
         <div className="mt-3 space-y-2">
@@ -675,7 +677,7 @@ function NextUp({
                 <span className="block truncate text-[12px] text-ink-3">{s.note}</span>
               </span>
               <span className="num shrink-0 text-[12.5px] font-semibold text-ink-3">
-                {counts?.[s.cat]} 家 ›
+                {counts?.[s.cat]} {getNearbyCountUnit(s.cat)} ›
               </span>
             </button>
           ))}
@@ -816,7 +818,7 @@ function CommentBox({
       )}
 
       <p className="mt-4 text-[11.5px] leading-relaxed text-ink-3">
-        Demo 版本沒有後端，留言只存在這台裝置上，不會送出，也不會被其他人看到。
+        留言只儲存在這台裝置上。
       </p>
     </div>
   );

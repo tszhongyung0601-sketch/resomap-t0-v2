@@ -104,9 +104,7 @@ export function AddAudio({ poiId }: { poiId?: string }) {
             </div>
           </div>
         </div>
-        <Note>
-          Demo 版本沒有後端，音檔不會離開你的裝置，這筆送審記錄只存在瀏覽器裡。
-        </Note>
+        <Note>音檔不會離開你的裝置，這筆記錄只儲存在本機。</Note>
       </Screen>
     );
   }
@@ -300,8 +298,7 @@ export function AddAudio({ poiId }: { poiId?: string }) {
               <Row label="說明" value={description.trim()} multiline />
             </div>
             <p className="mt-4 text-[12.5px] leading-relaxed text-ink-3">
-              審核會看三件事：內容跟這個地點有沒有關係、音質聽不聽得清楚、有沒有未揭露的商業內容。
-              商家自己的內容要走商家會員，會標示為「店家精選」。
+              審核會看內容與這個地點的關聯、音質，以及是否為未標示的商業內容。
             </p>
           </Q>
         )}

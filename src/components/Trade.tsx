@@ -1,5 +1,6 @@
 import { useState, type ReactNode } from "react";
 import { Button, Sheet } from "./ui";
+import { INFO, type InfoTopic } from "../data/info";
 import {
   CHANNEL_INTENT,
   CHANNEL_LABELS,
@@ -104,6 +105,67 @@ export function AffiliateBadge({ partner }: { partner?: string }) {
   );
 }
 
+/* ----------------------------------------------------------------- info -- */
+
+/**
+ * A quiet ⓘ, and the two sentences behind it.
+ *
+ * The rules these explain — what earns a partner mark, how a list is ordered,
+ * what a paid slot is — all still exist and all still matter. What changed is
+ * that a traveller now has to ask. A paragraph about ranking weights printed
+ * under a list of restaurants was the product explaining itself to the wrong
+ * person, on the screen where they were choosing dinner.
+ */
+export function InfoButton({
+  topic,
+  label,
+  onOpen,
+}: {
+  topic: keyof typeof INFO;
+  /** Shown beside the mark. Omit for a bare ⓘ. */
+  label?: string;
+  onOpen: (t: InfoTopic) => void;
+}) {
+  return (
+    <button
+      onClick={() => onOpen(INFO[topic])}
+      aria-label={`${INFO[topic].title}說明`}
+      /* The pseudo-element carries the 44px target so a 12px glyph does not
+         have to be drawn at 44px — the trick Chip, Tabs and Stars all use. */
+      className="relative inline-flex shrink-0 items-center gap-1 text-[11.5px] font-semibold text-ink-3 after:absolute after:inset-x-0 after:-inset-y-[14px] after:content-['']"
+    >
+      {label && <span>{label}</span>}
+      <span aria-hidden>ⓘ</span>
+    </button>
+  );
+}
+
+export function InfoSheet({
+  topic,
+  onClose,
+}: {
+  topic: InfoTopic | null;
+  onClose: () => void;
+}) {
+  if (!topic) return null;
+  return (
+    <Sheet open onClose={onClose} title={topic.title}>
+      <div className="px-5 pb-5 pt-1">
+        {topic.body.map((line) => (
+          <p key={line} className="mb-2.5 text-[14px] leading-relaxed text-ink-2">
+            {line}
+          </p>
+        ))}
+        <div className="mt-3">
+          <Button variant="secondary" onClick={onClose}>
+            了解
+          </Button>
+        </div>
+      </div>
+    </Sheet>
+  );
+}
+
 /* --------------------------------------------------------------- the sheet */
 
 export interface DemoLink {
@@ -137,8 +199,7 @@ export function DemoLinkSheet({
             {link.intent}
           </div>
           <p className="mt-2 text-[13px] leading-relaxed text-ink-3">
-            {link.why ??
-              "這是 Demo 資料，這筆記錄還沒有填入真實連結。正式版由服務提供者自己設定，填入後這顆按鈕就會直接開啟。"}
+            {link.why ?? "這位服務提供者還沒有提供這個聯絡方式。"}
           </p>
         </div>
         <div className="mt-4">
@@ -231,7 +292,7 @@ export function ContactSheet({
           </div>
 
           <p className="mt-4 text-[11.5px] leading-relaxed text-ink-3">
-            聯絡方式由服務提供者自行填寫。有填的會直接開啟對應 App，沒有填的會說明將會發生什麼事。
+            聯絡方式由服務提供者自行填寫。
           </p>
         </div>
       </Sheet>
