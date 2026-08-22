@@ -94,15 +94,18 @@ function GuideRail({ destId }: { destId?: string }) {
     <section className="mt-7">
       <div className="flex items-center gap-1.5 px-5 text-ink">
         <Headphones size={15} />
-        <h2 className="text-[17px] font-bold">{t("有故事的地方")}</h2>
+        {/* 「附近」 only when it is true. Somebody in a city with no recorded
+            guide within 12km still gets a rail — of the trip's city, then
+            everything else — and a heading promising 附近 above 七星潭 seen from
+            台北 is the two-answers problem this whole section just fixed,
+            reintroduced in the title. */}
+        <h2 className="text-[17px] font-bold">
+          {isNear ? t("附近有故事的地方") : t("有故事的地方")}
+        </h2>
         <Tag kind="demo" />
       </div>
       <p className="mb-3 mt-1 px-5 text-[12.5px] text-ink-3">
-        {/* Says which question the order is answering. Without it a rail that
-            silently reorders when somebody presses 定位 looks like a bug. */}
-        {isNear
-          ? `${t("從近到遠。")}${t("語音導覽免費，可以先試聽 30 秒。")}`
-          : t("語音導覽免費，可以先試聽 30 秒。")}
+        {t("語音導覽免費，可以先試聽 30 秒。")}
       </p>
 
       <div className="snap-rail flex gap-3 overflow-x-auto px-5 pb-1 no-scrollbar">

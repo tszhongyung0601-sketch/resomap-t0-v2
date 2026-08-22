@@ -14,6 +14,7 @@ export const UI: Dict = {
   "返回": "Back",
   "選單": "Menu",
   "有故事的地方": "Places with stories",
+  "附近有故事的地方": "Stories near you",
   "語音導覽免費，可以先試聽 30 秒。": "Audio guides are free. Try a 30-second preview first.",
   "試聽 30 秒": "Preview 30s",
   "看全部導覽": "See all guides",
