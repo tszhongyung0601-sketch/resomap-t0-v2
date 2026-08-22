@@ -104,9 +104,9 @@ src/
     services.ts / affiliatePartners.ts / affiliateProducts.ts / coupons.ts …
     ── V2 ──
     audio.ts            店家精選與旅人上傳的語音（ResoMap 自己的 15 篇仍在 stories.ts）
-    merchants.ts        14 家商家，真座標
-    providers.ts        11 位包車 / 導遊，含 1 位審核中、1 位未通過
-    affiliateOffers.ts  Booking / Agoda / Trip.com / Klook / KKday 的商品，affiliateUrl 全空
+    merchants.ts        64 家商家，真座標，涵蓋台灣八個城市
+    providers.ts        39 位包車 / 導遊，含 1 位審核中、1 位未通過
+    affiliateOffers.ts  44 個 Booking / Agoda / Trip.com / Klook / KKday 商品，affiliateUrl 全空
     reviews.ts          評價樣本
     subscriptionPlans.ts 四種方案，價格全為 null
     nearbyCategories.ts  周邊推薦的五個問題與七張分類卡
@@ -185,6 +185,21 @@ src/
   寫一個看起來合理的 NT$ 990 進去，它就會變成會議上被引用的數字。
 
 ---
+
+## 覆蓋率
+
+「探索附近」的每一類都是由座標實際算出來的，所以覆蓋率是可以驗證的事實：
+
+| | 5 公里內七類全滿 | 10 公里內七類全滿 |
+|---|---|---|
+| 54 個台灣景點 | 45 | **54** |
+
+剩下 9 個在 5 公里內有缺口的，都是故宮、北投、蓮池潭、傳藝中心這類「景點在郊區、
+店家在市街」的地方——那正是 5km / 10km 這個切換存在的理由。缺的那一類不會變成
+灰卡，而是寫「看更遠」，點進去說明並提供「看 10 公里內」。
+
+海外城市（東京、大阪、京都、首爾）沒有 ResoMap 的商家，空狀態會直接說
+「目前只在台灣」，不會叫你把範圍拉大去找不存在的東西。
 
 ## 已知範圍界線
 
