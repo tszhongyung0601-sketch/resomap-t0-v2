@@ -1,6 +1,7 @@
-import { SceneCover } from "./Cover";
+import type { ReactNode } from "react";
+import { RecordPhoto } from "./Cover";
 import { AffiliateBadge, PartnerBadge, PendingBadge, Stars } from "./Trade";
-import { Avatar, Headphones, Tag } from "./ui";
+import { Avatar, Headphones } from "./ui";
 import { km } from "../lib/geo";
 import { isVerifiedPartner } from "../lib/nearby";
 import { partner as partnerOf } from "../data/affiliatePartners";
@@ -15,19 +16,21 @@ import {
 /**
  * The three list cards: a shop, a person, somebody else's listing.
  *
- * All three follow one rule that the source demo did not: **a card carries what
- * you need to decide whether to tap it, and nothing else.** The demo these came
- * from printed opening hours, full address, language list, review count, promo
- * and three CTAs on every row — nine lines of small grey text that all look
- * equally important, which is the same as none of them being important.
+ * A photograph across the top and the facts underneath — the same shape
+ * 導覽庫's guide card already uses, so a traveller who has scrolled that list
+ * recognises this one. The picture is doing real work: choosing between three
+ * souvenir shops on a phone is a visual decision, and a row of grey text with an
+ * emoji in it is not a travel product.
  *
- * So: picture, name, distance, rating, one line of description, one commercial
- * label if there is one, and at most two actions. Everything else is on the
- * detail page, which is what a detail page is for.
+ * What is deliberately *not* on the card: opening hours, full address, language
+ * list, review breakdown, three CTAs. The demo these came from printed all of
+ * it on every row — nine lines of small grey text that all look equally
+ * important, which is the same as none of them being important. Card answers
+ * "is this the one"; detail page answers everything else.
  */
 
-/* The generated cover palettes are keyed by POI kind; a shop is one of three of
-   them. Mapping rather than inventing new palettes keeps one street the same
+/* The generated poster palettes are keyed by POI kind; a shop is one of three
+   of them. Mapping rather than inventing new palettes keeps one street the same
    colour on every screen it appears on. */
 const MERCHANT_SCENE: Record<Merchant["category"], PoiKind> = {
   restaurant: "food",
@@ -52,25 +55,28 @@ export function MerchantCard({
   const verified = isVerifiedPartner(m);
 
   return (
-    <div className="overflow-hidden rounded-2xl bg-surface">
-      <button onClick={onOpen} className="flex w-full gap-3 p-3 text-left active:bg-surface-2">
-        <SceneCover
-          id={m.id}
-          kind={MERCHANT_SCENE[m.category]}
+    <article className="overflow-hidden rounded-2xl bg-surface">
+      <button onClick={onOpen} className="block w-full text-left active:bg-surface-2">
+        <RecordPhoto
+          record={m}
+          fallbackId={m.id}
+          fallbackKind={MERCHANT_SCENE[m.category]}
           emoji={m.emoji}
-          height={76}
-          radius={12}
-          className="w-[92px]"
-        />
-        <div className="min-w-0 flex-1">
-          <div className="flex items-start gap-1.5">
-            <span className="min-w-0 flex-1 truncate text-[15px] font-bold text-ink">
-              {m.name}
-            </span>
-            <span className="num shrink-0 text-[12.5px] text-ink-3">{km(metres)}</span>
-          </div>
+          height={150}
+          radius={0}
+        >
+          {/* Distance rides on the picture rather than taking a line of its
+              own — it is the one number read at a glance, and the card has four
+              other lines that want the width. */}
+          <span className="num absolute bottom-2 left-2 rounded-md bg-black/60 px-1.5 py-0.5 text-[11.5px] font-semibold text-white">
+            {km(metres)}
+          </span>
+        </RecordPhoto>
 
-          <div className="mt-0.5 flex items-center gap-1.5">
+        <div className="px-4 pt-3">
+          <div className="truncate text-[15.5px] font-bold text-ink">{m.name}</div>
+
+          <div className="mt-1 flex items-center gap-2">
             <Stars rating={m.rating} count={m.reviewCount} />
           </div>
 
@@ -78,47 +84,26 @@ export function MerchantCard({
             {MERCHANT_CATEGORY_LABELS[m.category]} · {m.area}
           </div>
 
-          <p className="mt-1 line-clamp-2 text-[12.5px] leading-snug text-ink-2">{m.desc}</p>
+          <p className="mt-1.5 line-clamp-2 text-[13px] leading-snug text-ink-2">{m.desc}</p>
 
-          {/* One row of marks, and only the ones that are true. */}
-          <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
-            {/* One commercial mark, never two. 推薦夥伴 already means paid
-                *and* reviewed — the rule is printed at the foot of every list —
-                so stacking 贊助 next to it says the same thing twice. A paid
-                listing that has not passed review still has to disclose the
-                paid part, and that is exactly when 贊助 appears. */}
-            {verified ? (
-              <PartnerBadge compact />
-            ) : (
-              <>
-                {m.reviewStatus === "pending" && <PendingBadge />}
-                {m.isPaid && <Tag kind="sponsored" />}
-              </>
-            )}
-            {hasAudio && (
-              <span className="inline-flex shrink-0 items-center gap-1 rounded-md bg-surface-2 px-1.5 py-0.5 text-[11px] font-semibold text-ink-3">
-                <Headphones size={11} />
-                店家語音
-              </span>
-            )}
-            {m.promo && (
-              <span className="truncate rounded-md bg-brand-wash px-1.5 py-0.5 text-[11px] font-semibold text-brand">
-                {m.promo}
-              </span>
-            )}
-          </div>
+          <Marks
+            verified={verified}
+            pending={m.reviewStatus === "pending"}
+            paid={m.isPaid}
+            promo={m.promo}
+            audio={hasAudio}
+          />
         </div>
       </button>
 
       {/* Two actions, both page-white on the surface card — `onCard`'s reason.
-          A third one would not fit at 393px without truncating a Chinese label,
-          and 立即聯絡 is one tap further in, on the detail page, where the
-          contact sheet can show every channel rather than guess one. */}
-      <div className="flex gap-2 px-3 pb-3">
+          立即聯絡 is one tap further in, on the detail page, where the contact
+          sheet can show every channel rather than guess one. */}
+      <div className="flex gap-2 px-4 pb-4 pt-2.5">
         <CardAction onClick={onOpen}>查看詳情</CardAction>
-        <CardAction onClick={onDirections}>導航前往</CardAction>
+        <CardAction onClick={onDirections}>導航</CardAction>
       </div>
-    </div>
+    </article>
   );
 }
 
@@ -134,61 +119,67 @@ export function ProviderCard({
   onContact: () => void;
 }) {
   const verified = isVerifiedPartner(p);
+  const isDriver = p.kind === "driver";
 
   return (
-    <div className="overflow-hidden rounded-2xl bg-surface">
-      <button onClick={onOpen} className="flex w-full gap-3 p-3 text-left active:bg-surface-2">
-        {/* An initial on a colour, which is how this app draws every person.
-            A stock portrait of somebody who does not exist would be the one
-            picture on the screen a traveller could mistake for a real face. */}
-        <Avatar name={p.name} color={p.color} initial={p.initial} size={56} />
+    <article className="overflow-hidden rounded-2xl bg-surface">
+      <button onClick={onOpen} className="block w-full text-left active:bg-surface-2">
+        <RecordPhoto
+          record={p}
+          fallbackId={p.id}
+          fallbackKind={isDriver ? "transit" : "attraction"}
+          emoji={isDriver ? "🚐" : "🧭"}
+          height={150}
+          radius={0}
+        >
+          <span className="num absolute bottom-2 left-2 rounded-md bg-black/60 px-1.5 py-0.5 text-[11.5px] font-semibold text-white">
+            {km(metres)}
+          </span>
+        </RecordPhoto>
 
-        <div className="min-w-0 flex-1">
-          <div className="flex items-start gap-1.5">
-            <span className="min-w-0 flex-1 truncate text-[15px] font-bold text-ink">
+        <div className="px-4 pt-3">
+          <div className="flex items-center gap-2">
+            {/* The initial stays, small, beside the name. It is how this app has
+                drawn people everywhere else, and it survives a photo that fails
+                to load. */}
+            <Avatar name={p.name} color={p.color} initial={p.initial} size={22} />
+            <span className="min-w-0 flex-1 truncate text-[15.5px] font-bold text-ink">
               {p.name}
             </span>
-            <span className="num shrink-0 text-[12.5px] text-ink-3">{km(metres)}</span>
           </div>
 
-          {/* Same rule as the merchant card: 推薦夥伴, or the paid-but-not-yet
-              -approved pair. Never both. */}
-          <div className="mt-0.5 flex flex-wrap items-center gap-1.5">
-            {verified ? (
-              <PartnerBadge />
-            ) : (
-              <>
-                {p.reviewStatus === "pending" && <PendingBadge />}
-                {p.isPaid && <Tag kind="sponsored" />}
-              </>
-            )}
-          </div>
-
-          <div className="mt-1">
+          <div className="mt-1 flex items-center gap-2">
             <Stars rating={p.rating} count={p.reviewCount} />
           </div>
 
           <div className="mt-0.5 truncate text-[12.5px] text-ink-3">
-            {p.languages.join("・")}
+            {p.languages.join(" · ")}
           </div>
 
-          <div className="num mt-0.5 truncate text-[12.5px] font-semibold text-ink-2">
-            NT$ {p.priceFromTwd.toLocaleString()} 起 / {p.priceUnit}
-          </div>
-
-          {/* A driver is judged on where they will go; a guide on what they
+          {/* A driver is chosen on where they will go; a guide on what they
               talk about. Same slot, different question. */}
-          <div className="mt-0.5 truncate text-[12px] text-ink-3">
-            {p.kind === "driver" ? p.areas.join("・") : p.themes.slice(0, 2).join("・")}
+          <div className="mt-0.5 truncate text-[12.5px] text-ink-3">
+            {isDriver ? p.areas.join(" · ") : p.themes.slice(0, 2).join(" · ")}
           </div>
+
+          <div className="num mt-1 truncate text-[13.5px] font-bold text-ink">
+            NT$ {p.priceFromTwd.toLocaleString()} 起
+            <span className="text-[12px] font-semibold text-ink-3"> / {p.priceUnit}</span>
+          </div>
+
+          <Marks
+            verified={verified}
+            pending={p.reviewStatus === "pending"}
+            paid={p.isPaid}
+          />
         </div>
       </button>
 
-      <div className="flex gap-2 px-3 pb-3">
-        <CardAction onClick={onContact}>立即聯絡</CardAction>
+      <div className="flex gap-2 px-4 pb-4 pt-2.5">
+        <CardAction onClick={onContact}>聯絡</CardAction>
         <CardAction onClick={onOpen}>查看詳情</CardAction>
       </div>
-    </div>
+    </article>
   );
 }
 
@@ -204,42 +195,98 @@ export function OfferCard({
   const brand = partnerOf(o.partner);
 
   return (
-    <div className="overflow-hidden rounded-2xl bg-surface">
-      <button onClick={onOpen} className="flex w-full gap-3 p-3 text-left active:bg-surface-2">
-        <SceneCover
-          id={o.id}
-          kind={o.kind === "hotel" ? "stay" : "activity"}
+    <article className="overflow-hidden rounded-2xl bg-surface">
+      <button onClick={onOpen} className="block w-full text-left active:bg-surface-2">
+        <RecordPhoto
+          record={o}
+          fallbackId={o.id}
+          fallbackKind={o.kind === "hotel" ? "stay" : "activity"}
           emoji={o.emoji}
-          height={76}
-          radius={12}
-          className="w-[92px]"
-        />
-        <div className="min-w-0 flex-1">
-          <div className="flex items-start gap-1.5">
-            <span className="min-w-0 flex-1 truncate text-[15px] font-bold text-ink">
-              {o.name}
-            </span>
-            <span className="num shrink-0 text-[12.5px] text-ink-3">{km(metres)}</span>
-          </div>
+          height={150}
+          radius={0}
+        >
+          <span className="num absolute bottom-2 left-2 rounded-md bg-black/60 px-1.5 py-0.5 text-[11.5px] font-semibold text-white">
+            {km(metres)}
+          </span>
+        </RecordPhoto>
 
-          <div className="mt-0.5">
+        <div className="px-4 pt-3">
+          <div className="truncate text-[15.5px] font-bold text-ink">{o.name}</div>
+
+          <div className="mt-1">
             <Stars rating={o.rating} scale={o.ratingScale} />
           </div>
 
-          <p className="mt-1 line-clamp-2 text-[12.5px] leading-snug text-ink-2">{o.blurb}</p>
+          <p className="mt-1.5 line-clamp-2 text-[13px] leading-snug text-ink-2">{o.blurb}</p>
 
-          <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+          <div className="num mt-1.5 truncate text-[13.5px] font-bold text-ink">
+            NT$ {o.priceTwd.toLocaleString()} 起
+            <span className="text-[12px] font-semibold text-ink-3"> / {o.priceUnit}</span>
+          </div>
+
+          {/* One quiet line, at the bottom, where a price footnote goes. The
+              traveller is choosing a tour, not a business model. */}
+          <div className="mt-1.5">
             <AffiliateBadge partner={brand.name} />
-            <span className="num text-[12.5px] font-semibold text-ink-2">
-              NT$ {o.priceTwd.toLocaleString()} 起 / {o.priceUnit}
-            </span>
           </div>
         </div>
       </button>
 
-      <div className="flex gap-2 px-3 pb-3">
-        <CardAction onClick={onOpen}>前往 {brand.name}</CardAction>
+      <div className="flex gap-2 px-4 pb-4 pt-2.5">
+        <CardAction onClick={onOpen}>查看方案</CardAction>
       </div>
+    </article>
+  );
+}
+
+/**
+ * The marks row, and the rule that keeps it short.
+ *
+ * 推薦夥伴 already means paid *and* reviewed — the rule is printed at the foot
+ * of every list — so stacking 贊助 next to it says the same thing twice. A paid
+ * listing that has not passed review still has to disclose the paid part, and
+ * that is exactly when 贊助 appears.
+ */
+function Marks({
+  verified,
+  pending,
+  paid,
+  promo,
+  audio,
+}: {
+  verified: boolean;
+  pending: boolean;
+  paid: boolean;
+  promo?: string;
+  audio?: boolean;
+}) {
+  const anything = verified || pending || (paid && !verified) || promo || audio;
+  if (!anything) return null;
+  return (
+    <div className="mt-2 flex flex-wrap items-center gap-1.5">
+      {verified ? (
+        <PartnerBadge />
+      ) : (
+        <>
+          {pending && <PendingBadge />}
+          {paid && (
+            <span className="inline-block shrink-0 rounded-md bg-surface-2 px-1.5 py-0.5 text-[11px] font-semibold text-ink-3">
+              贊助
+            </span>
+          )}
+        </>
+      )}
+      {audio && (
+        <span className="inline-flex shrink-0 items-center gap-1 rounded-md bg-surface-2 px-1.5 py-0.5 text-[11px] font-semibold text-ink-3">
+          <Headphones size={11} />
+          有語音
+        </span>
+      )}
+      {promo && (
+        <span className="min-w-0 truncate rounded-md bg-brand-wash px-1.5 py-0.5 text-[11px] font-semibold text-brand">
+          {promo}
+        </span>
+      )}
     </div>
   );
 }
@@ -252,13 +299,7 @@ export function OfferCard({
  * `Button variant="onCard"` makes in ui.tsx. A list of twelve orange buttons is
  * a list where nothing is the primary action.
  */
-function CardAction({
-  children,
-  onClick,
-}: {
-  children: React.ReactNode;
-  onClick: () => void;
-}) {
+function CardAction({ children, onClick }: { children: ReactNode; onClick: () => void }) {
   return (
     <button
       onClick={onClick}

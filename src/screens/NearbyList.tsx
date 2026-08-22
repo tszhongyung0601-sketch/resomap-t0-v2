@@ -81,7 +81,7 @@ export function NearbyList({
   return (
     <Screen>
       <TopBar
-        title={meta.label}
+        title={meta.title}
         onBack={() => nav.back()}
         below={
           <div className="flex items-center gap-2 px-5 pb-3">
@@ -109,8 +109,8 @@ export function NearbyList({
 
       {total === 0 ? (
         <Empty
-          icon={meta.icon}
-          text={`這個範圍內還沒有${meta.label}。試試 10 公里。`}
+          icon={meta.emoji}
+          text={`這個範圍內還沒有${meta.title}。要不要把範圍拉到 10 公里？`}
           action={range === 5000 ? "改成 10 公里" : undefined}
           onAction={() => setRange(10000)}
         />
@@ -159,7 +159,7 @@ export function NearbyList({
       )}
 
       <Note>
-        {meta.group === "partner"
+        {meta.source === "partner"
           ? AFFILIATE_DISCLOSURE
           : `${PARTNER_RULE}距離由座標實際計算，價格與評價為 Demo 資料。`}
       </Note>

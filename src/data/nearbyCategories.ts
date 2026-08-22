@@ -1,19 +1,17 @@
 /**
- * The seven doors on 周邊推薦, split into the two groups a traveller has to be
- * able to tell apart.
+ * 周邊推薦, as five questions a traveller actually has.
  *
- * `resomap` — supply ResoMap itself holds a relationship with: merchants and
- * professional members who subscribe and have passed review. Tapping one stays
- * inside the app.
+ * The source demo organised this as seven rows in two groups labelled
+ * 「ResoMap 付費服務」 and 「聯盟合作服務」 — which is the business model printed
+ * on the traveller's screen. Nobody standing outside 龍山寺 at six in the evening
+ * is thinking "I would like to browse ResoMap's paid inventory"; they are
+ * thinking 吃什麼.
  *
- * `partner` — somebody else's inventory, reached through an affiliate link.
- * ResoMap has no agreement with any of these platforms, so the label is
- * 「聯盟合作」 and never 「官方合作」, and the outbound sheet says where you are
- * going before you go.
- *
- * Mixing the two into one list is the thing this file exists to prevent: a
- * traveller who cannot tell whose recommendation they are reading has no way to
- * weigh it.
+ * So the headings are the questions, the pictures do the choosing, and where the
+ * supply comes from is one quiet line at the bottom of a card — visible, because
+ * a traveller has a right to know whose recommendation they are reading, but
+ * never the loudest thing on it. The full disclosure sits once at the foot of
+ * the screen, which is where a disclosure belongs.
  */
 
 export type NearbyCat =
@@ -25,88 +23,138 @@ export type NearbyCat =
   | "aff-hotel"
   | "aff-tour";
 
-export type NearbyGroup = "resomap" | "partner";
+/** Who the supply belongs to. Drives one small grey label, and nothing else. */
+export type NearbySource = "resomap" | "partner";
 
-export interface NearbyCategory {
-  id: NearbyCat;
-  group: NearbyGroup;
+export interface NearbyCard {
+  cat: NearbyCat;
+  /** The card's own line — what you get, not what it is called internally. */
+  title: string;
+  sub: string;
+  source: NearbySource;
+  /** The quiet label. Named platforms only where a platform is involved. */
   label: string;
-  note: string;
-  /** The short label on the right of the row. */
-  badge: string;
-  icon: string;
-  tint: string;
+  emoji: string;
+  /** Illustrative photo under public/demo/. */
+  photo?: string;
+  /** A real, credited T0 photograph that reads as this category. */
+  photoFromPoi?: string;
+  /** Half-width. Two of these sit side by side in one section. */
+  half?: boolean;
 }
 
-export const NEARBY_CATEGORIES: NearbyCategory[] = [
+export interface NearbySection {
+  id: string;
+  question: string;
+  cards: NearbyCard[];
+}
+
+export const NEARBY_SECTIONS: NearbySection[] = [
   {
-    id: "restaurant",
-    group: "resomap",
-    label: "附近餐廳",
-    note: "在地小吃與餐館",
-    badge: "ResoMap 商家",
-    icon: "🍜",
-    tint: "#F5E0D4",
+    id: "eat",
+    question: "吃什麼？",
+    cards: [
+      {
+        cat: "restaurant",
+        title: "附近推薦餐廳",
+        sub: "在地小吃與餐館，走得到的距離",
+        source: "resomap",
+        label: "ResoMap 精選",
+        emoji: "🍜",
+        photo: "jingmei-snack",
+      },
+    ],
   },
   {
-    id: "hotel",
-    group: "resomap",
-    label: "附近旅館",
-    note: "ResoMap 商家的住宿",
-    badge: "ResoMap 商家",
-    icon: "🛏️",
-    tint: "#E3E7F0",
+    id: "take-home",
+    question: "帶什麼回家？",
+    cards: [
+      {
+        cat: "souvenir",
+        title: "附近伴手禮",
+        sub: "老舖、名產與可以只買一小包的店",
+        source: "resomap",
+        label: "ResoMap 精選",
+        emoji: "🛍️",
+        photo: "souvenir-shop-1",
+      },
+    ],
   },
   {
-    id: "souvenir",
-    group: "resomap",
-    label: "附近土產店",
-    note: "伴手禮與特色商品",
-    badge: "ResoMap 商家",
-    icon: "🛍️",
-    tint: "#F4E6D6",
+    id: "with-you",
+    question: "需要人帶你玩？",
+    cards: [
+      {
+        cat: "guide",
+        title: "私人導遊",
+        sub: "深度導覽、客製路線",
+        source: "resomap",
+        label: "ResoMap 精選",
+        emoji: "🧭",
+        photo: "guide-1",
+        half: true,
+      },
+      {
+        cat: "driver",
+        title: "包車司機",
+        sub: "機場接送、包車旅遊",
+        source: "resomap",
+        label: "ResoMap 精選",
+        emoji: "🚐",
+        photo: "driver-1",
+        half: true,
+      },
+    ],
   },
   {
-    id: "driver",
-    group: "resomap",
-    label: "包車司機",
-    note: "機場接送、包車旅遊",
-    badge: "專業會員",
-    icon: "🚐",
-    tint: "#E2EDE4",
+    id: "experience",
+    question: "更多旅遊體驗",
+    cards: [
+      {
+        cat: "aff-tour",
+        title: "Local tour",
+        sub: "一日遊、體驗行程，由合作平台出團",
+        source: "partner",
+        label: "聯盟合作 · Klook / KKday",
+        emoji: "🎫",
+        photoFromPoi: "jiufen",
+      },
+    ],
   },
   {
-    id: "guide",
-    group: "resomap",
-    label: "私人導遊",
-    note: "深度導覽、客製路線",
-    badge: "專業會員",
-    icon: "🧭",
-    tint: "#EFE7F0",
-  },
-  {
-    id: "aff-hotel",
-    group: "partner",
-    label: "更多住宿",
-    note: "Booking / Agoda / Trip.com",
-    badge: "聯盟合作",
-    icon: "🏨",
-    tint: "#DFE8FA",
-  },
-  {
-    id: "aff-tour",
-    group: "partner",
-    label: "Local tour",
-    note: "Klook / KKday",
-    badge: "聯盟合作",
-    icon: "🎫",
-    tint: "#E0EEFB",
+    id: "stay",
+    question: "今晚住哪？",
+    cards: [
+      {
+        cat: "hotel",
+        title: "附近旅館",
+        sub: "ResoMap 商家的住宿",
+        source: "resomap",
+        label: "ResoMap 精選",
+        emoji: "🛏️",
+        photoFromPoi: "jiaoxi",
+        half: true,
+      },
+      {
+        cat: "aff-hotel",
+        title: "更多住宿",
+        sub: "更多房型與即時房況",
+        source: "partner",
+        label: "聯盟合作 · Booking / Agoda",
+        emoji: "🏨",
+        photoFromPoi: "beitou",
+        half: true,
+      },
+    ],
   },
 ];
 
-export const BY_CAT: Record<NearbyCat, NearbyCategory> = Object.fromEntries(
-  NEARBY_CATEGORIES.map((c) => [c.id, c]),
-) as Record<NearbyCat, NearbyCategory>;
+/** Flat lookup — NearbyList takes a `cat` off the route and needs its labels. */
+export const ALL_NEARBY_CARDS: NearbyCard[] = NEARBY_SECTIONS.flatMap((s) => s.cards);
+
+const BY_CAT: Record<NearbyCat, NearbyCard> = Object.fromEntries(
+  ALL_NEARBY_CARDS.map((c) => [c.cat, c]),
+) as Record<NearbyCat, NearbyCard>;
 
 export const nearbyCategory = (id: NearbyCat) => BY_CAT[id];
 
@@ -114,6 +162,11 @@ export const nearbyCategory = (id: NearbyCat) => BY_CAT[id];
 export const RANGES = [5000, 10000] as const;
 export type Range = (typeof RANGES)[number];
 
-/** The line that has to sit at the bottom of every 周邊推薦 list. */
+/**
+ * The line at the foot of 周邊推薦, and the only place the model is spelled out.
+ *
+ * It is a footnote rather than a heading on purpose. Everything in it is true
+ * and a traveller can read it; none of it is what they came for.
+ */
 export const NEARBY_DISCLOSURE =
-  "站內服務由 ResoMap 審核後上架，付費會員會有曝光加權且一律標示。聯盟合作內容由合作平台提供，ResoMap 目前與各平台皆無合作關係。";
+  "ResoMap 精選為站內商家與專業會員，需通過審核才會上架，付費訂閱者在排序上有加權且卡片上一律標示。聯盟合作內容由 Booking、Agoda、Klook、KKday 等平台提供，ResoMap 目前與各平台皆無合作關係。分類示意圖與商家照片為 Demo 素材。";
