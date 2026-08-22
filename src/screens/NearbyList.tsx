@@ -21,6 +21,7 @@ import {
   type NearbyContext,
 } from "../lib/nearby";
 import { tryAffiliate } from "../lib/contact";
+import { toggleOffer, useSaved } from "../lib/saved";
 import { openPlaceDirections } from "../lib/maps";
 import { useNav } from "../nav";
 import type { Contact, MerchantCategory } from "../types";
@@ -49,6 +50,7 @@ export function NearbyList({
   range?: number;
 }) {
   const nav = useNav();
+  const saved = useSaved();
   const [range, setRange] = useState<Range>((initial as Range) ?? 5000);
   const [contact, setContact] = useState<{ name: string; c: Contact } | null>(null);
   const [demo, setDemo] = useState<DemoLink | null>(null);
@@ -148,6 +150,7 @@ export function NearbyList({
               metres={metres}
               hasAudio={Boolean(item.featuredAudioIds?.length)}
               onOpen={() => nav.go({ k: "merchant", id: item.id })}
+              onContact={() => setContact({ name: item.name, c: item.contact })}
               onDirections={() => openPlaceDirections(item)}
             />
           ))}
@@ -160,6 +163,16 @@ export function NearbyList({
               first={i === 0 && merchants.length === 0}
               onOpen={() => nav.go({ k: "provider", id: item.id })}
               onContact={() => setContact({ name: item.name, c: item.contact })}
+              /* Nobody has a booking link yet, so the button reads the field and
+                 explains rather than doing nothing. Same behaviour the detail
+                 page has always had — the card just reaches it one tap sooner. */
+              onBook={() =>
+                setDemo({
+                  title: item.name,
+                  intent: "此處將開啟線上預約表單，送出後由服務者確認。",
+                  why: "這位服務者的預約連結尚未設定。",
+                })
+              }
             />
           ))}
 
@@ -168,7 +181,10 @@ export function NearbyList({
               key={item.id}
               offer={item}
               metres={metres}
-              onOpen={() => {
+              saved={saved.offers.includes(item.id)}
+              onOpen={() => nav.go({ k: "offer", id: item.id })}
+              onSave={() => toggleOffer(item.id)}
+              onGo={() => {
                 /* Reads the record. A filled `affiliateUrl` genuinely opens;
                    an empty one — which is all of them today — explains. */
                 if (!tryAffiliate(item)) {

@@ -657,49 +657,56 @@ function glasses(kind, m) {
 
 /* -------------------------------------------------------------------- draw */
 
-function svg(c) {
+/**
+ * One person, either 16:9 or square.
+ *
+ * The list card puts a 96px square thumbnail on the left, and a square cut out
+ * of a 16:9 composition is a person shoved against one edge. So the square is
+ * composed rather than cropped: the same drawing, moved so the head is centred,
+ * with the place slid along behind it. At 96px the scene is colour and one
+ * silhouette — which is all it can be, and all it needs to be for 花蓮 at dawn
+ * to look different from 台北 at night.
+ */
+function svg(c, square = false) {
   const m = metrics(c);
   const sky = SKIES[c.light];
   const horizon = 58;
   const scene = SCENES[c.scene] ?? SCENES.hills;
+  const w = square ? 90 : W;
 
   /* Sky, haze, sun, then the place — and the ground laid down before the scene
      so a silhouette that only reaches x=90 does not leave bare canvas behind
      the person's shoulder. Every scene may paint over it; none has to. */
   const behind = [
-    rect(0, 0, W, horizon, sky.sky),
-    rect(0, horizon - 9, W, 9, shift(sky.sky, sky.dark ? 14 : 8)),
-    sky.sun ? circle(30, horizon - 26, 7.5, sky.sun) : "",
-    rect(0, horizon, W, H - horizon, sky.ground),
-    ...scene(sky, horizon),
+    rect(0, 0, w, horizon, sky.sky),
+    rect(0, horizon - 9, w, 9, shift(sky.sky, sky.dark ? 14 : 8)),
+    sky.sun ? circle(square ? 15 : 30, horizon - 26, 7.5, sky.sun) : "",
+    rect(0, horizon, w, H - horizon, sky.ground),
+    /* The scene is authored 160 wide. For the square it slides along rather
+       than being squashed — a compressed mountain is a different mountain. */
+    square
+      ? `<g transform="translate(-30,0)">${scene(sky, horizon).join("\n")}</g>`
+      : scene(sky, horizon).join("\n"),
   ];
 
   /* Under a night sky the background goes down, not the person. A wash over the
      whole frame is how the 04:30 and night-market cards ended up as a dark
      rectangle with a name under it. */
   if (sky.dark) {
-    behind.push(el("rect", { x: 0, y: 0, width: W, height: H, fill: "#141A29", opacity: 0.26 }));
+    behind.push(el("rect", { x: 0, y: 0, width: w, height: H, fill: "#141A29", opacity: 0.26 }));
   }
 
-  const layers = [
-    ...behind,
+  const person = [
     ...torso(c),
     ...face(c, m),
     ...(HAIR[c.hair] ?? HAIR.crop)(HAIR_COLOUR[c.hairCol], m),
     ...(c.hat ? (HATS[c.hat] ?? (() => []))(HAT_COLOUR[c.hat] ?? "#444", m) : []),
     ...glasses(c.glasses, m),
-  ];
+  ].join("\n");
 
-  /* Night and pre-dawn get one flat wash over everything rather than a second
-     palette for every garment — the whole frame is under the same sky. */
-  const wash =
-    sky.dark
-      ? el("rect", { x: 0, y: 0, width: W, height: H, fill: "#1B2233", opacity: 0.3 })
-      : "";
-
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="1600" height="900" shape-rendering="geometricPrecision">
-${layers.filter(Boolean).join("\n")}
-${wash}
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${H}" width="${square ? 900 : 1600}" height="900" shape-rendering="geometricPrecision">
+${behind.filter(Boolean).join("\n")}
+${square ? `<g transform="translate(${45 - CX},0)">${person}</g>` : person}
 </svg>`;
 }
 
@@ -708,6 +715,8 @@ ${wash}
 const SIZES = [
   { suffix: "card", width: 720, height: 405, quality: 82 },
   { suffix: "hero", width: 1280, height: 720, quality: 84 },
+  /* The list card's left-hand thumbnail, drawn square rather than cropped. */
+  { suffix: "thumb", width: 320, height: 320, quality: 84, square: true },
 ];
 
 await mkdir(OUT, { recursive: true });
@@ -734,15 +743,15 @@ for (const c of CASTING) {
     console.log(`  ${c.id} — skipped, a photograph is in .portrait-src/`);
     continue;
   }
-  const markup = svg(c);
-  const buf = Buffer.from(markup);
+  const wide = Buffer.from(svg(c));
+  const square = Buffer.from(svg(c, true));
   for (const s of SIZES) {
-    await sharp(buf, { density: 300 })
+    await sharp(s.square ? square : wide, { density: 300 })
       .resize(s.width, s.height)
       .webp({ quality: s.quality })
       .toFile(join(OUT, `${c.id}-${s.suffix}.webp`));
   }
-  contact.push(markup);
+  contact.push(svg(c, true));
   console.log(`  ${c.id}`);
 }
 
@@ -750,8 +759,8 @@ for (const c of CASTING) {
    thing somebody can check by looking rather than by reading the casting. */
 await writeFile(
   ".portrait-contact-sheet.svg",
-  `<svg xmlns="http://www.w3.org/2000/svg" width="${5 * 320}" height="${8 * 180}" viewBox="0 0 ${5 * W} ${8 * H}">
-${CASTING.map((c, i) => `<g transform="translate(${(i % 5) * W},${Math.floor(i / 5) * H})">${svg(c).replace(/^<svg[^>]*>/, "").replace(/<\/svg>$/, "")}</g>`).join("\n")}
+  `<svg xmlns="http://www.w3.org/2000/svg" width="${8 * 180}" height="${5 * 180}" viewBox="0 0 ${8 * 90} ${5 * H}">
+${CASTING.map((c, i) => `<g transform="translate(${(i % 8) * 90},${Math.floor(i / 8) * H})">${svg(c, true).replace(/^<svg[^>]*>/, "").replace(/<\/svg>$/, "")}</g>`).join("\n")}
 </svg>`,
   "utf8",
 );

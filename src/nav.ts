@@ -59,6 +59,10 @@ export type Route =
   | { k: "nearbyList"; poiId: string; cat: NearbyCat; range?: number }
   | { k: "merchant"; id: string }
   | { k: "provider"; id: string }
+  /* Somebody else's listing. Shops and people had a page; a hotel or a tour on
+     Klook had only a link, so the one thing a traveller could do with it was
+     leave the app. */
+  | { k: "offer"; id: string }
   | { k: "reviews"; kind: "merchant" | "provider"; id: string }
   | { k: "subscribe"; audience?: PlanAudience }
   | { k: "pro" };

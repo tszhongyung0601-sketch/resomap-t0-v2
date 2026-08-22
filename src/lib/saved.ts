@@ -3,10 +3,10 @@ import { useSyncExternalStore } from "react";
 /**
  * What the traveller has kept.
  *
- * Two collections, not one: a place and a guide are different things to come
- * back to — one is somewhere you might go, the other is something you might
- * listen to — and the 收藏 screen shows them under separate headings because
- * merging them would make both lists harder to scan.
+ * Three collections, not one: a place, a guide and a booking are different
+ * things to come back to — somewhere you might go, something you might listen
+ * to, something somebody else sells — and the 收藏 screen shows them under
+ * separate headings because merging them would make every list harder to scan.
  *
  * Module scope plus `useSyncExternalStore`, the same shape as the receipts store
  * in Expenses.tsx and for the same reason: the heart on a POI page, the heart in
@@ -23,9 +23,11 @@ const KEY = "resomap_saved";
 interface Saved {
   pois: string[];
   stories: string[];
+  /** Hotel and tour listings on somebody else's platform. */
+  offers: string[];
 }
 
-const EMPTY: Saved = { pois: [], stories: [] };
+const EMPTY: Saved = { pois: [], stories: [], offers: [] };
 
 function read(): Saved {
   try {
@@ -35,6 +37,9 @@ function read(): Saved {
     return {
       pois: Array.isArray(parsed.pois) ? parsed.pois.filter((x) => typeof x === "string") : [],
       stories: Array.isArray(parsed.stories) ? parsed.stories.filter((x) => typeof x === "string") : [],
+      /* Absent in anything written before offers were savable. Reading a
+         missing key as an empty list is the whole migration. */
+      offers: Array.isArray(parsed.offers) ? parsed.offers.filter((x) => typeof x === "string") : [],
     };
   } catch {
     /* Corrupt or unavailable storage. An empty shelf is a survivable answer;
@@ -78,8 +83,11 @@ const toggle = (list: string[], id: string) =>
 export const togglePoi = (id: string) => commit({ ...state, pois: toggle(state.pois, id) });
 export const toggleStory = (id: string) => commit({ ...state, stories: toggle(state.stories, id) });
 
+export const toggleOffer = (id: string) => commit({ ...state, offers: toggle(state.offers, id) });
+
 export const isPoiSaved = (id: string) => state.pois.includes(id);
 export const isStorySaved = (id: string) => state.stories.includes(id);
+export const isOfferSaved = (id: string) => state.offers.includes(id);
 
 /** The demo reset clears these too — see App.tsx's reset(). */
 export const resetSaved = () => commit(EMPTY);

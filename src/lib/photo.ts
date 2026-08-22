@@ -27,6 +27,9 @@ import { hasPortrait } from "../data/portraits";
 export interface Shot {
   /** 720×405. The image at the top of a list card. */
   card: string;
+  /** 320×320. The list card's left-hand thumbnail. Only a portrait has one: a
+      person is composed square, a street photograph is just cropped square. */
+  thumb?: string;
   /** 1280×720. The detail page header. */
   hero: string;
   /** Present only for a borrowed T0 photograph, and then it must be shown. */
@@ -67,6 +70,7 @@ export function portraitFor(providerId: string): Shot | null {
   return {
     card: `${base}portraits/${providerId}-card.webp`,
     hero: `${base}portraits/${providerId}-hero.webp`,
+    thumb: `${base}portraits/${providerId}-thumb.webp`,
     illustrative: true,
     person: true,
   };

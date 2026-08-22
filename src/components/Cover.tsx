@@ -337,7 +337,10 @@ export function RecordPhoto({
         <img
           src={src}
           alt=""
-          loading="lazy"
+          /* A hero is above the fold by definition — it is the first thing on
+             the screen it heads. Deferring it means the page opens on a poster
+             and swaps to the photograph while somebody is already reading. */
+          loading={size === "hero" ? "eager" : "lazy"}
           decoding="async"
           onError={() => setFailed(true)}
           className="absolute inset-0 size-full object-cover"
@@ -389,7 +392,17 @@ export function RecordPhotoCredit({ record }: { record: HasPhoto }) {
  * marked where they are looking, and the person in it does not exist. Small,
  * on the corner the distance chip does not use, and never on top of the face.
  */
-function AiMark() {
+function AiMark({ tiny = false }: { tiny?: boolean }) {
+  /* At 96px there is no room for two words without covering the face, and a
+     mark that covers the face is worse than no mark. Two letters in the corner
+     still says "not a photograph", and the foot of the list says the rest. */
+  if (tiny) {
+    return (
+      <span className="absolute bottom-1 right-1 rounded bg-black/55 px-1 py-px text-[9px] font-bold leading-tight text-white/95">
+        AI
+      </span>
+    );
+  }
   return (
     <span className="absolute right-2 top-2 whitespace-nowrap rounded-md bg-black/55 px-1.5 py-0.5 text-[10.5px] font-semibold text-white/95">
       AI 生成
@@ -429,7 +442,7 @@ export function PersonPhoto({
   initial: string;
   height?: number | string;
   radius?: number;
-  size?: "card" | "hero";
+  size?: "card" | "hero" | "thumb";
   eager?: boolean;
   className?: string;
   /** Overlaid on the image — the distance chip, a kind label. */
@@ -437,7 +450,15 @@ export function PersonPhoto({
 }) {
   const shot = portraitFor(id);
   const [failed, setFailed] = useState(false);
-  const src = shot ? (size === "hero" ? shot.hero : shot.card) : undefined;
+  /* `thumb` is a separately composed square, not a crop of the wide one: half
+     of a 16:9 portrait is a person shoved against the edge of the frame. */
+  const src = shot
+    ? size === "hero"
+      ? shot.hero
+      : size === "thumb"
+        ? (shot.thumb ?? shot.card)
+        : shot.card
+    : undefined;
   const show = Boolean(src) && !failed;
 
   return (
@@ -455,7 +476,7 @@ export function PersonPhoto({
           name={name}
           color={color}
           initial={initial}
-          size={size === "hero" ? 76 : 58}
+          size={size === "hero" ? 76 : size === "thumb" ? 44 : 58}
         />
       </div>
 
@@ -470,7 +491,7 @@ export function PersonPhoto({
         />
       )}
 
-      {show && <AiMark />}
+      {show && <AiMark tiny={size === "thumb"} />}
       {children}
     </div>
   );

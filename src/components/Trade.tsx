@@ -30,11 +30,16 @@ import type { Contact } from "../types";
  *
  * `StoryBadge` in ui.tsx makes the same argument for the same reason.
  */
-export function PartnerBadge({ compact }: { compact?: boolean }) {
+export function PartnerBadge({ compact, short }: { compact?: boolean; short?: boolean }) {
   return (
     <span className="inline-flex shrink-0 items-center gap-1 rounded-md bg-surface-2 px-1.5 py-0.5 text-[11px] font-semibold text-ink-3">
       <span aria-hidden>★</span>
-      {!compact && <span>ResoMap 推薦夥伴</span>}
+      {/* `short` drops the brand from the brand's own app. Beside a name on a
+          375px card the full wording leaves the name 69px and 阿誠包車旅遊
+          renders as 阿誠包… — the badge winning an argument it should not be in.
+          The full form stays on the detail page, and the ⓘ next to it opens the
+          rule either way. */}
+      {!compact && <span>{short ? "推薦夥伴" : "ResoMap 推薦夥伴"}</span>}
     </span>
   );
 }
@@ -59,12 +64,15 @@ export function Stars({
   rating,
   count,
   scale = 5,
+  extra,
   onClick,
 }: {
   rating: number;
   count?: number;
   /** Booking and Agoda publish out of ten. Say so rather than rescaling. */
   scale?: 5 | 10;
+  /** One more figure on the same line — "1,258 趟", "320 位旅客". */
+  extra?: string;
   onClick?: () => void;
 }) {
   const body = (
@@ -75,6 +83,7 @@ export function Stars({
         {scale === 10 ? " / 10" : ""}
       </span>
       {count !== undefined && <span className="num">（{count} 則評價）</span>}
+      {extra && <span className="num">· {extra}</span>}
       {onClick && <span aria-hidden>›</span>}
     </>
   );

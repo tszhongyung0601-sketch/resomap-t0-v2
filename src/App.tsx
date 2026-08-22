@@ -76,6 +76,7 @@ const Nearby = lazy(async () => ({ default: (await import("./screens/Nearby")).N
 const NearbyList = lazy(async () => ({ default: (await import("./screens/NearbyList")).NearbyList }));
 const Merchant = lazy(async () => ({ default: (await import("./screens/Merchant")).Merchant }));
 const Provider = lazy(async () => ({ default: (await import("./screens/Provider")).Provider }));
+const Offer = lazy(async () => ({ default: (await import("./screens/Offer")).Offer }));
 const Reviews = lazy(async () => ({ default: (await import("./screens/Reviews")).Reviews }));
 const Subscribe = lazy(async () => ({ default: (await import("./screens/Subscribe")).Subscribe }));
 const Pro = lazy(async () => ({ default: (await import("./screens/Pro")).Pro }));
@@ -337,6 +338,7 @@ export default function App() {
     screen = <NearbyList poiId={route.poiId} cat={route.cat} range={route.range} />;
   else if (route?.k === "merchant") screen = <Merchant id={route.id} />;
   else if (route?.k === "provider") screen = <Provider id={route.id} />;
+  else if (route?.k === "offer") screen = <Offer id={route.id} />;
   else if (route?.k === "reviews")
     screen = <Reviews kind={route.kind} id={route.id} />;
   else if (route?.k === "subscribe") screen = <Subscribe audience={route.audience} />;
