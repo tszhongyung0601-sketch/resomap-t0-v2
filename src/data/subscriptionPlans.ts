@@ -26,7 +26,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
       "上傳自己的語音導覽（送審後上架）",
       "周邊推薦與聯盟合作內容",
     ],
-    note: "一般會員永久免費。以下三種是給服務提供者的方案。",
+    note: "一般會員永久免費。以下三種是給商家與服務提供者的方案。",
   },
   {
     id: "plan-merchant",
@@ -43,7 +43,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
       "出現在該景點的「周邊推薦」清單",
       "排序加權：付費曝光 + 通過審核",
     ],
-    note: "「店家精選」永遠標示為商業內容，且每個景點最多 2 則。",
+    note: "「店家精選」一律標示，每個景點最多 2 則。",
   },
   {
     id: "plan-guide",
@@ -60,7 +60,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
       "LINE / WhatsApp / 電話 / 預約聯絡管道",
       "排序加權：付費曝光 + 通過審核",
     ],
-    note: "專業身份只能擇一：導遊或包車，不能同時啟用。",
+    note: "導遊與包車一次只能啟用一種；商家會員可以同時存在。",
   },
   {
     id: "plan-driver",
@@ -77,7 +77,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
       "LINE / WhatsApp / 電話 / 預約聯絡管道",
       "排序加權：付費曝光 + 通過審核",
     ],
-    note: "專業身份只能擇一：導遊或包車，不能同時啟用。",
+    note: "導遊與包車一次只能啟用一種；商家會員可以同時存在。",
   },
 ];
 
@@ -88,11 +88,7 @@ export const BY_PLAN: Record<string, SubscriptionPlan> = Object.fromEntries(
 export const planFor = (audience: PlanAudience): SubscriptionPlan =>
   SUBSCRIPTION_PLANS.find((p) => p.audience === audience) ?? SUBSCRIPTION_PLANS[0];
 
-/**
- * What the 推薦夥伴 mark actually requires, in the traveller's words.
- *
- * Printed on the subscription page and on every provider list, because a badge
- * whose rule is invisible is indistinguishable from a badge you can buy.
- */
-export const PARTNER_RULE =
-  "「ResoMap 推薦夥伴」不是付費就有：需要付費訂閱，而且資料通過 ResoMap 審核，兩個條件同時成立才會顯示。";
+/* The 推薦夥伴 rule used to be a sentence exported from here and printed at the
+   foot of five screens. It now lives in data/info.ts as two sentences behind an
+   ⓘ — the rule itself is unchanged and still enforced by
+   `isVerifiedPartner()` in lib/nearby.ts. */

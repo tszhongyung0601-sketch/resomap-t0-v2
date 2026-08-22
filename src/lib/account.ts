@@ -1,25 +1,36 @@
 import { useSyncExternalStore } from "react";
-import type { PlanAudience, ProviderKind } from "../types";
+import type { ProviderKind } from "../types";
 
 /**
- * Who this device says it is: which plan, and — if it is a professional member
- * — which single professional identity.
+ * Who this device is, in three independent parts.
  *
- * **The exclusivity rule lives in the shape, not in a check.** A professional
- * member is a driver *or* a guide, and this store holds one `plan`, so there is
- * no state in which somebody is both. `proRole` is derived from the plan rather
- * than stored beside it, which means the two cannot disagree and there is no
- * "switch role" path that forgets to update the other field.
+ * The first version of this held a single `plan` enum — member / merchant /
+ * guide / driver — which made a shop and a person the same kind of thing. It
+ * was tidy and it was wrong: activating a merchant account silently switched
+ * off somebody's guide identity, because the two were competing for one field.
+ * A café that also runs walking tours is an ordinary business, not a data
+ * conflict.
  *
- * 商家 is a different concept and it says so: a shop is an account with a
- * storefront, not a person with a professional identity, so choosing 商家會員
- * clears any professional role rather than sitting alongside it.
+ * So:
  *
- * Same store shape as lib/saved.ts and lib/reactions.ts, and persisted for the
- * same reason: a subscription that forgets on reload cannot be demonstrated.
+ *   membership          what every traveller has. Free, and there is no other
+ *                       value today; it is a field rather than an assumption so
+ *                       a paid traveller tier does not need a migration.
+ *   professionalRole    a *person* who sells their own time. `null`, `driver`
+ *                       or `guide` — and the exclusivity lives in the field
+ *                       itself, so there is no state where both are on and no
+ *                       "switch off the other one" step anybody can forget.
+ *   merchantMembership  a *business* with a storefront. Independent of the
+ *                       above, because it is a different kind of account.
+ *
+ * Persisted, and it migrates the old single-`plan` shape on read — somebody who
+ * opened the previous build should not lose what they set.
  */
 
 const KEY = "resomap_account";
+
+export type Membership = "free";
+export type MerchantMembership = "inactive" | "active";
 
 export interface ProProfile {
   displayName: string;
@@ -44,8 +55,10 @@ export interface AudioDraft {
   status: "review";
 }
 
-interface Account {
-  plan: PlanAudience;
+export interface Account {
+  membership: Membership;
+  professionalRole: ProviderKind | null;
+  merchantMembership: MerchantMembership;
   profile: ProProfile;
   drafts: AudioDraft[];
 }
@@ -68,19 +81,40 @@ const DEFAULT_PROFILE: ProProfile = {
   price: "NT$ 3,000 – 8,000 / 半日",
 };
 
-const EMPTY: Account = { plan: "member", profile: DEFAULT_PROFILE, drafts: [] };
+const EMPTY: Account = {
+  membership: "free",
+  professionalRole: null,
+  merchantMembership: "inactive",
+  profile: DEFAULT_PROFILE,
+  drafts: [],
+};
 
-const PLANS: PlanAudience[] = ["member", "merchant", "guide", "driver"];
+/** The previous shape, so an existing device keeps what it had. */
+interface LegacyAccount {
+  plan?: "member" | "merchant" | "guide" | "driver";
+}
 
 function read(): Account {
   try {
     const raw = localStorage.getItem(KEY);
     if (!raw) return EMPTY;
-    const parsed = JSON.parse(raw) as Partial<Account>;
+    const parsed = JSON.parse(raw) as Partial<Account> & LegacyAccount;
+
+    const legacy = parsed.plan;
+    const role: ProviderKind | null =
+      parsed.professionalRole === "driver" || parsed.professionalRole === "guide"
+        ? parsed.professionalRole
+        : legacy === "driver" || legacy === "guide"
+          ? legacy
+          : null;
+
     return {
-      plan: PLANS.includes(parsed.plan as PlanAudience)
-        ? (parsed.plan as PlanAudience)
-        : "member",
+      membership: "free",
+      professionalRole: role,
+      merchantMembership:
+        parsed.merchantMembership === "active" || legacy === "merchant"
+          ? "active"
+          : "inactive",
       profile: { ...DEFAULT_PROFILE, ...(parsed.profile ?? {}) },
       drafts: Array.isArray(parsed.drafts)
         ? parsed.drafts.filter(
@@ -119,27 +153,30 @@ export function useAccount(): Account {
   return useSyncExternalStore(subscribe, snapshot, snapshot);
 }
 
+/* ------------------------------------------------------------------ reads */
+
+export const isMerchant = (a: Account) => a.merchantMembership === "active";
+export const isProfessional = (a: Account) => a.professionalRole !== null;
+
+/** Whether this account sells anything at all — drives one row in 我的. */
+export const sellsSomething = (a: Account) => isMerchant(a) || isProfessional(a);
+
+/* ----------------------------------------------------------------- writes */
+
 /**
- * The professional identity, derived.
+ * Take on, or put down, a professional identity.
  *
- * There is exactly one place this can come from, which is why switching from
- * 包車 to 導遊 cannot leave both switched on: it is one assignment to `plan`.
+ * One assignment. Driver and guide cannot both be true because there is one
+ * field, and passing `null` is how somebody stops being either — which the
+ * previous single-enum version had no way to express at all.
  */
-export const proRoleOf = (plan: PlanAudience): ProviderKind | null =>
-  plan === "driver" ? "driver" : plan === "guide" ? "guide" : null;
-
-export const isMerchantOf = (plan: PlanAudience) => plan === "merchant";
-
-/** Anything other than 一般會員 is a paid plan in this model. */
-export const isPaidPlan = (plan: PlanAudience) => plan !== "member";
-
-export function setPlan(plan: PlanAudience) {
-  commit({ ...state, plan });
+export function setProfessionalRole(role: ProviderKind | null) {
+  commit({ ...state, professionalRole: role });
 }
 
-/** Switch professional identity. Structurally impossible to hold both. */
-export function setProRole(role: ProviderKind) {
-  commit({ ...state, plan: role });
+/** Independent of the above. A shop owner may also be a guide. */
+export function setMerchantMembership(active: boolean) {
+  commit({ ...state, merchantMembership: active ? "active" : "inactive" });
 }
 
 export function saveProfile(patch: Partial<ProProfile>) {

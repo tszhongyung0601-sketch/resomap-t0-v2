@@ -1,12 +1,14 @@
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { useNav } from "../nav";
 import { Avatar, Row, Screen, TopBar } from "../components/ui";
 import { ME } from "../data/travellers";
 import { LOCALES, useI18n } from "../i18n";
 import { useSaved } from "../lib/saved";
 import { focusTrip } from "../lib/trip";
-import { proRoleOf, useAccount } from "../lib/account";
-import { PLAN_AUDIENCE_LABELS, PROVIDER_KIND_LABELS } from "../types";
+import { isMerchant, useAccount } from "../lib/account";
+import { PROVIDER_KIND_LABELS } from "../types";
+import { InfoSheet } from "../components/Trade";
+import { INFO, type InfoTopic } from "../data/info";
 
 /**
  * The drawer of the app.
@@ -39,6 +41,14 @@ export function Profile() {
   const { locale, t } = useI18n();
   const saved = useSaved();
   const account = useAccount();
+  const [info, setInfo] = useState<InfoTopic | null>(null);
+
+  /* Two independent memberships, read as one line. A shop owner who also
+     guides shows both, which the old single-enum model could not express. */
+  const roles = [
+    account.professionalRole ? PROVIDER_KIND_LABELS[account.professionalRole] : null,
+    isMerchant(account) ? "商家會員" : null,
+  ].filter(Boolean) as string[];
   const savedCount = saved.pois.length + saved.stories.length;
 
   return (
@@ -85,18 +95,16 @@ export function Profile() {
         <Row
           icon="👑"
           label="訂閱方案"
-          value={PLAN_AUDIENCE_LABELS[account.plan]}
+          value={roles.length ? roles.join(" · ") : "一般會員"}
           onClick={() => nav.go({ k: "subscribe" })}
         />
         <Row
           icon="🧭"
           label="專業會員"
           value={
-            proRoleOf(account.plan)
-              ? PROVIDER_KIND_LABELS[proRoleOf(account.plan)!]
-              : account.plan === "merchant"
-                ? "商家"
-                : undefined
+            account.professionalRole
+              ? PROVIDER_KIND_LABELS[account.professionalRole]
+              : "未啟用"
           }
           onClick={() => nav.go({ k: "pro" })}
         />
@@ -156,14 +164,18 @@ export function Profile() {
           onClick={() => nav.go({ k: "business" })}
         />
         <Row icon="🎬" label="Demo 情境" onClick={() => nav.go({ k: "demo" })} />
+        {/* The one place the prototype talks about itself. Everything that used
+            to be a paragraph in the middle of a product screen — no backend, no
+            payments, which platforms we have no agreement with — is here. */}
+        <Row icon="ℹ️" label="關於這個 Demo" onClick={() => setInfo(INFO.demo)} />
       </RowGroup>
 
       <p className="px-5 pb-2 pt-8 text-center text-[11.5px] leading-relaxed text-ink-3">
         Demo 版本・所有資料皆為示意
-        <br />
-        ResoMap 與各平台、商家皆無合作關係
       </p>
       <div className="h-24 shrink-0" />
+
+      <InfoSheet topic={info} onClose={() => setInfo(null)} />
     </Screen>
   );
 }
