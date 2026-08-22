@@ -1,4 +1,5 @@
 import { STORIES, poi } from "../data";
+import { distance, type LatLng } from "./geo";
 import type { Story } from "../types";
 
 /**
@@ -67,4 +68,37 @@ export function storyRail(destId?: string): Story[] {
   const here = STORIES.filter((s) => destOfStory(s) === destId);
   const seen = new Set(here.map((s) => s.id));
   return [...here, ...STORIES.filter((s) => !seen.has(s.id))];
+}
+
+/**
+ * The home rail's order: what you could listen to without going anywhere.
+ *
+ * Deliberately not `storyRail`'s order, and the difference is the point. That
+ * one leads with the city of the trip you have booked, which is the right answer
+ * to 「我這趟要聽什麼」 and the wrong answer to a rail sitting directly under a
+ * map that says 「新店附近 · 7 個可以聽」. Two answers about where you are, on one
+ * screen, is worse than two orderings across two screens.
+ *
+ * So: everything within `radiusM` sorted by distance, then the trip's city, then
+ * the rest — which means the rail changes when 定位 moves the map, and a
+ * traveller standing in 新店 is offered 景美夜市 rather than 七星潭.
+ *
+ * 導覽庫 keeps calling `storyRail`. It answers "what is there", not "what is
+ * near me", and a place list that reordered itself as somebody walked around
+ * would be unusable as a list.
+ */
+export function nearbyStoryRail(at: LatLng, destId?: string, radiusM = 12000): Story[] {
+  const withDistance = STORIES.map((s) => {
+    const p = poi(s.poiId);
+    return { s, m: p ? distance(at, p) : Infinity };
+  });
+
+  const near = withDistance
+    .filter((x) => x.m <= radiusM)
+    .sort((a, b) => a.m - b.m)
+    .map((x) => x.s);
+
+  const seen = new Set(near.map((s) => s.id));
+  const rest = storyRail(destId).filter((s) => !seen.has(s.id));
+  return [...near, ...rest];
 }

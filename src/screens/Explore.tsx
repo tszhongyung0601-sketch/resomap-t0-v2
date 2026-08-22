@@ -4,7 +4,9 @@ import { MapHome } from "./MapHome";
 import { PoiImage } from "../components/Cover";
 import { Button, Card, Headphones, Screen, Tag } from "../components/ui";
 import { toggleStory, useSaved } from "../lib/saved";
-import { playLabel, rating, storyRail } from "../lib/story";
+import { nearbyStoryRail, playLabel, rating } from "../lib/story";
+import { distance } from "../lib/geo";
+import { useHere } from "../lib/here";
 import { focusTrip } from "../lib/trip";
 import { useI18n } from "../i18n";
 import { useNav, type Route } from "../nav";
@@ -80,7 +82,12 @@ const tripPois = (trip: Trip): string[] => [
 function GuideRail({ destId }: { destId?: string }) {
   const nav = useNav();
   const { t } = useI18n();
-  const rail = storyRail(destId);
+  /* The same position the map above is drawing, from the same store — so
+     pressing 定位 re-sorts this rail as well as moving the blue dot. */
+  const fix = useHere();
+  const rail = nearbyStoryRail(fix.at, destId);
+  const nearest = poi(rail[0]?.poiId ?? "");
+  const isNear = nearest ? distance(fix.at, nearest) <= 12000 : false;
   if (!rail.length) return null;
 
   return (
@@ -91,7 +98,11 @@ function GuideRail({ destId }: { destId?: string }) {
         <Tag kind="demo" />
       </div>
       <p className="mb-3 mt-1 px-5 text-[12.5px] text-ink-3">
-        {t("語音導覽免費，可以先試聽 30 秒。")}
+        {/* Says which question the order is answering. Without it a rail that
+            silently reorders when somebody presses 定位 looks like a bug. */}
+        {isNear
+          ? `${t("從近到遠。")}${t("語音導覽免費，可以先試聽 30 秒。")}`
+          : t("語音導覽免費，可以先試聽 30 秒。")}
       </p>
 
       <div className="snap-rail flex gap-3 overflow-x-auto px-5 pb-1 no-scrollbar">

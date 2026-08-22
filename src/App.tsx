@@ -34,6 +34,7 @@ import {
 import { ProductDetail, Tickets } from "./screens/Tickets";
 import { Together, Prefs, Pool, ConsensusView } from "./screens/Together";
 import { Expenses, Settle, resetReceipts } from "./screens/Expenses";
+import { resetHere } from "./lib/here";
 import { resetSaved } from "./lib/saved";
 import { Library } from "./screens/Library";
 import { resetReactions } from "./lib/reactions";
@@ -224,6 +225,8 @@ export default function App() {
     /* The saved shelf is a third module store outside `trips`; a demo reset that
        leaves yesterday's hearts filled is not a reset. */
     resetSaved();
+    /* Back to 新店, with everything else the demo reset puts back. */
+    resetHere();
     /* Two more module stores arrived with V2 — the likes and comments on a
        guide, and the subscription this device picked. A reset that leaves a
        merchant subscription switched on is not a reset. */

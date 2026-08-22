@@ -56,6 +56,10 @@ npm run lint     # oxlint
 - **定位按鈕**才會呼叫 `getCurrentPosition`（`enableHighAccuracy` / `timeout: 8000` /
   `maximumAge: 30000`）。失敗不 `alert()`，留在 Demo 位置並吐一句
   「目前無法取得定位，已顯示預設位置附近景點。」，所有距離會依新位置重算。
+- **底下的「有故事的地方」跟著一起排。** 那一排原本以「這趟行程的城市」優先，
+  所以地圖寫「新店附近」而底下第一張是七星潭——同一個畫面對「你在哪」給了兩個答案。
+  現在它讀同一份位置，由近到遠排（裕隆城 → 新店溪河濱步道 → 碧潭 → 景美夜市…），
+  按定位會一起重排。導覽庫維持原本的城市排序：它回答的是「有什麼」不是「附近有什麼」。
 - **搜尋框搜的是這七個景點**，打「碧潭」會同時出現碧潭風景區與碧潭吊橋，選了就 flyTo + 選取 + 開卡片；
   想找全台其他景點，最後一列會把你帶到原本的搜尋頁。
 
@@ -73,6 +77,7 @@ Overpass 是公共服務、會慢會擋，所以**每一種失敗都 resolve 成
 | `data/nearbyAttractions.ts` | 七個景點（只存 POI id，名稱座標照片全部沿用既有資料，不做第二份） |
 | `lib/geolocation.ts` | 瀏覽器定位。永不 throw，失敗回 `{ ok: false, reason }` |
 | `lib/overpass.ts` | OSM POI 查詢。永不 throw，失敗回 `[]` |
+| `lib/here.ts` | 目前位置的共用 store。地圖與底下的導覽 rail 讀同一份，按定位兩個一起動 |
 | `screens/MapHome.tsx` | 畫面 |
 | `components/MapView.tsx` | 耳機 marker、藍點、`flyTo`（沿用同一個地圖元件，沒有分家） |
 

@@ -7,13 +7,10 @@ import {
   oneLine,
   type Attraction,
 } from "../data/nearbyAttractions";
-import {
-  DEFAULT_AREA_LABEL,
-  DEFAULT_DEMO_LOCATION,
-  DEMO_ACCURACY_M,
-} from "../data/location";
+import { DEFAULT_AREA_LABEL } from "../data/location";
 import { distance, km, type LatLng } from "../lib/geo";
-import { FAILURE_MESSAGE, locate, type Fix } from "../lib/geolocation";
+import { FAILURE_MESSAGE, locate } from "../lib/geolocation";
+import { setHere, useHere } from "../lib/here";
 import { nearbyOsmPlaces, type OsmPlace } from "../lib/overpass";
 import { audiosFor } from "../lib/audio";
 import { openPlaceDirections } from "../lib/maps";
@@ -46,12 +43,11 @@ import type { Poi } from "../types";
 export function MapHome() {
   const nav = useNav();
 
-  /** Where the map thinks the traveller is. Demo until they ask otherwise. */
-  const [fix, setFix] = useState<Fix>({
-    at: DEFAULT_DEMO_LOCATION,
-    accuracy: DEMO_ACCURACY_M,
-    real: false,
-  });
+  /* Where the traveller is, from the store rather than from this component.
+     有故事的地方 sits directly under this map and sorts by the same position, so
+     holding it here would let one screen give two answers about where you are —
+     a map saying 「新店附近」 above a rail leading with 七星潭. */
+  const fix = useHere();
   const [locating, setLocating] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const [picked, setPicked] = useState<string | null>(null);
@@ -181,7 +177,7 @@ export function MapHome() {
     const res = await locate();
     setLocating(false);
     if (res.ok) {
-      setFix(res.fix);
+      setHere(res.fix);
       fly(res.fix.at, 15);
       return;
     }
