@@ -68,7 +68,7 @@
 | Feature | T0 | HTTP | V2 |
 |---|---|---|---|
 | 商家資料 | 只有「在地優惠」deal（即將推出） | ✅ 3 筆 | **64 筆**，真座標，涵蓋台灣八城；含未訂閱與審核中的例子 |
-| 商家列表卡 | — | 一次塞滿九行資訊 + 3 顆 CTA | **大圖 + 精簡**：150px 照片（距離壓在圖上）/ 名稱 / 星等與則數 / 分類・區域 / 一行簡介 / 標章 / 優惠 + 2 顆 CTA |
+| 周邊列表卡（商家 / 司機 / 導遊 / Local tour / 旅館） | — | 一次塞滿九行資訊 + 3 顆 CTA | **統一骨架**：96px 方形縮圖在左、名稱＋推薦夥伴徽章、副標（區域/工作室・距離）、語言 chips、星等、三格規格表、三顆 CTA。司機與導遊另有自我介紹與主題 chips。**沒有資料的格子不出現**——商家沒有價格就不放價格格。規格見 [CARD_SPEC.md](CARD_SPEC.md) |
 | 商家詳情 | ❌ | Modal | **新增整頁**：營業時間、地址、語言、會員狀態、店家語音、評價、地圖 |
 | 導航前往 | ✅（景點） | Modal 模擬 | **真的開 Google Maps**（帶座標） |
 | 立即聯絡 | ❌ | Modal | **聯絡 Sheet**：有 URL 真的開，沒有的列出來並說明 |
@@ -93,6 +93,8 @@
 | Affiliate 模型 | ✅ `AffiliateProduct`（門票比價）+ `Deal` | 硬寫在畫面上 | **新增 `AffiliateOffer`**：`partner / productId / affiliateUrl / trackingId / commissionType / commissionRate` |
 | Booking / Agoda / Trip.com | ✅ 住宿 deal | ✅ | **新增周邊住宿清單** |
 | Klook / KKday | ✅ 門票 deal | ✅ | **新增 Local tour 清單** |
+| Local tour / 旅館詳情頁 | ❌ | ❌ | **新增整頁**：大圖 / 名稱 / 平台評分（Booking 用 10 分制，不換算成星） / 價格 / 平台 / 介紹 / 「預訂與退改都在平台完成，ResoMap 不經手金流」/ 地圖 / 收藏 + 前往。`affiliateUrl` 是空的，按鈕讀欄位並說明 |
+| 收藏 offer | ❌ | ❌ | **新增**：`lib/saved.ts` 從兩個集合擴成三個（景點 / 導覽 / 平台商品） |
 | 外連行為 | 模擬 Sheet | Modal | **資料驅動**：`affiliateUrl` 有值就帶 tracking id 真的開；目前全空 → 出說明 Sheet |
 | Funnel 追蹤 | ✅ `lib/track.ts` | ❌ | 沿用；聯盟點擊也寫進同一個 funnel |
 | 揭露 | ✅ `AFFILIATE_DISCLOSURE` | 部分 | 沿用同一句，貼在每一個聯盟清單底部 |
