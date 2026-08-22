@@ -216,7 +216,10 @@ export function PhotoCredit({ poi }: { poi: Poi }) {
       <a href={c.licenceUrl} target="_blank" rel="noopener noreferrer" className="underline">
         {c.licence}
       </a>
-      {" · via Wikimedia Commons"}
+      {/* Named rather than assumed. Everything here came from Wikimedia until
+          the overseas gaps were filled from a stock library, and printing the
+          wrong provenance under a photograph is worse than printing none. */}
+      {` · via ${c.via ?? "Wikimedia Commons"}`}
     </p>
   );
 }
@@ -402,7 +405,7 @@ export function RecordPhotoCredit({ record }: { record: HasPhoto }) {
       <a href={c.licenceUrl} target="_blank" rel="noopener noreferrer" className="underline">
         {c.licence}
       </a>
-      {" · via Wikimedia Commons"}
+      {` · via ${c.via ?? "Wikimedia Commons"}`}
     </p>
   );
 }

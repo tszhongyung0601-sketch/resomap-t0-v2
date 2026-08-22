@@ -40,3 +40,4 @@ dist-ssr
 .stock-src/
 .sheet.png
 portraits-40*.png
+.poi-photos.json
