@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { photoFor } from "../data/imagePrompts";
+import { shotFor, type HasPhoto } from "../lib/photo";
 import type { Poi, PoiKind } from "../types";
 
 /**
@@ -276,5 +277,99 @@ export function SceneCover({
     >
       <Generated poi={stand} radius={radius} emoji={showEmoji} />
     </div>
+  );
+}
+
+/**
+ * The picture for a merchant, a provider, an affiliate listing or a category
+ * card — a real photograph when the record has one, the generated poster when
+ * it has not.
+ *
+ * Same contract as `PoiImage`: the poster is drawn underneath and the photo on
+ * top, so a failed request degrades to the graphic rather than to a broken-image
+ * glyph. `loading="lazy"` is not optional here — a 周邊推薦 list can hold a
+ * dozen of these and none of them is above the fold.
+ *
+ * `size` picks which file: cards ask for the 720px crop, headers for the 1280px
+ * one. Asking for the hero in a 353px slot is most of the payload for none of
+ * the sharpness, which is the same reason PoiImage keeps two bases.
+ */
+export function RecordPhoto({
+  record,
+  fallbackId,
+  fallbackKind,
+  emoji,
+  height = 160,
+  radius = 16,
+  size = "card",
+  className = "",
+  children,
+}: {
+  record: HasPhoto;
+  /** Seeds the poster's jitter, so two shops do not draw the same graphic. */
+  fallbackId: string;
+  fallbackKind: PoiKind;
+  emoji: string;
+  height?: number | string;
+  radius?: number;
+  size?: "card" | "hero";
+  className?: string;
+  /** Overlaid on the image — a badge, a label. */
+  children?: ReactNode;
+}) {
+  const shot = shotFor(record);
+  const [failed, setFailed] = useState(false);
+  const src = shot ? (size === "hero" ? shot.hero : shot.card) : undefined;
+  const show = Boolean(src) && !failed;
+
+  return (
+    <div
+      className={`relative shrink-0 overflow-hidden ${className}`}
+      style={{ height, borderRadius: radius }}
+    >
+      <Generated
+        poi={{ id: fallbackId, kind: fallbackKind, emoji } as Poi}
+        radius={radius}
+        emoji={!show}
+      />
+      {show && src && (
+        <img
+          src={src}
+          alt=""
+          loading="lazy"
+          decoding="async"
+          onError={() => setFailed(true)}
+          className="absolute inset-0 size-full object-cover"
+          style={{ borderRadius: radius }}
+        />
+      )}
+      {children}
+    </div>
+  );
+}
+
+/**
+ * Photographer and licence for a borrowed T0 photograph.
+ *
+ * Only a real photograph carries a credit, and when it does the licence
+ * requires it to be shown — so this renders nothing for an illustrative demo
+ * image and everything for a CC one. The 示意圖 line for the demo images sits
+ * at block level with the rest of the disclosures, not on every card.
+ */
+export function RecordPhotoCredit({ record }: { record: HasPhoto }) {
+  const c = shotFor(record)?.credit;
+  if (!c) return null;
+  return (
+    <p className="px-5 pt-1.5 text-[11px] leading-relaxed text-ink-3">
+      周邊實景照片：
+      <a href={c.source} target="_blank" rel="noopener noreferrer" className="underline">
+        {c.author}
+      </a>
+      {" / "}
+      <a href={c.licenceUrl} target="_blank" rel="noopener noreferrer" className="underline">
+        {c.licence}
+      </a>
+      {" · via Wikimedia Commons"}
+    </p>
   );
 }

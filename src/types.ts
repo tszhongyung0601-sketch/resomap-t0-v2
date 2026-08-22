@@ -695,9 +695,15 @@ export interface Merchant extends Rated {
   area: string;
   lat: number;
   lng: number;
-  /** Stands in for a photo, the same way a POI does. */
+  /** The fallback when there is no photograph — the same poster the app draws
+      for a POI with no shot in the manifest. */
   emoji: string;
   tint: string;
+  /** An illustrative photo under public/demo/, without the size suffix. */
+  photo?: string;
+  /** A POI whose real, credited photograph this record borrows — a location
+      shot of the street it is on. Takes precedence over `photo`. */
+  photoFromPoi?: string;
   /** One sentence. The card shows this; the detail page shows everything. */
   desc: string;
   promo?: string;
@@ -733,9 +739,15 @@ export interface Provider extends Rated {
   name: string;
   /** The studio or company they work under, when there is one. */
   org?: string;
-  /** T0 draws people as an initial on a colour, not as a stock photo. */
+  /** Drawn when there is no photograph — and it is also the small avatar the
+      detail page keeps beside the name. */
   initial: string;
   color: string;
+  /** An illustrative portrait under public/demo/, without the size suffix. */
+  photo?: string;
+  /** A POI whose real, credited photograph stands in for this person — their
+      own signature route, which is what a traveller is actually choosing. */
+  photoFromPoi?: string;
   /** Where they are based — used for the distance from a place. */
   destId: string;
   area: string;
@@ -802,6 +814,8 @@ export interface AffiliateOffer {
   blurb: string;
   emoji: string;
   tint: string;
+  photo?: string;
+  photoFromPoi?: string;
 }
 
 /* ----------------------------------------------------------- subscription */

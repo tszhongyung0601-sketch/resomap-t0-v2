@@ -41,6 +41,7 @@ export const AFFILIATE_OFFERS: AffiliateOffer[] = [
     blurb: "走路到龍山寺捷運站六分鐘，房型偏小但採光好。",
     emoji: "🏨",
     tint: "#DFE8FA",
+    photoFromPoi: "longshan",
   },
   {
     id: "ao-tpe-hotel-2",
@@ -62,6 +63,7 @@ export const AFFILIATE_OFFERS: AffiliateOffer[] = [
     blurb: "老屋改建，早餐在一樓的咖啡店吃，附近晚上很安靜。",
     emoji: "🛎️",
     tint: "#EDE4FA",
+    photoFromPoi: "dadaocheng",
   },
   {
     id: "ao-tpe-hotel-3",
@@ -83,6 +85,7 @@ export const AFFILIATE_OFFERS: AffiliateOffer[] = [
     blurb: "出捷運松山站一號出口就到，適合逛完饒河街直接回房。",
     emoji: "🏬",
     tint: "#DCEBFF",
+    photoFromPoi: "raohe",
   },
 
   /* ------------------------------------------------------------ 台北・行程 */
@@ -106,6 +109,7 @@ export const AFFILIATE_OFFERS: AffiliateOffer[] = [
     blurb: "兩小時，走三個夜市攤位，中英雙語導覽。",
     emoji: "🍢",
     tint: "#FFE7DA",
+    photo: "jingmei-snack",
   },
   {
     id: "ao-tpe-tour-2",
@@ -127,6 +131,7 @@ export const AFFILIATE_OFFERS: AffiliateOffer[] = [
     blurb: "小巴出發，含十分天燈一顆，回程約晚上七點半。",
     emoji: "🏮",
     tint: "#E0EEFB",
+    photoFromPoi: "jiufen",
   },
   {
     id: "ao-tpe-tour-3",
@@ -148,6 +153,7 @@ export const AFFILIATE_OFFERS: AffiliateOffer[] = [
     blurb: "三小時，含一場茶席，最多八人成團。",
     emoji: "🍵",
     tint: "#FFE7DA",
+    photo: "souvenir-shop-2",
   },
 
   /* ------------------------------------------------------------ 台南 */
@@ -171,6 +177,7 @@ export const AFFILIATE_OFFERS: AffiliateOffer[] = [
     blurb: "赤崁樓走路八分鐘，早餐是隔壁的碗粿。",
     emoji: "🏯",
     tint: "#DFE8FA",
+    photoFromPoi: "chihkan",
   },
   {
     id: "ao-tnn-hotel-2",
@@ -192,6 +199,7 @@ export const AFFILIATE_OFFERS: AffiliateOffer[] = [
     blurb: "面運河的房型看得到夕陽，有免費腳踏車。",
     emoji: "⛵",
     tint: "#EDE4FA",
+    photoFromPoi: "anping-fort",
   },
   {
     id: "ao-tnn-tour-1",
@@ -213,6 +221,7 @@ export const AFFILIATE_OFFERS: AffiliateOffer[] = [
     blurb: "四小時走六攤，含牛肉湯與碗粿，早上場次比較不熱。",
     emoji: "🍜",
     tint: "#E0EEFB",
+    photoFromPoi: "guohua",
   },
 
   /* ------------------------------------------------------------ 花蓮 */
@@ -236,6 +245,7 @@ export const AFFILIATE_OFFERS: AffiliateOffer[] = [
     blurb: "走到東大門夜市五分鐘，可以寄放行李到晚上。",
     emoji: "🏨",
     tint: "#DFE8FA",
+    photoFromPoi: "dongdamen",
   },
   {
     id: "ao-hln-tour-1",
@@ -257,6 +267,7 @@ export const AFFILIATE_OFFERS: AffiliateOffer[] = [
     blurb: "八小時，四人成行，遇公路封閉會改走海線。",
     emoji: "⛰️",
     tint: "#FFE7DA",
+    photoFromPoi: "taroko",
   },
 ];
 
