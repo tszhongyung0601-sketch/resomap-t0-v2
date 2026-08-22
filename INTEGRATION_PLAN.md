@@ -145,7 +145,7 @@ Affiliate 入口 + 模擬 funnel + 營運數據・優惠頁・優惠券・九語
 | HTTP | V2 去處 |
 |---|---|
 | `state.range` 5 / 10 | `Nearby` / `NearbyList` 的 `Segmented`，並帶進 route |
-| `state.professionalRole` 擇一 | `lib/account.ts`，由「只有一個 `plan`」結構性保證 |
+| `state.professionalRole` 擇一 | `lib/account.ts` 的 `professionalRole` 單一欄位，結構性保證；商家另有 `merchantMembership`，兩者互不干涉 |
 | `audioItems[].featured` 置頂 | `lib/audio.ts`，上限 2 用 `.slice(0, FEATURED_CAP)` 擋在程式裡 |
 | `startPlayer()` 進度模擬 | 改接 T0 既有的 `lib/speech.ts`（真的會唸） |
 | `editProfileModal()` 欄位 | `Pro.tsx` 的編輯 Sheet |
@@ -191,6 +191,7 @@ Affiliate 入口 + 模擬 funnel + 營運數據・優惠頁・優惠券・九語
 | `Cover.tsx` 新增 `RecordPhoto` | 真照片優先、海報圖 fallback、`loading="lazy"` |
 | `Cover.tsx` 新增 `RecordPhotoCredit` | 借用 T0 真照片時的 CC 出處（授權要求，不是裝飾） |
 | `Story.tsx` 內的 `NextUp` | 播完的「接下來想做什麼？」 |
+| `Trade.tsx` 的 `InfoButton` / `InfoSheet` | 商業規則的 ⓘ 入口；文案集中在 `data/info.ts` |
 
 ## 13. V2 data model
 
@@ -233,9 +234,20 @@ isVerifiedPartner = isPaid && reviewStatus === "approved"
 // 2. 排序（lib/nearby.ts），無 AI、無隨機、可測
 score = 0.40·distance + 0.25·rating + 0.15·paidExposure
       + 0.10·verified + 0.10·relevance
+// 這組權重不印在旅客的螢幕上。畫面只說「依距離、評價與相關度綜合排序，
+// 部分合作內容可能享有較高曝光並會標示」。
 
 // 3. 沒決定的價格就是 null，畫面顯示「價格待確認」
 priceTwd: number | null
+
+// 4. 帳號：商家是 Business Account，導遊／包車是 Personal Identity
+interface Account {
+  membership: "free";
+  professionalRole: null | "driver" | "guide";   // 單一欄位 → 天然互斥
+  merchantMembership: "inactive" | "active";      // 與上面無關
+  profile: ProProfile;
+  drafts: AudioDraft[];
+}
 ```
 
 ## 14. V2 routes

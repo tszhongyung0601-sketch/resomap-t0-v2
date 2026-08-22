@@ -53,7 +53,7 @@ npm run lint     # oxlint
 6. 或按「全部周邊推薦」→ 五個問題的圖片型分類頁 → 切 5km / 10km，數字會真的變（11 → 19）
 7. 包車司機 → 三位：兩位掛 **ResoMap 推薦夥伴**，一位掛 **審核中**
    （付費 ✚ 通過審核才有標章，付費本身不夠）
-8. 右上「排序方式」→ 攤開排序權重：距離 40%、評價 25%、付費曝光 15%、審核 10%、相關度 10%
+8. 右上「推薦排序 ⓘ」→「依距離、評價與相關度綜合排序。部分合作內容可能享有較高曝光，並會清楚標示。」
 9. 任一位 →「立即聯絡」→ LINE / WhatsApp 真的會開，電話 / 預約沒填就說明會發生什麼事
 10. 評價「4.9（128 則評價）」→ 評價頁
 11. 周邊推薦 → Local tour →「前往 Klook」→ 說明 affiliate 串接後這顆按鈕會怎麼運作
@@ -61,7 +61,8 @@ npm run lint     # oxlint
 **商家與專業會員**
 
 12. 我的 → 訂閱方案 → 四種身份，價格一律「價格待確認」（codebase 沒有定價，不自行發明）
-13. 切成「導遊會員」→ 專業會員頁 → 切「包車司機」→ **會提示原本的導遊身份將停用**（只能擇一）
+13. 啟用「導遊會員」→ 專業會員頁 → 再啟用「商家會員」→ **兩個同時存在**；
+    切「包車司機」→ 提示原本的導遊會停用、**商家不受影響**
 14. 語音清單右上「＋」→ 六步上傳流程 → 送 ResoMap 審核 → 我的上傳清單
 
 **行程串通**
@@ -109,6 +110,7 @@ src/
     reviews.ts          評價樣本
     subscriptionPlans.ts 四種方案，價格全為 null
     nearbyCategories.ts  周邊推薦的五個問題與七張分類卡
+    info.ts              ⓘ 後面的兩句話：推薦夥伴、推薦排序、店家精選、聯盟合作、關於 Demo
   lib/
     ── T0 ──
     adapt.ts / geo.ts / speech.ts / track.ts / saved.ts / maps.ts / trip.ts / story.ts …
@@ -117,7 +119,7 @@ src/
     nearby.ts      rankNearbyServices() ＋ isVerifiedPartner()
     contact.ts     有 URL 就真的開，沒有就回 false 讓畫面說明
     reactions.ts   讚 / 不推 / 留言（localStorage）
-    account.ts     訂閱方案與專業身份（localStorage，身份互斥由結構保證）
+    account.ts     會員狀態：professionalRole（導遊／包車互斥）＋ merchantMembership（獨立）
     photo.ts       商家 / 服務者 / 分類卡的照片：T0 真照片（附授權）優先，Demo 圖次之
   components/
     ── T0 ──
@@ -172,7 +174,12 @@ src/
   所以簽下一個 LINE 官方帳號之後，是改資料，不是改程式。
 - **商業模式不寫在使用者臉上。**
   周邊推薦的標題是「吃什麼？」「今晚住哪？」，不是「ResoMap 付費服務」。
-  來源是每張卡底部一行 11px 灰字，完整說明放頁尾。看得到，但不是他來的目的。
+  來源是每張卡底部一行 11px 灰字；規則本身收在 ⓘ 後面兩句話，
+  工程與定價的細節收在這份 README 與 `INTEGRATION_PLAN.md`。
+  排序權重仍然在 `lib/nearby.ts` 的 `WEIGHTS` 裡，只是不印在旅客的螢幕上。
+- **商家是帳號，導遊 / 包車是個人身份。**
+  `lib/account.ts` 分成 `professionalRole` 與 `merchantMembership` 兩個欄位。
+  導遊與包車互斥（因為是同一個欄位），商家與它們無關 —— 一家咖啡店也可以帶步行導覽。
 - **沒有決定的價格就不要寫。**
   `subscriptionPlans.ts` 的 `priceTwd` 全部是 `null`，畫面顯示「價格待確認」。
   寫一個看起來合理的 NT$ 990 進去，它就會變成會議上被引用的數字。

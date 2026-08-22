@@ -14,6 +14,8 @@ V2 是純前端原型。這份清單是「要變成真的產品，後端必須�
 - 現況：沒有帳號。`lib/account.ts` 用 localStorage 假裝這台裝置是誰。
 - 需要：Email / 手機 / 社群登入、session、裝置多登入、忘記密碼。
 - 前端影響：`useAccount()` 換成打 API，`Account` 型別不用動。
+  注意 `professionalRole` 與 `merchantMembership` 是兩張不同的表：
+  前者掛在自然人（需要證照查核），後者掛在營業登記。
 
 ### 2. Database
 - 現況：`src/data/*.ts` 是編譯進 bundle 的常數。
