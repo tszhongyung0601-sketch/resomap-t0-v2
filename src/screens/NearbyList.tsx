@@ -90,6 +90,9 @@ export function NearbyList({
 
   if (!p || !meta) return null;
   const total = merchants.length + providers.length + offers.length;
+  /* ResoMap's merchant and provider supply is Taiwan-only today. Saying so is
+     more useful than an empty list that looks like a loading failure. */
+  const overseas = BY_DEST[p.destId]?.country !== "tw";
 
   return (
     <Screen>
@@ -119,10 +122,21 @@ export function NearbyList({
       </p>
 
       {total === 0 ? (
+        /* Two different empty states, because they are two different facts.
+           Inside Taiwan the supply exists and simply is not on this street, so
+           the offer is to look further. Overseas there is no ResoMap supply at
+           all yet, and pretending a wider radius would find some would send
+           somebody looking for nothing. */
         <Empty
           icon={meta.emoji}
-          text={`這個範圍內還沒有${meta.title}。要不要把範圍拉到 10 公里？`}
-          action={range === 5000 ? "改成 10 公里" : undefined}
+          text={
+            overseas
+              ? `ResoMap 的${meta.title}目前只在台灣。這個城市的內容還在準備。`
+              : range === 5000
+                ? `${p.name} 5 公里內還沒有${meta.title}。`
+                : `${p.name} 10 公里內還沒有${meta.title}。`
+          }
+          action={!overseas && range === 5000 ? "看 10 公里內" : undefined}
           onAction={() => setRange(10000)}
         />
       ) : (

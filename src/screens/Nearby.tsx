@@ -28,9 +28,13 @@ import { useNav } from "../nav";
  * reading; quiet, because it is not what they came for. The full disclosure sits
  * once at the foot of the screen.
  *
- * A card with nothing behind it at the current radius says so and does not
- * navigate. An empty list you can tap into is the dead control this app keeps
- * deleting.
+ * A card with nothing behind it at the current radius still opens. It used to
+ * go grey and refuse the tap, on the reasoning that a button with nothing
+ * behind it is a dead button — but what a traveller reads on a greyed-out
+ * 私人導遊 is "this feature is not built", not "there is no guide on this
+ * street". So it opens, and the list says which of those two it is and offers
+ * to widen the search. That is the difference between an empty state and a
+ * broken one.
  */
 export function Nearby({ poiId }: { poiId: string }) {
   const nav = useNav();
@@ -136,7 +140,7 @@ function CategoryCard({
   onOpen: () => void;
   onInfo: (t: InfoTopic) => void;
 }) {
-  const live = count > 0;
+  const empty = count === 0;
   const tall = card.half ? 118 : 168;
 
   return (
@@ -144,17 +148,12 @@ function CategoryCard({
        it. The card opens the list and the ⓘ opens two sentences — nesting them
        is invalid markup and behaves differently in every browser, which is the
        same reason Explore's guide cards and MerchantCard are built this way. */
-    <article
-      className={`min-w-0 flex-1 overflow-hidden rounded-2xl bg-surface ${
-        live ? "" : "opacity-70"
-      }`}
-    >
+    <article className="min-w-0 flex-1 overflow-hidden rounded-2xl bg-surface">
       <button
         onClick={onOpen}
-        disabled={!live}
-        className={`block w-full text-left transition ${live ? "active:bg-surface-2" : ""}`}
+        className="block w-full text-left transition active:bg-surface-2"
       >
-        <div className={live ? "" : "grayscale"}>
+        <div className={empty ? "opacity-55 grayscale" : ""}>
           <RecordPhoto
             record={card}
             fallbackId={card.cat}
@@ -179,7 +178,7 @@ function CategoryCard({
               {/* 家 / 間 / 位 / 個行程 — one table in lib/nearby.ts, so no two
                   screens can count the same thing with different words. */}
               <span className="num shrink-0 rounded-md bg-white/90 px-1.5 py-0.5 text-[11.5px] font-bold text-ink">
-                {live ? `${count} ${getNearbyCountUnit(card.cat)}` : "尚無"}
+                {empty ? "看更遠" : `${count} ${getNearbyCountUnit(card.cat)}`}
               </span>
             </span>
           </RecordPhoto>
