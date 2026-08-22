@@ -137,16 +137,17 @@ export function Audios({ poiId }: { poiId: string }) {
         <>
           {shownFeatured.length > 0 && (
             <section className="mt-6">
-              <div className="flex items-baseline gap-2 px-5">
+              {/* One quiet line, not a paragraph about the business model. The
+                  mark on each row already says 店家精選, and the full rule —
+                  who may buy this, how many, and that position is what was
+                  bought — sits with the other disclosures at the foot of the
+                  page, which is where a disclosure belongs. */}
+              <div className="mb-2.5 flex items-baseline gap-2 px-5">
                 <h2 className="text-[15px] font-bold text-ink">店家精選</h2>
-                <span className="text-[12px] text-ink-3">商業內容</span>
                 <span className="num ml-auto text-[11.5px] text-ink-3">
-                  最多 {FEATURED_CAP} 則
+                  店家自己錄的，最多 {FEATURED_CAP} 則
                 </span>
               </div>
-              <p className="mb-2.5 mt-1 px-5 text-[12px] leading-relaxed text-ink-3">
-                付費商家可以在自己所在的景點置頂最多兩則語音，位置是買來的，內容由商家自己錄。
-              </p>
               <div className="space-y-2.5 px-5">
                 {shownFeatured.map((a) => (
                   <AudioRow
@@ -178,8 +179,10 @@ export function Audios({ poiId }: { poiId: string }) {
           )}
 
           <Note>
-            播放次數與喜歡數皆為 Demo 資料。旅人上傳的語音在正式版需經 ResoMap
-            審核後才會上架；目前沒有後端，這裡的清單是固定資料。
+            「店家精選」是通過審核的付費商家在自己所在景點置頂的內容，每個景點最多
+            {FEATURED_CAP} 則，位置為付費取得、內容由商家自行錄製，並一律標示。
+            播放次數與喜歡數皆為 Demo 資料；旅人上傳的語音在正式版需經 ResoMap
+            審核後才會上架。
           </Note>
         </>
       )}

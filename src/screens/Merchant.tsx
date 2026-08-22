@@ -3,7 +3,7 @@ import { poi } from "../data";
 import { merchant as merchantOf } from "../data/merchants";
 import { BY_DEST } from "../data/destinations";
 import { PARTNER_RULE } from "../data/subscriptionPlans";
-import { SceneCover } from "../components/Cover";
+import { RecordPhoto, RecordPhotoCredit } from "../components/Cover";
 import { MapCredit, MapView } from "../components/MapView";
 import { AudioRowMini } from "../components/AudioRow";
 import { ContactSheet, PartnerBadge, PendingBadge, Stars } from "../components/Trade";
@@ -71,12 +71,14 @@ export function Merchant({ id }: { id: string }) {
   return (
     <Screen>
       <div className="relative shrink-0">
-        <SceneCover
-          id={m.id}
-          kind={SCENE[m.category] ?? "shopping"}
+        <RecordPhoto
+          record={m}
+          fallbackId={m.id}
+          fallbackKind={SCENE[m.category] ?? "shopping"}
           emoji={m.emoji}
-          height={190}
+          height={200}
           radius={0}
+          size="hero"
           className="w-full"
         />
         <button
@@ -87,6 +89,13 @@ export function Merchant({ id }: { id: string }) {
           ‹
         </button>
       </div>
+
+      {/* Directly under the image, because that is what the licence asks for
+          and because a credit filed on some other screen is not a credit.
+          Renders nothing for an illustrative demo photo — there is nobody to
+          credit for one of those, and the 示意 line lives with the other
+          disclosures at the foot of the page. */}
+      <RecordPhotoCredit record={m} />
 
       <div className="px-5 pt-5">
         <h1 className="text-[22px] font-bold leading-snug text-ink">{m.name}</h1>

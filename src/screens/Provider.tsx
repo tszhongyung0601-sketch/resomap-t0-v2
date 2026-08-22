@@ -4,7 +4,8 @@ import { BY_DEST } from "../data/destinations";
 import { PARTNER_RULE } from "../data/subscriptionPlans";
 import { reviewsFor } from "../data/reviews";
 import { ContactSheet, PartnerBadge, PendingBadge } from "../components/Trade";
-import { Avatar, Button, Note, Screen, Section, Tag, TopBar } from "../components/ui";
+import { Avatar, Button, Note, Screen, Section, Tag } from "../components/ui";
+import { RecordPhoto, RecordPhotoCredit } from "../components/Cover";
 import { isVerifiedPartner } from "../lib/nearby";
 import { CHANNEL_LABELS, availableChannels, tryContact } from "../lib/contact";
 import { useNav } from "../nav";
@@ -37,10 +38,37 @@ export function Provider({ id }: { id: string }) {
 
   return (
     <Screen>
-      <TopBar title={PROVIDER_KIND_LABELS[p.kind]} onBack={() => nav.back()} />
+      {/* A picture, then the person. A charter driver is chosen the way a hotel
+          is: you look first. The initial stays as a small avatar beside the
+          name, which is how this app has drawn people everywhere else and what
+          survives a photo that fails to load. */}
+      <div className="relative shrink-0">
+        <RecordPhoto
+          record={p}
+          fallbackId={p.id}
+          fallbackKind={isDriver ? "transit" : "attraction"}
+          emoji={isDriver ? "🚐" : "🧭"}
+          height={200}
+          radius={0}
+          size="hero"
+          className="w-full"
+        />
+        <button
+          onClick={() => nav.back()}
+          aria-label="返回"
+          className="absolute left-4 top-4 grid size-11 place-items-center rounded-full bg-bg/90 text-[19px] text-ink active:bg-bg"
+        >
+          ‹
+        </button>
+        <span className="absolute bottom-3 left-4 rounded-md bg-bg/85 px-2 py-1 text-[12px] font-semibold text-ink-2">
+          {PROVIDER_KIND_LABELS[p.kind]}
+        </span>
+      </div>
 
-      <div className="flex items-start gap-4 px-5 pb-1 pt-1">
-        <Avatar name={p.name} color={p.color} initial={p.initial} size={72} />
+      <RecordPhotoCredit record={p} />
+
+      <div className="flex items-start gap-3 px-5 pb-1 pt-4">
+        <Avatar name={p.name} color={p.color} initial={p.initial} size={44} />
         <div className="min-w-0 flex-1">
           <h1 className="truncate text-[21px] font-bold text-ink">{p.name}</h1>
           {p.org && <div className="mt-0.5 truncate text-[13px] text-ink-3">{p.org}</div>}
