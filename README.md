@@ -117,7 +117,24 @@ Overpass 是公共服務、會慢會擋，所以**每一種失敗都 resolve 成
 15. 行程 → 花蓮 3 天 2 夜 → Day 2 → 七星潭 / 東大門夜市 都有「開始語音導覽」
 16. 播完 → 那一列出現「探索附近」
 
-T0 原有的腳本（台南延後、花蓮下雨、抵達赤崁樓、營運數據）在「我的 → Demo 情境」，全部照舊。
+**V3 · 行程可以放的不只是景點**
+
+17. 導覽庫 → 七星潭 → 探索附近 → **附近租車** → 5 公里內 4 家，每張卡都標
+    「Demo・未正式合作」
+18. iRent → 加入行程 → 選 Day 1 → toast 說「✓ 花蓮車站前 國聯一路已加入 Day 1」
+19. 行程 → Day 1 → 最後一列是 🚗 取車，有距離、有「怎麼走」，
+    **沒有**語音導覽或探索附近那種按不到東西的按鈕
+20. 景點頁的「加入行程」會問哪一天（以前直接丟到今天，不問）
+21. 導覽庫卡片**整張**可點；「試聽 30 秒」和「加入行程」維持自己的目標
+22. 一起規劃 → AI 幫我排行程 → 五個問題 → 每一站都是資料裡真的存在的地方，
+    午餐是五公里內的真餐廳，選「租車自駕」第一天早上會先取車
+23. 儲存這份行程 → 建**新的**一筆，不覆寫既有行程
+24. 排序 / 刪除一站 → 重新整理 → 還在（`resomap_trips` / `resomap_day_edits`）
+25. 我的 → Demo 情境 → 重置 → 兩個 key 都不見了
+
+T0 原有的腳本（台南延後、花蓮下雨、抵達赤崁樓、營運數據）在「我的 → Demo 情境」，全部照舊——
+多型 Stop 上線後重驗過：雨天改行程會換掉七星潭並重算前後兩段路線，
+台南延後會取消府中街商圈並算出省下的時間與距離。
 
 ---
 
@@ -150,10 +167,12 @@ src/
     destinations.ts / poi.*.ts / stories.ts / deals.ts / trips.ts / travellers.ts
     services.ts / affiliatePartners.ts / affiliateProducts.ts / coupons.ts …
     ── V2 ──
-    audio.ts            店家精選與旅人上傳的語音（ResoMap 自己的 15 篇仍在 stories.ts）
-    merchants.ts        64 家商家，真座標，涵蓋台灣八個城市
-    providers.ts        39 位包車 / 導遊，含 1 位審核中、1 位未通過
-    affiliateOffers.ts  44 個 Booking / Agoda / Trip.com / Klook / KKday 商品，affiliateUrl 全空
+    audio.ts            店家精選與旅人上傳的語音（ResoMap 自己的 24 篇仍在 stories.ts）
+    merchants.ts        68 家商家，真座標，涵蓋台灣九個城市
+    providers.ts        42 位包車 / 導遊，含 1 位審核中、1 位未通過
+    affiliateOffers.ts  48 個 Booking / Agoda / Trip.com / Klook / KKday 商品，affiliateUrl 全空
+    carRentals.ts       22 個租車據點（iRent / 和運 / 格上 / Klook / KKday / Trip.com），
+                        全部標「Demo・未正式合作」，url 全空
     reviews.ts          評價樣本
     subscriptionPlans.ts 四種方案，價格全為 null
     nearbyCategories.ts  周邊推薦的五個問題與七張分類卡
@@ -168,16 +187,23 @@ src/
     reactions.ts   讚 / 不推 / 留言（localStorage）
     account.ts     會員狀態：professionalRole（導遊／包車互斥）＋ merchantMembership（獨立）
     photo.ts       商家 / 服務者 / 分類卡的照片：T0 真照片（附授權）優先，Demo 圖次之
+    ── V3 ──
+    stop.ts        一站是什麼——景點／餐廳／服務者／聯盟商品／租車。所有畫面的唯一入口
+    dayEdits.ts    手動排序／刪除／改時間，存 localStorage（原本在 TripTimeline 裡）
+    persist.ts     load / save / clear，帶版本戳，storage 壞掉就當作沒有
+    planner.ts     AI 行程產生：加權挑選 → 地理分群 → 固定節奏。沒有模型、沒有亂數
   components/
     ── T0 ──
     AppShell / ui.tsx / MapView / Cover / DealCard / AdaptCard / Story / BrandBar
     ── V2 ──
     Trade.tsx        推薦夥伴章、星等、聯絡 Sheet、Demo 連結 Sheet
-    NearbyCards.tsx  商家卡、服務者卡、聯盟卡（大圖在上，資訊做減法）
+    NearbyCards.tsx  商家卡、服務者卡、聯盟卡、租車卡（一個骨架，四種填法）
+    ── V3 ──
+    AddToTrip.tsx    「要加到哪一天？」——導覽庫、景點頁、租車列表共用同一支
     AudioRow.tsx     語音列（完整版與精簡版）
   scripts/
     build-demo-photos.mjs  來源圖 → webp card 720 / hero 1280（18 MB → 1.1 MB）
-  screens/          T0 的 15 個 ＋ V2 的 9 個
+  screens/          T0 的 15 個 ＋ V2 的 9 個 ＋ V3 的 2 個（Rental / AiPlanner）
 ```
 
 ---

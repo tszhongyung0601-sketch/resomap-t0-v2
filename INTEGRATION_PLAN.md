@@ -585,3 +585,140 @@ Commons 上有真人照片，也有 CC 授權。但 **CC 授權給的是攝影�
 它給的是圖庫換不到的東西：對的人在對的地方——七星潭的礫石灘、太魯閣的大理石峽谷、
 四點半的天色。真人照給的是對的人在隨便哪裡。兩個都留著，因為這是一組真實的取捨，
 不是一個被淘汰的版本。
+
+## 23. V3：行程升級（第六輪）
+
+原始 V3 prompt 是對著舊的 `resomap-http-demo`（純 HTML/JS）寫的——裡面要求
+「請完整閱讀所有 HTML / CSS / JS」、提到 `showView("library")`、附的截圖是
+底部五個 tab 的畫面。V2 是 React + TypeScript，有自己的 route stack。
+八個 agent 逐檔核對後，**約七成的要求 V2 已經有了**（見 `V3_SPEC.md` §0），
+所以這一輪只做真的缺的八項，照產品意圖而不是照 `showView()`。
+
+### 23.1 多型 Stop——最大的一項
+
+`Stop` 從「一個 POI id」變成 discriminated union：
+
+```ts
+type StopRef =
+  | { kind: "poi"; poiId: string }
+  | { kind: "merchant"; merchantId: string }
+  | { kind: "provider"; providerId: string }
+  | { kind: "offer"; offerId: string }
+  | { kind: "rental"; rentalId: string };
+```
+
+`poiId` **保留而且留在第一個欄位**：四十四筆既有 stop 全都是地點，
+使用者 localStorage 裡的行程也是。`ref` 缺席就代表它一直以來的意思
+（`refOf()`）。
+
+為什麼不是「加一個 optional merchantId」：`poi()` 在 DEV 找不到會 throw
+（`data/index.ts:29`），而有二十個地方無條件呼叫它。租車進行程不會是空白卡片，
+會是**白畫面**。
+
+所有呼叫點改走 `lib/stop.ts` 的 `viewOf(stop)`，回 `null` 就跳過那一列。
+代價明講：商家記錄消失時少一列，而不是整份行程掛掉。
+
+順帶暴露出來的兩件事：
+
+- `MapPin.poi` 要求整個 `Poi` 才畫得出七個欄位，所以 `Offer.tsx` 一直在
+  捏造假的 `kind` 和 `stayMin` 來騙到一個 pin。改成 `MapPlace`（就那七個欄位）
+  之後那段變誠實了。
+- `lib/reorder.ts` 的 `signature()` 用 `poiId`，兩台不同公司的租車在同一天
+  會是同一個空字串——手動排序會無聲消失。改用 `stopKey()`。
+
+### 23.2 localStorage
+
+| key | 內容 | 清除時機 |
+|---|---|---|
+| `resomap_trips` | `Trip[]` | Demo 重置；未動過的 fixture 不寫入 |
+| `resomap_day_edits` | `Record<string, DayEdits>` | Demo 重置；空物件不寫入 |
+
+兩個都存，因為刪掉的那一站不在 trip 裡，在 edit layer 裡；只存前者，
+refresh 之後刪掉的站會復活。
+
+envelope 帶 `VERSION`，因為 demo 的 fixture 會改，沒有版本戳的話第一個開過
+app 的人會被釘在上個月的行程上，而且只能靠清網站資料脫身。
+
+**route stack 刻意不存**：在一個沒人記得怎麼開始的流程第四層重新開機是迷路，
+而且「你剛才在哪裡」不是你做出來的東西。
+
+day-edit store 從 `TripTimeline.tsx` 搬到 `lib/dayEdits.ts`——那支是 lazy 載入的，
+為了呼叫三行的 `resetDayEdits` 而把全 app 最大的畫面拉進 initial bundle 不划算。
+
+### 23.3 租車
+
+`data/carRentals.ts`：九個城市二十二個據點，全是真公司、真地址、真座標，
+**而且跟 ResoMap 沒有任何關係**。所以 `RENTAL_DISCLOSURE`（「Demo・未正式合作」）
+出現在四個地方：列表卡片、加入行程的 sheet、行程裡那一列、詳情頁 above the fold。
+只寫在頁尾的 demo，是會被截圖時剛好不含頁尾的 demo。
+
+`CarRental` 刻意不是 `Merchant` 也不是 `AffiliateOffer`：它有要走過去的櫃台和
+車型而不是房型，而且**沒有 `isPaid` 也沒有 `reviewStatus` 可以設**，所以拿不到
+推薦夥伴標章。寫 `isPaid: false` 會是同一個數字配上壞很多的意思——那等於說
+這些公司審過了、沒過。
+
+兩個入口共用同一份：周邊推薦新增 `rental` 分類，以及既有的「租車・接送」畫面。
+後者原本是用「標題含不含『租車』兩個字」去篩交通 deal，所以兩邊是不同答案，
+而且它根本不知道任何一個櫃台在哪裡。
+
+### 23.4 加入行程：一個 sheet
+
+Day 選擇原本有三種行為：`Library` 一份、`AddPoi` 一份複製品、`Poi.tsx` 一條
+**不問直接丟到 `today`** 的路徑。最後那個最糟——景點頁把地方加到使用者沒選過
+也沒看到的一天。
+
+現在是 `components/AddToTrip.tsx` 一支，吃 `StopRef`。
+`nav.addPoi` → `nav.addStop`，並且**在進 setter 之前就把 stop 建好**：
+React 可能把 updater 跑兩次，而 id 裡有 `Date.now()` 的話兩次會不一樣。
+
+Toast 帶名字：「✓ 花蓮車站前 國聯一路已加入 Day 1」。原本的「已加入 Day 2」
+是在要求使用者相信自己對二十秒前那一下的記憶。
+
+### 23.5 AI 行程產生器
+
+`lib/planner.ts` + `screens/AiPlanner.tsx`。**沒有呼叫任何模型，也沒有亂數**：
+讀 data/ 裡的地點，依偏好加權，依地理分群，排在固定時鐘上。
+同樣的答案進去就是同樣的行程出來。
+
+分群做了三版，前兩版的失敗值得記下來：
+
+1. **貪婪最近鄰**——取最高分，然後一直加最近的——在花蓮排出
+   `光復 → 花蓮市 → 光復 → 秀林`。一百公里看四個東西，因為每一步只問
+   「離我手上的最近的是誰」，從來沒問「這一天成不成立」。
+2. **每天填滿四個再開下一天**——小城市的最後一天只剩一站，而且會**無聲丟掉**
+   放不下的：畫面說「挑了 7 個地點」，資料裡有八個，第八個不曾被提起。
+3. **現在**：先決定有幾天，再填。用 farthest-point sampling 選種子，
+   一個種子落在一個旅人會分開想的區域（鎮上、峽谷、山谷），其餘各自加入
+   最近且還有空位的種子。空位上限取「平均分配」與「一天四個」的較小值——
+   純最近鄰會讓日月潭兩天變成 3/1。放不下的**講出來**。
+
+午餐是 merchant 資料裡五公里內的真餐廳，而且**一趟行程不重複**：
+小城市裡「離中心最近」每天都回同一家，行程會變成一個迴圈。
+
+時間是節奏，而且畫面上就這樣寫。真的要算抵達時間需要路徑規劃，
+用 app 沒有的公車班表湊出來的 11:07 會比誠實標成建議的 11:00 更像謊話。
+腿上的距離是真的直線距離——這正是分群必須做好的原因。
+
+「儲存這份行程」**每次建新的**（`trip-ai-{destId}-{n}`）。
+`CreateTrip` 完全沒動：那支被四個入口共用，做的是空行程。
+
+### 23.6 日月潭
+
+四個地點，座標用 Nominatim 查 OSM 實查而不是目測——水社碼頭和向山遊客中心
+在同一岸相距兩公里，猜的話會疊在一起，而 5 公里半徑會替這個錯誤背書。
+四家商家、兩位服務者、四筆聯盟商品、四張 Commons 照片與授權、一篇語音導覽。
+
+補資料時暴露出 `sunmoonlake` 一直是 `TravelRegion` 而不是 `Destination`。
+在它只是個地名的時候那是對的（region 沒有自己的頁，搜尋會開它靠著的城市）。
+一旦它有了地點就不對了——所有「這是哪個城市」都走 `BY_DEST`，於是
+周邊推薦讀到 `undefined`，對站在水社碼頭的人說「ResoMap 目前只在台灣」。
+導覽庫卡片沒有城市、planner 看不到它、搜尋它回傳空的（因為 `near` 是南投，
+而南投也不是 destination）。現在它是 destination，南投移進 tagline。
+
+### 23.7 沒有做，而且是刻意的
+
+- §17 的「👑 ResoMap 付費服務」標題與 §12 的「付費商家可置頂 2 則語音」橫幅。
+  商業揭露維持第四輪的結論：一顆 ⓘ、兩句話。把商業模式印在正在選晚餐的人臉上，
+  是產品對著錯的人自我介紹。
+- drag & drop 排序（上下移動在手機上更穩，原 prompt 也同意）。
+- 第五個 tab、「我的」進 tab bar（它一直在右上角）。
