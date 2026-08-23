@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { DealCard } from "../components/DealCard";
 import {
   Button,
@@ -15,12 +15,13 @@ import { AFFILIATE_DISCLOSURE, PARTNERS } from "../data/affiliatePartners";
 import { DEALS } from "../data/deals";
 import { DESTINATIONS, dest } from "../data/destinations";
 import {
-  CAR_MODES,
   HOME_SERVICES,
   MORE_SERVICES,
   TRANSPORT_MODES,
 } from "../data/services";
 import { impression } from "../lib/track";
+import { CAR_RENTALS, rentalPrice, RENTAL_DISCLOSURE } from "../data/carRentals";
+import { BY_DEST } from "../data/destinations";
 import { useNav } from "../nav";
 import type { Deal, ServiceId } from "../types";
 
@@ -447,16 +448,108 @@ export function TransportFlow({ destId }: { destId?: string }) {
   );
 }
 
+/**
+ * 租車・接送.
+ *
+ * The 租車 half reads `data/carRentals.ts` — the same records 周邊推薦 →
+ * 附近租車 shows, and the same records the itinerary holds when one is added to
+ * a day. It used to filter transport `Deal`s by whether their title contained
+ * the word 租車, which meant this screen and the nearby list were two different
+ * answers to one question, and neither of them knew where a counter actually
+ * was.
+ *
+ * 機場接送 keeps the deals: those are platform products, not counters, and
+ * there is no pickup point to put on a map.
+ *
+ * Grouped by city, because a traveller opening this from 更多服務 has not told
+ * anybody where they are. When they arrive from a trip, `destId` is set and
+ * that city comes first.
+ */
 export function CarRentalFlow({ destId }: { destId?: string }) {
+  const nav = useNav();
   const here = destId ? dest(destId) : undefined;
+  const [open, setOpen] = useState("rental");
+
+  const rentals = useMemo(() => {
+    const mine = destId ? CAR_RENTALS.filter((r) => r.destId === destId) : [];
+    const rest = CAR_RENTALS.filter((r) => !destId || r.destId !== destId);
+    return [...mine, ...rest];
+  }, [destId]);
+
+  const transfers = transportDeals("transfer", destId);
+
   return (
-    <ModeFlow
-      title="租車・接送"
-      intro={`${here ? `${here.name}的` : ""}用車選項。ResoMap 不處理租賃與派車，預訂在平台完成。`}
-      modes={CAR_MODES}
-      destId={destId}
-      icon="🚗"
-    />
+    <Screen>
+      <TopBar title="租車・接送" onBack={nav.back} />
+
+      <p className="px-5 pt-1 text-[13.5px] leading-relaxed text-ink-3">
+        {here ? `${here.name}的` : ""}用車選項。ResoMap 不處理租賃與派車，預訂在平台完成。
+      </p>
+
+      <div className="mt-4">
+        <Row icon="🚗" label="租車" value="甲地租乙地還" onClick={() => setOpen("rental")} />
+        {open === "rental" && (
+          <div className="space-y-2.5 px-5 pb-4 pt-1">
+            {rentals.length === 0 ? (
+              <Empty icon="🚗" text="租車的選項還在整理中" />
+            ) : (
+              rentals.map((r) => (
+                <button
+                  key={r.id}
+                  onClick={() => nav.go({ k: "rental", id: r.id })}
+                  className="flex w-full items-center gap-3 rounded-2xl bg-surface p-3 text-left active:bg-surface-2"
+                >
+                  <span
+                    className="grid size-11 shrink-0 place-items-center text-[22px]"
+                    style={{ background: "#eef2f6", borderRadius: 12 }}
+                  >
+                    🚗
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="flex items-center gap-1.5">
+                      <span className="truncate text-[15px] font-semibold text-ink">
+                        {r.brand}
+                      </span>
+                      {/* Same three words as everywhere else this company
+                          appears. A list is the easiest place to forget them
+                          and the easiest place for somebody to screenshot. */}
+                      <span className="shrink-0 rounded-md bg-surface-2 px-1.5 py-0.5 text-[11px] font-semibold text-ink-3">
+                        {RENTAL_DISCLOSURE}
+                      </span>
+                    </span>
+                    <span className="mt-0.5 block truncate text-[12.5px] text-ink-3">
+                      {BY_DEST[r.destId]?.name} · {r.pickup}
+                    </span>
+                    <span className="num mt-0.5 block text-[12.5px] text-ink-2">
+                      {rentalPrice(r)} · {r.model}
+                    </span>
+                  </span>
+                  <span className="shrink-0 text-[16px] text-ink-3">›</span>
+                </button>
+              ))
+            )}
+          </div>
+        )}
+
+        <Row icon="🚐" label="機場接送" value="四人座 / 七人座" onClick={() => setOpen("transfer")} />
+        {open === "transfer" && (
+          <div className="px-5 pb-4 pt-1">
+            {transfers.length > 0 ? (
+              <div className="space-y-2.5">
+                {transfers.map((d) => (
+                  <DealCard key={d.id} deal={d} onOpen={nav.openDeal} compact />
+                ))}
+              </div>
+            ) : (
+              <Empty icon="🚐" text="機場接送的選項還在整理中" />
+            )}
+          </div>
+        )}
+      </div>
+
+      <Note>示意價格，實際價格以平台為準。{AFFILIATE_DISCLOSURE}</Note>
+      <div className="h-24 shrink-0" />
+    </Screen>
   );
 }
 

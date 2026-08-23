@@ -2,12 +2,13 @@ import { useMemo, useState } from "react";
 import { BY_DEST, DESTINATIONS, STORIES, poi } from "../data";
 import { BrandBar } from "../components/BrandBar";
 import { PoiImage } from "../components/Cover";
-import { Button, Chip, Empty, Headphones, Note, Sheet, Tag, Thumb } from "../components/ui";
+import { Chip, Empty, Headphones, Note, Tag } from "../components/ui";
 import { playLabel, rating, storyRail } from "../lib/story";
 import { focusTrip } from "../lib/trip";
 import { useI18n } from "../i18n";
 import { useNav } from "../nav";
 import { POI_KIND_LABELS, type PoiKind, type Story, type Trip } from "../types";
+import { AddToTrip } from "../components/AddToTrip";
 
 /**
  * 導覽庫 — every guide ResoMap has recorded, in one place.
@@ -246,110 +247,17 @@ function GuideCard({ story: s, trip }: { story: Story; trip?: Trip }) {
           card, which is `overflow-hidden`.
 
           The day test is repeated here rather than trusted from `canAdd`:
-          AddToTripSheet reads `trip.days[0].n` to seed its picker, and the one
+          AddToTrip reads `trip.days[0].n` to seed its picker, and the one
           thing standing between that and a crash should be the condition that
           actually mounts it. */}
       {adding && trip && trip.days.length > 0 && (
-        <AddToTripSheet poiId={p.id} trip={trip} onClose={() => setAdding(false)} />
+        <AddToTrip
+          target={{ kind: "poi", poiId: p.id }}
+          trip={trip}
+          onClose={() => setAdding(false)}
+        />
       )}
     </div>
   );
 }
 
-/**
- * Which day of the trip this place lands on.
- *
- * The same shape as AddPoi.tsx's PasteLink, deliberately — preview, one chip
- * per day the trip actually has, and a confirm that goes flat when that day
- * already holds the place. A traveller who has picked a day once in this app
- * should not have to read a second control to do it again.
- *
- * Committing calls `nav.addPoi`, which is the app's only add path: it owns the
- * appended stop, the poi_add event and the 已加入 Day N toast. Firing a second
- * confirmation here would tell the traveller twice about one tap.
- */
-function AddToTripSheet({
-  poiId,
-  trip,
-  onClose,
-}: {
-  poiId: string;
-  trip: Trip;
-  onClose: () => void;
-}) {
-  const nav = useNav();
-  const { t, placeName } = useI18n();
-  const p = poi(poiId);
-
-  /* Open on the day the traveller is on — but only if the trip has that day.
-     `today` is free to run past the last one, and a default that matches no
-     chip would leave the row looking unselected while the button named a day
-     nobody had tapped. */
-  const [pick, setPick] = useState(() =>
-    trip.days.some((d) => d.n === trip.today) ? trip.today : trip.days[0].n,
-  );
-
-  const already = useMemo(() => {
-    const onDay = trip.days.find((d) => d.n === pick);
-    return Boolean(
-      onDay?.tracks.some((tr) => tr.stops.some((st) => st.poiId === poiId)),
-    );
-  }, [trip, pick, poiId]);
-
-  return (
-    <Sheet open onClose={onClose} title={t("加入行程")}>
-      <div className="px-5 pb-5 pt-1">
-        <div className="rounded-2xl bg-surface p-3.5">
-          <div className="flex items-center gap-3">
-            <Thumb emoji={p.emoji} tint={p.tint} size={44} radius={12} />
-            <div className="min-w-0 flex-1">
-              <div className="truncate text-[15px] font-semibold text-ink">
-                {placeName(p.id, p.name)}
-              </div>
-              <div className="mt-0.5 truncate text-[12.5px] text-ink-3">
-                {p.area} · {POI_KIND_LABELS[p.kind]} · 建議停留 {p.stayMin} 分
-              </div>
-            </div>
-          </div>
-
-          {/* The trip is named because nobody chose it here — focusTrip did.
-              Without the title, 加入 Day 2 means "day 2 of something". */}
-          <div className="mt-3.5 flex items-baseline gap-2">
-            <span className="shrink-0 text-[13px] font-semibold text-ink-2">
-              {t("要加到哪一天？")}
-            </span>
-            <span className="ml-auto truncate text-[12px] text-ink-3">{trip.title}</span>
-          </div>
-
-          {/* One chip per day the trip actually has — never a fixed seven. */}
-          <div className="mt-2 flex flex-wrap gap-1.5">
-            {trip.days.map((d) => (
-              <button
-                key={d.n}
-                onClick={() => setPick(d.n)}
-                className={`min-h-11 rounded-full px-3 text-[13px] font-semibold transition ${
-                  d.n === pick ? "bg-brand text-white" : "bg-bg text-ink-2 active:bg-surface-2"
-                }`}
-              >
-                Day {d.n}
-              </button>
-            ))}
-          </div>
-
-          <div className="mt-3">
-            <Button
-              variant="onCard"
-              disabled={already}
-              onClick={() => {
-                nav.addPoi(trip.id, pick, poiId);
-                onClose();
-              }}
-            >
-              {already ? `Day ${pick} 已經有這個地點` : `加入 Day ${pick}`}
-            </Button>
-          </div>
-        </div>
-      </div>
-    </Sheet>
-  );
-}

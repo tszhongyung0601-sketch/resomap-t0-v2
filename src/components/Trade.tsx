@@ -114,6 +114,27 @@ export function AffiliateBadge({ partner }: { partner?: string }) {
   );
 }
 
+/**
+ * 「Demo・未正式合作」.
+ *
+ * On every card for a real company ResoMap has no agreement with — which today
+ * is every hire company in the app. `AffiliateBadge` would be the wrong mark:
+ * that one names a platform ResoMap has a programme with the shape of, even
+ * though no contract is signed. This one says the plainer thing, and it says it
+ * on the card rather than once at the foot of the screen, because somebody
+ * scrolling a list of five hire counters reads five cards and one footer.
+ *
+ * Deliberately not orange, and deliberately not shaped like a warning. It is a
+ * fact about who ResoMap is, not an alarm about who they are.
+ */
+export function DemoPartnerBadge() {
+  return (
+    <span className="inline-flex shrink-0 items-center rounded-md bg-surface-2 px-1.5 py-0.5 text-[11px] font-semibold text-ink-3">
+      Demo・未正式合作
+    </span>
+  );
+}
+
 /* ----------------------------------------------------------------- info -- */
 
 /**

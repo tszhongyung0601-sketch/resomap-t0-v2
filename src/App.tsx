@@ -11,11 +11,10 @@ import {
   TAINAN_TRIP,
   TOKYO_TRIP,
   dest,
-  poi,
 } from "./data";
 import { applyAdapt } from "./lib/adapt";
 import { distance } from "./lib/geo";
-import { placeOf, viewOf, viewsOf } from "./lib/stop";
+import { newStop, placeOf, viewOf, viewsOf } from "./lib/stop";
 import { audio as audioById } from "./lib/audio";
 import { stopSpeaking } from "./lib/speech";
 import { focusTrip } from "./lib/trip";
@@ -81,6 +80,7 @@ const NearbyList = lazy(async () => ({ default: (await import("./screens/NearbyL
 const Merchant = lazy(async () => ({ default: (await import("./screens/Merchant")).Merchant }));
 const Provider = lazy(async () => ({ default: (await import("./screens/Provider")).Provider }));
 const Offer = lazy(async () => ({ default: (await import("./screens/Offer")).Offer }));
+const Rental = lazy(async () => ({ default: (await import("./screens/Rental")).Rental }));
 const Reviews = lazy(async () => ({ default: (await import("./screens/Reviews")).Reviews }));
 const Subscribe = lazy(async () => ({ default: (await import("./screens/Subscribe")).Subscribe }));
 const Pro = lazy(async () => ({ default: (await import("./screens/Pro")).Pro }));
@@ -173,7 +173,15 @@ export default function App() {
       addTo: (tripId, day) => setAdding({ tripId, day }),
       moreServices: () => setServices(true),
 
-      addPoi: (tripId, day, poiId) => {
+      addStop: (tripId, day, ref) => {
+        /* Built once, outside the setter: React may call a state updater twice,
+           and a stop id containing Date.now() would then differ between the two
+           runs. Resolving here also means an unknown id is a no-op rather than
+           an appended stop that renders as nothing. */
+        const stop = newStop(ref);
+        if (!stop) return;
+        const view = viewOf(stop);
+
         setTrips((list) =>
           list.map((t) => {
             if (t.id !== tripId) return t;
@@ -182,21 +190,17 @@ export default function App() {
               const tracks = [...d.tracks];
               const last = tracks[tracks.length - 1];
               const prev = last.stops[last.stops.length - 1];
-              const p = poi(poiId);
               const prevView = prev ? viewOf(prev) : null;
-              const metres = prevView ? distance(prevView, p) : 0;
+              const metres = prevView && view ? distance(prevView, view) : 0;
               tracks[tracks.length - 1] = {
                 ...last,
                 stops: [
                   ...last.stops,
                   {
-                    id: `add-${poiId}-${Date.now()}`,
-                    poiId,
-                    ref: { kind: "poi" as const, poiId },
+                    ...stop,
                     /* Appended after the day's last stop, not squeezed in. Where
                        exactly it lands is the traveller's call, not ours. */
                     at: addMinutes(prev?.at ?? "10:00", (prev?.stayMin ?? 0) + 20),
-                    stayMin: p.stayMin,
                     from: metres
                       ? { mode: "walk" as const, min: Math.max(5, Math.round(metres / 75)), metres }
                       : undefined,
@@ -208,8 +212,11 @@ export default function App() {
             return { ...t, days };
           }),
         );
-        track("poi_add", { poiId });
-        say(`已加入 Day ${day}`);
+        if (ref.kind === "poi") track("poi_add", { poiId: ref.poiId });
+        /* Named, because the tap that opens this sheet and the tap that commits
+           it can be twenty seconds and three chips apart — 「已加入 Day 2」 alone
+           made the traveller trust their own memory of what they had picked. */
+        say(view ? `✓ ${view.title}已加入 Day ${day}` : `✓ 已加入 Day ${day}`);
       },
 
       adoptTrip: (tripId) => {
@@ -370,6 +377,7 @@ export default function App() {
   else if (route?.k === "merchant") screen = <Merchant id={route.id} />;
   else if (route?.k === "provider") screen = <Provider id={route.id} />;
   else if (route?.k === "offer") screen = <Offer id={route.id} />;
+  else if (route?.k === "rental") screen = <Rental id={route.id} />;
   else if (route?.k === "reviews")
     screen = <Reviews kind={route.kind} id={route.id} />;
   else if (route?.k === "subscribe") screen = <Subscribe audience={route.audience} />;

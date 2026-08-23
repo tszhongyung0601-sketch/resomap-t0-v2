@@ -1,14 +1,16 @@
 import type { ReactNode } from "react";
 import { PersonPhoto, RecordPhoto } from "./Cover";
-import { AffiliateBadge, PartnerBadge, PendingBadge, Stars } from "./Trade";
+import { AffiliateBadge, DemoPartnerBadge, PartnerBadge, PendingBadge, Stars } from "./Trade";
 import { Avatar, Headphones } from "./ui";
 import { km } from "../lib/geo";
 import { isVerifiedPartner } from "../lib/nearby";
 import { partner as partnerOf } from "../data/affiliatePartners";
+import { rentalPrice } from "../data/carRentals";
 import {
   MERCHANT_CATEGORY_LABELS,
   PROVIDER_KIND_LABELS,
   type AffiliateOffer,
+  type CarRental,
   type Merchant,
   type PoiKind,
   type Provider,
@@ -454,3 +456,68 @@ function Marks({
 }
 
 export { Avatar };
+
+/* ------------------------------------------------------------------ rental */
+
+/**
+ * A hire car counter.
+ *
+ * The same skeleton, with the one difference that matters: a badge saying
+ * ResoMap has no relationship with this company. That is not a footnote here —
+ * these are real brands with real counters, and a card that showed iRent's name
+ * and price and rating with no such mark would read as a listing ResoMap had
+ * been paid to place.
+ *
+ * No photograph. There is no picture of 「iRent 花蓮車站」 in this project, and
+ * a generic car park behind a named counter is the same mistake as a stock
+ * beach behind a named restaurant. It gets the one glyph that says what it is.
+ *
+ * 「加入行程」 is the primary action rather than 「立即預約」: nothing here books,
+ * and putting the counter into the day at the hour you land is the thing this
+ * app can actually do.
+ */
+export function RentalCard({
+  rental: r,
+  metres,
+  onOpen,
+  onAdd,
+  onDirections,
+}: {
+  rental: CarRental;
+  metres: number;
+  onOpen: () => void;
+  onAdd: () => void;
+  onDirections: () => void;
+}) {
+  return (
+    <ServiceCard
+      thumb={
+        <Thumb>
+          <div
+            className="grid size-full place-items-center text-[30px]"
+            style={{ background: "#eef2f6", borderRadius: 12 }}
+          >
+            🚗
+          </div>
+        </Thumb>
+      }
+      name={r.brand}
+      badge={<DemoPartnerBadge />}
+      sub={`${r.pickup} · ${km(metres)}`}
+      stars={<Stars rating={r.rating} count={r.reviewCount} />}
+      facts={[
+        { label: "車型", value: `${r.model} · ${r.seats} 人座` },
+        { label: "價格", value: rentalPrice(r) },
+        { label: "取車時間", value: r.hours },
+      ]}
+      introLabel="為什麼選這裡"
+      intro={r.note}
+      actions={[
+        { label: "導航", onClick: onDirections },
+        { label: "加入行程", onClick: onAdd, primary: true },
+        { label: "查看詳情", onClick: onOpen },
+      ]}
+      onOpen={onOpen}
+    />
+  );
+}

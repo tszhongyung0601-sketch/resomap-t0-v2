@@ -89,7 +89,7 @@ export function AddPoiSheet({
   if (!trip) return null;
 
   const add = (poiId: string) => {
-    nav.addPoi(tripId, day, poiId);
+    nav.addStop(tripId, day, { kind: "poi", poiId });
     onClose();
   };
 
@@ -260,7 +260,7 @@ function PasteLink({
               variant="onCard"
               disabled={already}
               onClick={() => {
-                nav.addPoi(trip.id, pick, found.poi.id);
+                nav.addStop(trip.id, pick, { kind: "poi", poiId: found.poi.id });
                 setText("");
                 onAdded();
               }}

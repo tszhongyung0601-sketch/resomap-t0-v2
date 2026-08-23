@@ -21,7 +21,8 @@ export type NearbyCat =
   | "driver"
   | "guide"
   | "aff-hotel"
-  | "aff-tour";
+  | "aff-tour"
+  | "rental";
 
 /** Who the supply belongs to. Drives one small grey label, and nothing else. */
 export type NearbySource = "resomap" | "partner";
@@ -113,6 +114,24 @@ export const NEARBY_SECTIONS: NearbySection[] = [
         emoji: "🚐",
         portraitOf: "p-acheng",
         half: true,
+      },
+    ],
+  },
+  {
+    id: "get-around",
+    question: "要自己開嗎？",
+    cards: [
+      {
+        cat: "rental",
+        title: "附近租車",
+        sub: "車站與市區的取車點",
+        /* Neither ResoMap's own supply nor an affiliate programme: real
+           companies with no relationship to either. The label says so, and
+           every card in the list repeats it. */
+        source: "partner",
+        label: "Demo・未正式合作",
+        info: "affiliate",
+        emoji: "🚗",
       },
     ],
   },

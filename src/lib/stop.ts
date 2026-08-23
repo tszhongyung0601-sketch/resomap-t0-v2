@@ -218,3 +218,27 @@ export const placeOf = (v: StopView) => ({
   emoji: v.emoji,
   tint: v.tint,
 });
+
+/**
+ * A brand new stop pointing at something.
+ *
+ * The clock and the inbound leg are the caller's business — they depend on
+ * where in the day it lands — so this fills in only what the reference itself
+ * decides: the id, the suggested stay, and the `poiId` mirror that keeps the
+ * forty-four authored fixtures and every stored trip readable.
+ *
+ * Returns null for an id no record answers to, so a stale link appends nothing
+ * rather than a row that renders as a blank.
+ */
+export function newStop(ref: StopRef): Stop | null {
+  const probe: Stop = { id: "probe", poiId: ref.kind === "poi" ? ref.poiId : "", ref, at: "", stayMin: 0 };
+  const v = viewOf(probe);
+  if (!v) return null;
+  return {
+    id: `add-${refKey(ref).replace(":", "-")}-${Date.now()}`,
+    poiId: probe.poiId,
+    ref,
+    at: "",
+    stayMin: v.stayMin,
+  };
+}

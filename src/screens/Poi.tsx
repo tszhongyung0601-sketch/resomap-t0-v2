@@ -15,6 +15,7 @@ import { togglePoi, useSaved } from "../lib/saved";
 import { useI18n } from "../i18n";
 import { useNav } from "../nav";
 import { POI_KIND_LABELS, type Story } from "../types";
+import { AddToTrip } from "../components/AddToTrip";
 
 const THIS_YEAR = new Date().getFullYear();
 
@@ -131,6 +132,7 @@ export function Poi({ id }: { id: string }) {
    */
   const { pois: savedPois } = useSaved();
   const [sceneFailedId, setSceneFailedId] = useState<string | null>(null);
+  const [adding, setAdding] = useState(false);
   const saved = savedPois.includes(id);
 
   useEffect(() => {
@@ -183,19 +185,21 @@ export function Poi({ id }: { id: string }) {
   const tickets = p.ticketed ? attached.filter((d) => d.category === "ticket") : [];
   const localOffers = attached.filter((d) => d.category === "local");
 
+  /* nav.trips, not the TRIPS export. The export is the starting fixture: it
+     still lists a 台南 trip after the demo has been reset, so this reported
+     "已加入 Day 2" against a trip that no longer existed and nothing moved. */
+  const mine = nav.trips.filter((t) => t.destId === p.destId);
+
   function addToTrip() {
-    /* nav.trips, not the TRIPS export. The export is the starting fixture: it
-       still lists a 台南 trip after the demo has been reset, so this reported
-       "已加入 Day 2" against a trip that no longer existed and nothing moved. */
-    const mine = nav.trips.filter((t) => t.destId === p.destId);
     if (mine.length !== 1) {
       nav.go({ k: "create", destId: p.destId });
       return;
     }
-    /* The confirmation is nav.addPoi's own toast. Firing a second one here —
-       and a second poi_add with it — double-counted the funnel and told the
-       traveller twice about one tap. */
-    nav.addPoi(mine[0].id, mine[0].today, id);
+    /* Ask which day. It used to drop the place on `today` without asking,
+       which put it somewhere the traveller never chose and never saw — the
+       library card has offered the choice since it was built, and the place's
+       own page was the one route that skipped it. */
+    setAdding(true);
   }
 
   return (
@@ -449,6 +453,18 @@ export function Poi({ id }: { id: string }) {
       <div className="sticky bottom-0 z-20 mt-auto shrink-0 border-t border-line bg-bg/95 px-5 pb-5 pt-3 backdrop-blur">
         <Button onClick={addToTrip}>加入行程</Button>
       </div>
+
+      {/* Mounted only while open, so the picker's day state is fresh each time.
+          The day test is repeated rather than trusted from `addToTrip`: the one
+          thing standing between the sheet reading `days[0].n` and a crash
+          should be the condition that actually mounts it. */}
+      {adding && mine.length === 1 && mine[0].days.length > 0 && (
+        <AddToTrip
+          target={{ kind: "poi", poiId: id }}
+          trip={mine[0]}
+          onClose={() => setAdding(false)}
+        />
+      )}
     </Screen>
   );
 }

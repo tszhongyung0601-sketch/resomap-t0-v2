@@ -1,9 +1,11 @@
 import { distance, type LatLng } from "./geo";
 import { AFFILIATE_OFFERS } from "../data/affiliateOffers";
+import { CAR_RENTALS } from "../data/carRentals";
 import { MERCHANTS } from "../data/merchants";
 import { PROVIDERS } from "../data/providers";
 import type {
   AffiliateOffer,
+  CarRental,
   Merchant,
   Provider,
   ProviderKind,
@@ -222,6 +224,26 @@ export function nearbyOffers(
 }
 
 /**
+ * Hire counters near a place.
+ *
+ * No paid term and no verified term, and not because they were forgotten:
+ * ResoMap has no agreement with any of these companies and has reviewed none of
+ * them, so there is nothing either weight could honestly read from. Passing
+ * `isPaid: false` would be the same number with a much worse meaning — it would
+ * say these companies were checked and found wanting.
+ *
+ * No relevance term either. A counter is useful because of where it is and
+ * how well it is rated; there is no third question to ask about it.
+ */
+export function nearbyRentals(ctx: NearbyContext): Ranked<CarRental>[] {
+  return rankNearbyServices(
+    CAR_RENTALS.map((r) => ({ item: r, lat: r.lat, lng: r.lng, rating: r.rating })),
+    ctx.at,
+    ctx.radiusM,
+  );
+}
+
+/**
  * The measure word, per category.
  *
  * 「3 家餐廳」 and 「2 位私人導遊」 and 「5 個行程」. Chinese counts people,
@@ -237,6 +259,7 @@ const COUNT_UNIT: Record<string, string> = {
   driver: "位",
   guide: "位",
   "aff-tour": "個行程",
+  rental: "家",
 };
 
 /** What a category is called when it follows a number. */
@@ -248,6 +271,7 @@ const COUNT_NOUN: Record<string, string> = {
   driver: "包車司機",
   guide: "私人導遊",
   "aff-tour": "",
+  rental: "租車據點",
 };
 
 /** 「家」/「位」/「個行程」 — for a badge with no room for the noun. */
@@ -274,5 +298,6 @@ export function nearbyCounts(ctx: NearbyContext) {
     guide: nearbyProviders(ctx, "guide").length,
     "aff-hotel": nearbyOffers(ctx, "hotel").length,
     "aff-tour": nearbyOffers(ctx, "tour").length,
+    rental: nearbyRentals(ctx).length,
   };
 }

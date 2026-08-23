@@ -3,7 +3,8 @@ import { poi } from "../data";
 import { BY_DEST } from "../data/destinations";
 import { partner as partnerOf } from "../data/affiliatePartners";
 import { nearbyCategory, type NearbyCat, type Range } from "../data/nearbyCategories";
-import { MerchantCard, OfferCard, ProviderCard } from "../components/NearbyCards";
+import { MerchantCard, OfferCard, ProviderCard, RentalCard } from "../components/NearbyCards";
+import { AddToTrip } from "../components/AddToTrip";
 import {
   ContactSheet,
   DemoLinkSheet,
@@ -18,13 +19,15 @@ import {
   nearbyMerchants,
   nearbyOffers,
   nearbyProviders,
+  nearbyRentals,
   type NearbyContext,
 } from "../lib/nearby";
 import { tryAffiliate } from "../lib/contact";
 import { toggleOffer, useSaved } from "../lib/saved";
 import { openPlaceDirections } from "../lib/maps";
+import { focusTrip } from "../lib/trip";
 import { useNav } from "../nav";
-import type { Contact, MerchantCategory } from "../types";
+import type { Contact, MerchantCategory, StopRef } from "../types";
 
 /**
  * One category of what is nearby, ranked.
@@ -55,9 +58,13 @@ export function NearbyList({
   const [contact, setContact] = useState<{ name: string; c: Contact } | null>(null);
   const [demo, setDemo] = useState<DemoLink | null>(null);
   const [info, setInfo] = useState<InfoTopic | null>(null);
+  const [adding, setAdding] = useState<StopRef | null>(null);
 
   const p = poi(poiId);
   const meta = nearbyCategory(cat);
+  /* The same rule every other add path uses, so 加入行程 here and 加入行程 in
+     the library never disagree about which trip they mean. */
+  const trip = focusTrip(nav.trips) ?? null;
 
   const ctx: NearbyContext | null = useMemo(() => {
     if (!p) return null;
@@ -82,6 +89,7 @@ export function NearbyList({
         : [],
     [ctx, cat],
   );
+  const rentals = useMemo(() => (ctx && cat === "rental" ? nearbyRentals(ctx) : []), [ctx, cat]);
   const offers = useMemo(
     () =>
       ctx && (cat === "aff-hotel" || cat === "aff-tour")
@@ -91,7 +99,7 @@ export function NearbyList({
   );
 
   if (!p || !meta) return null;
-  const total = merchants.length + providers.length + offers.length;
+  const total = merchants.length + providers.length + offers.length + rentals.length;
   /* ResoMap's merchant and provider supply is Taiwan-only today. Saying so is
      more useful than an empty list that looks like a loading failure. */
   const overseas = BY_DEST[p.destId]?.country !== "tw";
@@ -176,6 +184,24 @@ export function NearbyList({
             />
           ))}
 
+          {rentals.map(({ item, metres }) => (
+            <RentalCard
+              key={item.id}
+              rental={item}
+              metres={metres}
+              onOpen={() => nav.go({ k: "rental", id: item.id })}
+              onAdd={() => setAdding({ kind: "rental", rentalId: item.id })}
+              onDirections={() =>
+                openPlaceDirections({
+                  name: `${item.brand} ${item.pickup}`,
+                  area: item.area,
+                  lat: item.lat,
+                  lng: item.lng,
+                })
+              }
+            />
+          ))}
+
           {offers.map(({ item, metres }) => (
             <OfferCard
               key={item.id}
@@ -214,6 +240,12 @@ export function NearbyList({
       <DemoLinkSheet link={demo} onClose={() => setDemo(null)} />
 
       <InfoSheet topic={info} onClose={() => setInfo(null)} />
+
+      {/* The same day picker the library card and the place page use. A hire
+          car counter is a stop like any other once it is in the day. */}
+      {adding && trip && trip.days.length > 0 && (
+        <AddToTrip target={adding} trip={trip} onClose={() => setAdding(null)} />
+      )}
 
     </Screen>
   );

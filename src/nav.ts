@@ -1,6 +1,7 @@
 import { createContext, useContext } from "react";
 import type { Deal, PlanAudience, ServiceId, StoryLength, Trip } from "./types";
 import type { NearbyCat } from "./data/nearbyCategories";
+import type { StopRef } from "./types";
 
 /**
  * A route stack on top of the tabs. No router library: every flow in this app
@@ -63,6 +64,8 @@ export type Route =
      Klook had only a link, so the one thing a traveller could do with it was
      leave the app. */
   | { k: "offer"; id: string }
+  /* A hire car counter. Real company, no agreement — see data/carRentals.ts. */
+  | { k: "rental"; id: string }
   | { k: "reviews"; kind: "merchant" | "provider"; id: string }
   | { k: "subscribe"; audience?: PlanAudience }
   | { k: "pro" };
@@ -126,8 +129,15 @@ export interface Nav {
   moreServices: () => void;
 
   /* ---------------------------------------------------------- trip state -- */
-  /** Add a POI to a trip day. Returns the day it landed on. */
-  addPoi: (tripId: string, day: number, poiId: string) => void;
+  /**
+   * Put something into a trip day.
+   *
+   * The app's only add path, and it takes a reference rather than a POI id
+   * because a day can now hold a hire car counter, a restaurant, a guide or a
+   * day tour. It owns the appended stop, the analytics event and the toast, so
+   * a caller never fires its own confirmation.
+   */
+  addStop: (tripId: string, day: number, ref: StopRef) => void;
   /** Create the demo trip for a destination and open it. */
   createTrip: (destId: string) => void;
   /**
