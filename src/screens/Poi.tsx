@@ -164,8 +164,9 @@ export function Poi({ id }: { id: string }) {
   const st = story(p.storyId);
   const era = st ? sceneEra(st) : null;
   /* The generated period image, and only that. Every slot in the manifest is
-     still "todo", so today this is always undefined and the block below renders
-     its placeholder — which is the honest state, not a bug to route around. */
+     still "todo" and `sceneFor` returns only finished ones, so today this is
+     always undefined and the block that draws it never renders. It stays wired
+     up so that filling a slot is a data change rather than a code change. */
   const scene = sceneFor(p.id);
 
   /* Two blocks, two promises: a ticket only where the venue genuinely sells
@@ -180,6 +181,25 @@ export function Poi({ id }: { id: string }) {
     ...featuredAudio,
     ...allAudio.filter((a) => a.kind === "community"),
   ];
+
+  /**
+   * The guides in a language other than this page's own.
+   *
+   * 中文 is the home language of this build, not a universal default — the
+   * comparison is against the string the data actually stores, so a guide
+   * recorded in Japanese is "other" here whoever is reading. It is a deliberate
+   * simplification: the app has a locale, and pivoting this on it would mean a
+   * Japanese reader seeing 中文 filed under 其他國家語言, which is true but
+   * useless when the whole page around it is Chinese.
+   */
+  const HOME_LANGUAGE = "中文";
+  const otherLangAudio = allAudio.filter((a) => a.language !== HOME_LANGUAGE);
+  const otherLanguages = [...new Set(otherLangAudio.map((a) => a.language))];
+  /* Split rather than duplicated. The section below used to carry every
+     community upload including the foreign-language ones, so promoting them
+     into their own block without this filter would print the same guide twice
+     on one screen. */
+  const homeLangAudio = extraAudio.filter((a) => a.language === HOME_LANGUAGE);
 
   /**
    * How many languages this place can be heard in.
@@ -315,42 +335,75 @@ export function Poi({ id }: { id: string }) {
             was that ResoMap will put a caption on anything. A period image has
             to be a different image or it is not a period image.
 
-            So it comes from the scene manifest and nowhere else. When the slot
-            is filled, `AiSceneNote` rides on it — this is the one picture on the
-            page nobody can check against the place in front of them, so it says
-            on the image itself that no camera was ever here. When the slot is
-            empty, the block says so and stops. A quiet 製作中 costs a traveller
-            nothing; a fabricated past costs them their trust in the rest of the
-            page. `era` still gates the whole thing, so a place whose guide never
-            names a century gets neither. */}
-        {st && era && (
+            So it comes from the scene manifest and nowhere else, and it renders
+            only when the slot is actually filled. It never has been: all four
+            scene slots are `status: "todo"`, and `sceneFor` only returns a
+            finished one — so every place whose guide named a century has been
+            showing a grey box reading 情境圖製作中 since the day this shipped.
+            A placeholder that can never resolve is not a quiet promise, it is
+            dead space in the middle of the page, and the block below is what a
+            traveller standing there can actually use. */}
+        {st && era && scene?.src && sceneFailedId !== id && (
           <div className="mt-5">
             {/* No spaces around `era`: it is a Chinese numeral, not a figure.
                 The app spaces 建議停留 1 小時 because the numeral is Latin;
                 「如果回到 三百 年前」 is the same rule misapplied, and it reads
                 as a gap in the sentence. */}
             <div className="text-[13px] text-ink-3">如果回到{era}年前……</div>
-            {scene?.src && sceneFailedId !== id ? (
-              <div className="relative mt-2">
-                <img
-                  src={scene.src}
-                  alt={`${p.name} ${era}年前的 AI 情境重現`}
-                  loading="lazy"
-                  decoding="async"
-                  /* A 404 here has to land on 製作中, not on a broken-image
-                     glyph wearing an ✨ AI 情境重現 badge — the badge would be
-                     labelling nothing, which is the one thing this block exists
-                     to prevent. Same guarantee PoiImage gives by keeping the
-                     generated cover behind the photograph. */
-                  onError={() => setSceneFailedId(id)}
-                  className="h-[140px] w-full rounded-[14px] object-cover"
-                />
-                <AiSceneNote />
-              </div>
-            ) : (
-              <div className="mt-2 grid h-[140px] place-items-center rounded-[14px] bg-surface-2">
-                <span className="text-[12.5px] text-ink-3">情境圖製作中</span>
-              </div>
+            <div className="relative mt-2">
+              <img
+                src={scene.src}
+                alt={`${p.name} ${era}年前的 AI 情境重現`}
+                loading="lazy"
+                decoding="async"
+                /* A 404 here has to hide the block, not land on a broken-image
+                   glyph wearing an ✨ AI 情境重現 badge — the badge would be
+                   labelling nothing, which is the one thing this exists to
+                   prevent. */
+                onError={() => setSceneFailedId(id)}
+                className="h-[140px] w-full rounded-[14px] object-cover"
+              />
+              <AiSceneNote />
+            </div>
+          </div>
+        )}
+
+        {/* 其他國家語言語音導覽.
+
+            Sits directly under the Chinese guide card, in the space the dead
+            scene placeholder used to hold, because this is the moment it
+            answers: a traveller who has just seen a guide they cannot listen to
+            needs to know, without scrolling or tapping, whether there is one
+            they can.
+
+            The languages are named rather than counted. 「4 種語言」 tells
+            somebody there is variety; 「日本語」 tells them whether any of it is
+            for them, which is the only thing they are asking. */}
+        {otherLangAudio.length > 0 && (
+          <div className="mt-5">
+            <div className="flex items-baseline gap-2">
+              <span className="text-[15px] font-bold text-ink">其他國家語言語音導覽</span>
+              <span className="num ml-auto shrink-0 text-[12.5px] text-ink-3">
+                {otherLangAudio.length} 則
+              </span>
+            </div>
+            <p className="mt-0.5 truncate text-[12.5px] text-ink-3">
+              {otherLanguages.join("・")}
+            </p>
+
+            <div className="mt-2.5 space-y-2">
+              {otherLangAudio.slice(0, 4).map((a) => (
+                <AudioRowMini key={a.id} guide={a} onPlay={() => nav.playAudio(a.id)} />
+              ))}
+            </div>
+
+            {otherLangAudio.length > 4 && (
+              <button
+                onClick={() => nav.go({ k: "audios", poiId: id })}
+                className="mt-2 min-h-11 text-[13px] font-semibold text-ink-3"
+              >
+                看全部 {allAudio.length} 則 ›
+              </button>
             )}
           </div>
         )}
@@ -378,7 +431,7 @@ export function Poi({ id }: { id: string }) {
           what other travellers uploaded, in six languages. It renders only when
           there is something in it — a section whose whole content is a link to
           itself is the dead control this app keeps deleting. */}
-      {extraAudio.length > 0 && (
+      {homeLangAudio.length > 0 && (
         <Section
           title="語音導覽"
           action={`全部 ${allAudio.length} 則`}
@@ -387,7 +440,12 @@ export function Poi({ id }: { id: string }) {
           {/* Above the rows, not beside the heading: the heading line already
               carries 全部 N 則 on its right and a third thing on it would make
               a row of three competing numbers. Truncates rather than wraps —
-              a place with six languages must not push the first guide down. */}
+              a place with six languages must not push the first guide down.
+
+              It counts every language including the ones listed in their own
+              block further up, because 全部 N 則 beside it links to the whole
+              library and these two numbers have to be describing the same
+              thing. */}
           {languages.length > 0 && (
             <p className="-mt-1 mb-2.5 truncate px-5 text-[12.5px] text-ink-3">
               {languages.length} 種語言 · {languages.join("・")}
@@ -395,7 +453,7 @@ export function Poi({ id }: { id: string }) {
           )}
 
           <div className="space-y-2 px-5">
-            {extraAudio.slice(0, 3).map((a) => (
+            {homeLangAudio.slice(0, 3).map((a) => (
               <AudioRowMini
                 key={a.id}
                 guide={a}
