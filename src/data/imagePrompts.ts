@@ -1630,6 +1630,78 @@ export const IMAGE_SLOTS: ImageSlot[] = [
       via: "Wikimedia Commons",
     },
   },
+  {
+    poiId: "shuishe-pier",
+    kind: "photo",
+    aspectRatio: "4:3",
+    minLongEdge: 1400,
+    /* 圖庫沒有，Commons 有。 */
+    prompt: "水社碼頭。Sun Moon Lake Shuishe Pier is the transshipment hub with a spacious parking lot. You can board the yacht to go on a lake tour from here.",
+    status: "done",
+    src: "photos/shuishe-pier-card.webp",
+    srcLarge: "photos/shuishe-pier-hero.webp",
+    credit: {
+      author: "LowensteinYang",
+      licence: "CC BY-SA 4.0",
+      licenceUrl: "https://creativecommons.org/licenses/by-sa/4.0",
+      source: "https://commons.wikimedia.org/wiki/File:%E6%97%A5%E6%9C%88%E6%BD%AD%E6%B0%B4%E7%A4%BE%E7%A2%BC%E9%A0%AD_View_of_Shuishe_Pier_from_Sun_Moon_Lake_20151213.jpg",
+      via: "Wikimedia Commons",
+    },
+  },
+  {
+    poiId: "wenwu-temple",
+    kind: "photo",
+    aspectRatio: "4:3",
+    minLongEdge: 1400,
+    /* 圖庫沒有，Commons 有。 */
+    prompt: "文武廟。Wenwu Temple, Sun &amp; Moon Lake, Taiwan - 文武廟, 日月潭, 台湾",
+    status: "done",
+    src: "photos/wenwu-temple-card.webp",
+    srcLarge: "photos/wenwu-temple-hero.webp",
+    credit: {
+      author: "Romain Pontida",
+      licence: "CC BY-SA 2.0",
+      licenceUrl: "https://creativecommons.org/licenses/by-sa/2.0",
+      source: "https://commons.wikimedia.org/wiki/File:Wenwu_Temple,_Sun_%26_Moon_Lake,_Taiwan_-_%E6%96%87%E6%AD%A6%E5%BB%9F,_%E6%97%A5%E6%9C%88%E6%BD%AD,_%E5%8F%B0%E6%B9%BE_(11353543594).jpg",
+      via: "Wikimedia Commons",
+    },
+  },
+  {
+    poiId: "ita-thao",
+    kind: "photo",
+    aspectRatio: "4:3",
+    minLongEdge: 1400,
+    /* 圖庫沒有，Commons 有。 */
+    prompt: "伊達邵。Our first stop after Taichung is three days at Sun Moon Lake. We visited two years ago, but this is a longer, quieter and more satisfying trip to hike, walk, an",
+    status: "done",
+    src: "photos/ita-thao-card.webp",
+    srcLarge: "photos/ita-thao-hero.webp",
+    credit: {
+      author: "ironypoisoning",
+      licence: "CC BY-SA 2.0",
+      licenceUrl: "https://creativecommons.org/licenses/by-sa/2.0",
+      source: "https://commons.wikimedia.org/wiki/File:View_of_Ita_Thao_from_a_ferry_on_Sun_Moon_Lake_20150719.jpg",
+      via: "Wikimedia Commons",
+    },
+  },
+  {
+    poiId: "xiangshan-centre",
+    kind: "photo",
+    aspectRatio: "4:3",
+    minLongEdge: 1400,
+    /* 圖庫沒有，Commons 有。 */
+    prompt: "向山遊客中心。向山遊客中心  Xiangshan Visitor Center",
+    status: "done",
+    src: "photos/xiangshan-centre-card.webp",
+    srcLarge: "photos/xiangshan-centre-hero.webp",
+    credit: {
+      author: "lienyuan lee",
+      licence: "CC BY 3.0",
+      licenceUrl: "https://creativecommons.org/licenses/by/3.0",
+      source: "https://commons.wikimedia.org/wiki/File:%E5%90%91%E5%B1%B1%E9%81%8A%E5%AE%A2%E4%B8%AD%E5%BF%83_Xiangshan_Visitor_Center_-_panoramio_(1).jpg",
+      via: "Wikimedia Commons",
+    },
+  },
 ];
 
 export const slotsFor = (poiId: string) => IMAGE_SLOTS.filter((s) => s.poiId === poiId);

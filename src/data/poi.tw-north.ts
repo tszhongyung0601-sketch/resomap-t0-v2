@@ -406,4 +406,69 @@ export const POI_TW_NORTH: Poi[] = [
       "捷運景美站出來就到，攤位沿景美街排，廟口那一段最擠；多數攤子下午五點後才開。",
     stayMin: 75,
   },
+  /* ----------------------------------------------------------- 日月潭
+
+     Coordinates looked up on OpenStreetMap through Nominatim rather than
+     eyeballed off a map: 水社碼頭 and 向山遊客中心 sit two kilometres apart on
+     the same shore and a guessed pair would have put them on top of each
+     other, which the 周邊推薦 radius would then have quietly lied about. */
+  {
+    id: "shuishe-pier",
+    storyId: "st-shuishe",
+    name: "水社碼頭",
+    destId: "sunmoonlake",
+    area: "魚池鄉",
+    kind: "nature",
+    lat: 23.86439,
+    lng: 120.91195,
+    emoji: "🛶",
+    tint: "#DEEBEA",
+    about:
+      "環湖遊艇的主要起點，船票可以在碼頭邊買，一張全日票能在水社、玄光寺、伊達邵三站之間上下船。清晨六點多常有霧，是整個湖最好看的時候。",
+    stayMin: 60,
+  },
+  {
+    id: "wenwu-temple",
+    name: "文武廟",
+    destId: "sunmoonlake",
+    area: "魚池鄉",
+    kind: "attraction",
+    lat: 23.86996,
+    lng: 120.92766,
+    emoji: "⛩️",
+    tint: "#F0E0DA",
+    about:
+      "位置比湖面高出不少，正殿前的平台是拍整個日月潭的地方。廟後有一段三百多階的年梯步道，一階一天，走完是一年。",
+    stayMin: 50,
+  },
+  {
+    id: "ita-thao",
+    name: "伊達邵",
+    destId: "sunmoonlake",
+    area: "魚池鄉",
+    kind: "food",
+    lat: 23.84710,
+    lng: 120.93368,
+    emoji: "🍢",
+    tint: "#F5E4D0",
+    about:
+      "邵族的聚落，也是湖邊唯一一條像樣的小吃街。小米麻糬、山豬肉香腸和阿薩姆紅茶都在這條巷子裡，傍晚遊艇最後一班收班後人會少很多。",
+    stayMin: 70,
+  },
+  {
+    id: "xiangshan-centre",
+    name: "向山遊客中心",
+    destId: "sunmoonlake",
+    area: "魚池鄉",
+    kind: "attraction",
+    lat: 23.85205,
+    lng: 120.90212,
+    emoji: "🏛️",
+    tint: "#E3E9E4",
+    about:
+      "日本建築師團紀彥設計的清水模建築，兩道弧形屋頂夾出一個正對湖面的框景。免費，室內有冷氣，下雨天最好用。",
+    stayMin: 45,
+    indoor: true,
+  },
+
 ];

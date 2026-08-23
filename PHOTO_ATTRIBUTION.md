@@ -1,6 +1,6 @@
 # 景點照片來源與授權
 
-App 裡 86 張景點照片的攝影者、授權與原始頁面。全部在開發階段下載進專案、
+App 裡 90 張景點照片的攝影者、授權與原始頁面。全部在開發階段下載進專案、
 裁切成 WebP 後隨站台部署，沒有任何一張是熱連結、AI 生成或通用圖庫的替身。
 
 每個景點頁的照片下方也會顯示同樣的資訊（見 `PhotoCredit`），不是只寫在這份文件裡。
@@ -20,7 +20,7 @@ App 裡 86 張景點照片的攝影者、授權與原始頁面。全部在開發
 其中三張是「一類餐食」而不是特定店家（淺草燒肉、澀谷居酒屋、銀座拉麵），拍的是那道菜；
 manifest 裡的註解會標出來。
 
-## via Wikimedia Commons（62 張）
+## via Wikimedia Commons（66 張）
 
 | 景點 | 攝影 | 授權 | 來源 |
 | --- | --- | --- | --- |
@@ -47,6 +47,7 @@ manifest 裡的註解會標出來。
 | 和美山步道 | Anas1712 | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0) | [原始頁面](https://commons.wikimedia.org/wiki/File:View%20of%20Xindian%20skyline%20and%20Taipei%20101%20from%20Hemeishan%20top%20near%20Bitan%2020230522%20130327.jpg) |
 | 花蓮文化創意產業園區 | lienyuan lee | [CC BY 3.0](https://creativecommons.org/licenses/by/3.0) | [原始頁面](https://commons.wikimedia.org/wiki/File%3A%E8%8A%B1%E8%93%AE%E6%96%87%E5%89%B5%E7%94%A2%E6%A5%AD%E5%9C%92%E5%8D%80%20Hualian%20Cultural%20and%20Creative%20Industries%20Park%20-%20panoramio.jpg) |
 | 光復糖廠 | Fred Hsu | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) | [原始頁面](https://commons.wikimedia.org/wiki/File%3ATaiwan%202009%20GuangFu%20Sugar%20Factory%20Historical%20Train%20Exhibition%20FRD%206170.jpg) |
+| 伊達邵 | ironypoisoning | [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0) | [原始頁面](https://commons.wikimedia.org/wiki/File:View_of_Ita_Thao_from_a_ferry_on_Sun_Moon_Lake_20150719.jpg) |
 | 礁溪溫泉 | Yu tptw | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [原始頁面](https://commons.wikimedia.org/wiki/File%3A%E6%B9%AF%E5%9C%8D%E6%BA%9D%E6%99%AF%E8%A7%80%E6%B1%A0.jpg) |
 | 景美夜市 | Alfred Twu | [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) | [原始頁面](https://commons.wikimedia.org/wiki/File:Jingmei-night-market.jpg) |
 | 白色恐怖景美紀念園區 | 人人生來平等 | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [原始頁面](https://commons.wikimedia.org/wiki/File:%E6%99%AF%E7%BE%8E%E4%BA%BA%E6%AC%8A%E6%96%87%E5%8C%96%E5%9C%92%E5%8D%80%E8%AD%A6%E5%82%99%E7%B8%BD%E5%8F%B8%E4%BB%A4%E9%83%A8%E4%BB%81%E6%84%9B%E6%A8%93%E7%9C%8B%E5%AE%88%E6%89%80%E5%A4%96%E9%83%A8.jpg) |
@@ -70,6 +71,7 @@ manifest 裡的註解會標出來。
 | 審計新村 | Fcuk1203 | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [原始頁面](https://commons.wikimedia.org/wiki/File%3A%E5%AF%A9%E8%A8%88%E6%96%B0%E6%9D%91%E6%96%87%E5%89%B5%E8%81%9A%E8%90%BD.jpg) |
 | 神農街 | Andrzej Otrębski | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [原始頁面](https://commons.wikimedia.org/wiki/File%3ATainan%20Shennong%20St%201.jpg) |
 | 十分老街 | Chainwit. | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0) | [原始頁面](https://commons.wikimedia.org/wiki/File%3ANew%20Taipei%20-%20Shifen%20Old%20Street%20%E5%8D%81%E5%88%86%E8%80%81%E8%A1%97%20(2025)%20-%20IMG%2006.jpg) |
+| 水社碼頭 | LowensteinYang | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [原始頁面](https://commons.wikimedia.org/wiki/File:%E6%97%A5%E6%9C%88%E6%BD%AD%E6%B0%B4%E7%A4%BE%E7%A2%BC%E9%A0%AD_View_of_Shuishe_Pier_from_Sun_Moon_Lake_20151213.jpg) |
 | 花蓮縣石雕博物館 | Flodur1209 | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [原始頁面](https://commons.wikimedia.org/wiki/File:Roland_Mayer_TREE_OF_LIFE_Hualien_Taiwan_2007.jpg) |
 | 臺南市美術館 2 館 | Adece033090 | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [原始頁面](https://commons.wikimedia.org/wiki/File%3A%E8%87%BA%E5%8D%97%E5%B8%82%E7%BE%8E%E8%A1%93%E9%A4%A82%E9%A4%A8%E5%BB%BA%E7%AF%89.jpg) |
 | 府城牛肉湯 | Sinchen.Lin | [CC BY 2.0](https://creativecommons.org/licenses/by/2.0) | [原始頁面](https://commons.wikimedia.org/wiki/File:16-%E5%8F%B0%E5%8D%97%E6%97%A9%E9%A4%90%E5%9C%8B%E8%8F%AF%E8%A1%97%E9%98%BF%E6%9D%91%E7%89%9B%E8%82%89%E6%B9%AF%EF%BC%8C%E5%8F%B0%E5%8D%97%E7%9C%9F%E5%A5%BD_(29484622036).jpg) |
@@ -81,7 +83,9 @@ manifest 裡的註解會標出來。
 | 鐵花村音樂聚落 | 總統府 | [CC BY 2.0](https://creativecommons.org/licenses/by/2.0) | [原始頁面](https://commons.wikimedia.org/wiki/File%3A06.30%20%E7%B8%BD%E7%B5%B1%E5%8F%83%E8%A8%AA%E9%90%B5%E8%8A%B1%E6%9D%91%20(48160081556).jpg) |
 | 國立傳統藝術中心 | 徐月春 | [CC BY 3.0](https://creativecommons.org/licenses/by/3.0) | [原始頁面](https://commons.wikimedia.org/wiki/File%3A268%2C%20Taiwan%2C%20%E5%AE%9C%E8%98%AD%E7%B8%A3%E4%BA%94%E7%B5%90%E9%84%89%E5%AD%A3%E6%96%B0%E6%9D%91%20-%20panoramio%20(12).jpg) |
 | 衛武營國家藝術文化中心 | yunlin2003 | [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0) | [原始頁面](https://commons.wikimedia.org/wiki/File%3A%E6%88%B6%E5%A4%96%E5%8A%87%E5%A0%B4%20Outdoor%20Theater%20(46812104541).jpg) |
+| 文武廟 | Romain Pontida | [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0) | [原始頁面](https://commons.wikimedia.org/wiki/File:Wenwu_Temple,_Sun_%26_Moon_Lake,_Taiwan_-_%E6%96%87%E6%AD%A6%E5%BB%9F,_%E6%97%A5%E6%9C%88%E6%BD%AD,_%E5%8F%B0%E6%B9%BE_(11353543594).jpg) |
 | 五峰旗瀑布 | Wl02460852 | [CC0](http://creativecommons.org/publicdomain/zero/1.0/deed.en) | [原始頁面](https://commons.wikimedia.org/wiki/File%3AYilan%20Wufengqi%20Waterfall-%E5%AE%9C%E8%98%AD-%E4%BA%94%E5%B3%B0%E6%97%97%E7%80%91%E5%B8%83.jpg) |
+| 向山遊客中心 | lienyuan lee | [CC BY 3.0](https://creativecommons.org/licenses/by/3.0) | [原始頁面](https://commons.wikimedia.org/wiki/File:%E5%90%91%E5%B1%B1%E9%81%8A%E5%AE%A2%E4%B8%AD%E5%BF%83_Xiangshan_Visitor_Center_-_panoramio_(1).jpg) |
 | 新店溪河濱步道 | C.L. Kao (eddie5150) | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) | [原始頁面](https://commons.wikimedia.org/wiki/File:%E5%AE%89%E5%9D%91%E6%A9%8B%EF%BC%8C%E6%96%B0%E5%BA%97%E6%BA%AA%E5%B7%A6%E5%B2%B8%E6%B2%B3%E6%BF%B1%E8%87%AA%E8%A1%8C%E8%BB%8A%E9%81%93%E3%80%82%20-%20panoramio.jpg) |
 | 野柳地質公園 | Ding Kezhong | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [原始頁面](https://commons.wikimedia.org/wiki/File%3ADSC09559%E9%87%8E%E6%9F%B3%E6%99%AF%E8%A7%82%E4%B8%80%E8%A7%92.jpg) |
 | 永康街 | Sun Taro | [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0) | [原始頁面](https://commons.wikimedia.org/wiki/File%3A2015-05-02%20a%20baobing%20restaurant%20at%20Yongkang%20Street%2C%20Taipei.jpg) |

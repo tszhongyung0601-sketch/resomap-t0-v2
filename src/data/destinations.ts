@@ -150,6 +150,30 @@ export const DESTINATIONS: Destination[] = [
     lng: 126.978,
     zoom: 12,
   },
+  /* Promoted out of REGIONS when it grew places of its own.
+   *
+     A region has no page: search opens the city it hangs off, and everything
+     that names a city goes through BY_DEST. That was fine while 日月潭 was a
+     name people say and nothing more. Now it has four places, four shops, two
+     service providers, four listings and a recorded guide — and as a region
+     every one of those was quietly broken. The 周邊推薦 screen read
+     `BY_DEST[destId]?.country !== "tw"` and, on `undefined`, told anybody
+     standing at 水社碼頭 that ResoMap only covers Taiwan.
+     
+     `near` becomes the tagline's job. 南投 is not itself a destination here, so
+     the region row could never resolve it anyway — searching 日月潭 returned
+     nothing at all. */
+  {
+    id: "sunmoonlake",
+    name: "日月潭",
+    country: "tw",
+    tagline: "南投 · 環湖、纜車與清晨的霧",
+    emoji: "🛶",
+    tint: "#DEEBEA",
+    lat: 23.8569,
+    lng: 120.9155,
+    zoom: 13,
+  },
 ];
 
 export const BY_DEST: Record<string, Destination> = Object.fromEntries(
@@ -199,17 +223,6 @@ export const REGIONS: TravelRegion[] = [
     lat: 25.2098,
     lng: 121.6897,
     zoom: 11,
-  },
-  {
-    id: "sunmoonlake",
-    name: "日月潭",
-    near: "南投",
-    tagline: "環湖、纜車與清晨的霧",
-    emoji: "🛶",
-    tint: "#DEEBEA",
-    lat: 23.8569,
-    lng: 120.9155,
-    zoom: 13,
   },
   {
     id: "alishan",
