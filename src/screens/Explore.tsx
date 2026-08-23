@@ -1,7 +1,7 @@
 import { poi } from "../data";
 import { BrandBar } from "../components/BrandBar";
 import { MapHome } from "./MapHome";
-import { PoiImage } from "../components/Cover";
+import { PoiImage, StopImage } from "../components/Cover";
 import { Button, Card, Headphones, Screen, Tag } from "../components/ui";
 import { toggleStory, useSaved } from "../lib/saved";
 import { nearbyStoryRail, playLabel, rating } from "../lib/story";
@@ -11,6 +11,7 @@ import { focusTrip } from "../lib/trip";
 import { useI18n } from "../i18n";
 import { useNav, type Route } from "../nav";
 import type { Story, Trip } from "../types";
+import { poiOf, viewsOf } from "../lib/stop";
 
 /**
  * Home. The map leads, and everything else scrolls past it.
@@ -58,7 +59,11 @@ export function Explore({ trips }: { trips: Trip[] }) {
 
 /** Distinct places on the itinerary — a lunch spot visited twice is one place. */
 const tripPois = (trip: Trip): string[] => [
-  ...new Set(trip.days.flatMap((d) => d.tracks.flatMap((t) => t.stops)).map((s) => s.poiId)),
+  ...new Set(
+    trip.days
+      .flatMap((d) => d.tracks.flatMap((t) => t.stops))
+      .flatMap((s) => poiOf(s)?.id ?? []),
+  ),
 ];
 
 /* The map block moved to screens/MapHome.tsx when it stopped being a picture of
@@ -261,15 +266,8 @@ function NextTrip({ trip }: { trip: Trip }) {
             here, two sections apart. */}
         {first.length > 0 && (
           <div className="mt-3.5 flex gap-2">
-            {first.map((s) => (
-              <PoiImage
-                key={s.id}
-                poi={poi(s.poiId)}
-                height={56}
-                radius={12}
-                emoji={false}
-                className="flex-1"
-              />
+            {viewsOf(first).map((v) => (
+              <StopImage key={v.id} view={v} height={56} radius={12} className="flex-1" />
             ))}
           </div>
         )}

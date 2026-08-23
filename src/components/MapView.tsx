@@ -11,7 +11,6 @@ import {
 import { divIcon, type LatLngBoundsExpression } from "leaflet";
 import type { ReactNode } from "react";
 import { bounds, cluster } from "../lib/geo";
-import type { Poi } from "../types";
 
 /**
  * The one map in the app.
@@ -26,8 +25,28 @@ import type { Poi } from "../types";
  * context of its own the map paints straight over any UI layered on top of it.
  */
 
+/**
+ * The least a map needs to know about a thing to draw it.
+ *
+ * `Poi` satisfies this structurally, so every existing map carries on passing
+ * POIs and nothing about them changed. The trip map cannot: a day may now hold
+ * a hire car counter or a restaurant, and neither is a POI. Widening this to
+ * the seven fields a pin actually reads — rather than to a five-way union —
+ * keeps the map ignorant of what kinds of thing exist, which is the right
+ * amount for a map to know.
+ */
+export interface MapPlace {
+  id: string;
+  name: string;
+  area: string;
+  lat: number;
+  lng: number;
+  emoji: string;
+  tint: string;
+}
+
 export interface MapPin {
-  poi: Poi;
+  poi: MapPlace;
   /** 1-based position in an itinerary. Renders a numbered pin instead of an emoji. */
   order?: number;
   /** Paid placement. Rendered with a visible ring and a label in the sheet. */
@@ -382,7 +401,7 @@ export function MapView({
    * request, which is what makes the effect fire.
    */
   flyTo?: { at: [number, number]; zoom?: number; token: number } | null;
-  onPick?: (poi: Poi) => void;
+  onPick?: (poi: MapPlace) => void;
   /** Layers rendered inside the map container — the "you are here" dot. */
   children?: ReactNode;
 }) {

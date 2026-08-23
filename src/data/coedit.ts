@@ -1,6 +1,7 @@
 import type { Trip, TravellerId } from "../types";
 import { BY_POI, poisForDest } from "./index";
 import { BY_TRAVELLER, ME } from "./travellers";
+import { poiOf } from "../lib/stop";
 
 /**
  * The script behind 一起編輯 — and the reason it is a script.
@@ -97,7 +98,9 @@ export function dayPlan(trip: Trip): DayPlan[] {
   return trip.days.map((d) => ({
     n: d.n,
     date: d.date,
-    poiIds: d.tracks.flatMap((t) => t.stops.map((s) => s.poiId)),
+    /* A co-editing room votes on places. Anything else in the day is real,
+       but it is not something the group is being asked to keep or drop. */
+    poiIds: d.tracks.flatMap((t) => t.stops.flatMap((s) => poiOf(s)?.id ?? [])),
   }));
 }
 

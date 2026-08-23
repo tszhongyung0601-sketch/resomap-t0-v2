@@ -1,5 +1,6 @@
 import { poi } from "../data";
 import { distance } from "./geo";
+import { viewOf } from "./stop";
 import type { Adapt, LegMode, Stop, Trip } from "../types";
 
 /** Door-to-door metres per minute, not vehicle top speed. */
@@ -62,7 +63,10 @@ function metresSaved(stops: Stop[], dropId: string): number {
   const prev = stops[i - 1];
   const next = stops[i + 1];
   if (!prev || !next) return inbound + outbound;
-  const direct = distance(poi(prev.poiId), poi(next.poiId));
+  const a = viewOf(prev);
+  const b = viewOf(next);
+  if (!a || !b) return inbound + outbound;
+  const direct = distance(a, b);
   return Math.max(0, inbound + outbound - direct);
 }
 
@@ -105,7 +109,7 @@ export function previewAdapt(trip: Trip, adapt: Adapt): AdaptPreview {
 
       for (const s of t.stops) {
         if (!adapt.plan.drop.includes(s.id)) continue;
-        droppedNames.push(poi(s.poiId).name);
+        droppedNames.push(viewOf(s)?.title ?? "");
         savedMin += s.stayMin + (s.from?.min ?? 0);
         savedMetres += metresSaved(t.stops, s.id);
       }
@@ -116,9 +120,17 @@ export function previewAdapt(trip: Trip, adapt: Adapt): AdaptPreview {
         const swap = adapt.plan.swap;
         stops = stops.map((s) => {
           if (!swap[s.id]) return s;
-          swappedFrom = poi(s.poiId).name;
+          swappedFrom = viewOf(s)?.title ?? "";
           swappedTo = poi(swap[s.id]).name;
-          return { ...s, poiId: swap[s.id], changed: adapt.swapNote ?? "已調整" };
+          /* The swap table names a POI, so the replacement is a POI stop even
+             when what it replaced was a restaurant. Writing `ref` alongside
+             `poiId` keeps the two from disagreeing about what this row is. */
+          return {
+            ...s,
+            poiId: swap[s.id],
+            ref: { kind: "poi" as const, poiId: swap[s.id] },
+            changed: adapt.swapNote ?? "已調整",
+          };
         });
         /* The legs either side of a swapped stop were measured to the OLD venue.
            Leaving them is how you end up telling somebody to drive 42 minutes to
@@ -128,7 +140,10 @@ export function previewAdapt(trip: Trip, adapt: Adapt): AdaptPreview {
           const prev = stops[i - 1];
           const touched = swap[s.id] || (prev && swap[prev.id]);
           if (!prev || !s.from || !touched) return s;
-          const metres = Math.round(distance(poi(prev.poiId), poi(s.poiId)) * 1.25);
+          const a = viewOf(prev);
+          const b = viewOf(s);
+          if (!a || !b) return s;
+          const metres = Math.round(distance(a, b) * 1.25);
           /* Nobody drives 900 metres. When a swap makes a motorised leg short
              enough to walk, say so — reporting "開車 1 分鐘" is technically
              derived from the distance and still obviously wrong to a human. */

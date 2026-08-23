@@ -1,5 +1,5 @@
-import { poi } from "../data";
 import { distance } from "./geo";
+import { stopKey, viewOf } from "./stop";
 import type { Day, Leg, LegMode, Stop, Track } from "../types";
 
 /**
@@ -106,7 +106,12 @@ function pickMode(prior: LegMode | undefined, metres: number): LegMode {
  * crossed the road. Motorised legs keep adapt.ts's floor of one.
  */
 function legBetween(from: Stop, to: Stop, prior: LegMode | undefined): Leg {
-  const metres = distance(poi(from.poiId), poi(to.poiId));
+  const a = viewOf(from);
+  const b = viewOf(to);
+  /* A stop whose record has gone keeps whatever leg it had. Measuring from a
+     place that no longer exists would put a confident 0 m on the screen. */
+  if (!a || !b) return to.from ?? { mode: "walk", metres: 0, min: 0 };
+  const metres = distance(a, b);
   const mode = pickMode(prior, metres);
   const floor = mode === "walk" ? 5 : 1;
   return { mode, metres, min: Math.max(floor, Math.round(metres / SPEED[mode])) };
@@ -321,7 +326,10 @@ export interface DayEdits {
   base: Record<string, string>;
 }
 
-const signature = (s: Stop) => `${s.poiId}|${s.at}|${s.stayMin}`;
+/* `stopKey` rather than `poiId`: a day holding two hire cars from different
+   companies has two different stops, and a signature built on an empty poiId
+   would call them the same one and quietly drop an edit. */
+const signature = (s: Stop) => `${stopKey(s)}|${s.at}|${s.stayMin}`;
 
 /**
  * What changed between the day as the trip states it and the day as the

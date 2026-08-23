@@ -1,5 +1,5 @@
-import { ADAPTS, ME, poi, story } from "../data";
-import { PoiImage } from "../components/Cover";
+import { ADAPTS, ME, story } from "../data";
+import { PoiImage, StopImage } from "../components/Cover";
 import {
   Button,
   Empty,
@@ -11,7 +11,8 @@ import {
   TopBar,
 } from "../components/ui";
 import { dur } from "../lib/adapt";
-import { openDirections } from "../lib/maps";
+import { openDirections, openPlaceDirections } from "../lib/maps";
+import { viewOf } from "../lib/stop";
 import { track } from "../lib/track";
 import { useNav } from "../nav";
 import { LEG_LABEL, type Adapt, type Day, type Stop, type Trip } from "../types";
@@ -41,8 +42,12 @@ export function Today({ trip, onAdjust }: { trip: Trip; onAdjust: () => void }) 
      stop is both. */
   const at = stops[0];
   const next = stops[1] ?? stops[0];
-  const target = next ? poi(next.poiId) : null;
-  const from = next && next !== at && at ? poi(at.poiId) : null;
+  /* The next stop is whatever it is — a place, a restaurant, or the counter
+     where the hire car is waiting. `target` is the place behind it when there
+     is one, because only a place has a story to offer. */
+  const targetView = next ? viewOf(next) : null;
+  const target = targetView?.poi ?? null;
+  const fromView = next && next !== at && at ? viewOf(at) : null;
   const leg = next?.from;
   const st = target ? story(target.storyId) : undefined;
 
@@ -96,19 +101,23 @@ export function Today({ trip, onAdjust }: { trip: Trip; onAdjust: () => void }) 
         )}
       </div>
 
-      {target && next ? (
+      {targetView && next ? (
         <>
           <section className="mt-6 px-5">
             <div className="mb-3 text-[17px] font-bold text-ink">下一站</div>
 
-            <PoiImage poi={target} height={160} radius={16} className="w-full" />
+            {target ? (
+              <PoiImage poi={target} height={160} radius={16} className="w-full" />
+            ) : (
+              <StopImage view={targetView} height={160} radius={16} className="w-full" />
+            )}
 
             <div className="mt-3 flex items-baseline gap-2.5">
               <span className="num shrink-0 text-[22px] font-bold text-ink">
                 {next.at}
               </span>
               <span className="min-w-0 flex-1 truncate text-[20px] font-bold text-ink">
-                {target.name}
+                {targetView.title}
               </span>
             </div>
 
@@ -127,11 +136,20 @@ export function Today({ trip, onAdjust }: { trip: Trip; onAdjust: () => void }) 
                 buttons here would make the traveller choose before moving. */}
             <div className="mt-4 space-y-2">
               <Button
-                onClick={() => openDirections(from, target, leg?.mode ?? "walk")}
+                onClick={() => {
+                  if (target) openDirections(fromView?.poi ?? null, target, leg?.mode ?? "walk");
+                  else
+                    openPlaceDirections({
+                      name: targetView.title,
+                      area: targetView.subtitle,
+                      lat: targetView.lat,
+                      lng: targetView.lng,
+                    });
+                }}
               >
-                前往{target.name}
+                前往{targetView.title}
               </Button>
-              {st && (
+              {st && target && (
                 <Button
                   variant="secondary"
                   onClick={() => {
@@ -199,26 +217,39 @@ export function Today({ trip, onAdjust }: { trip: Trip; onAdjust: () => void }) 
 
 function NextRow({ stop }: { stop: Stop }) {
   const nav = useNav();
-  const p = poi(stop.poiId);
+  const v = viewOf(stop);
+  if (!v) return null;
 
-  return (
-    <button
-      onClick={() => nav.go({ k: "poi", id: stop.poiId })}
-      className="-mx-2 flex w-full items-center gap-3 rounded-2xl px-2 py-2 text-left active:bg-surface"
-    >
+  const inner = (
+    <>
       <span className="num w-11 shrink-0 text-[13.5px] font-semibold text-ink-3">
         {stop.at}
       </span>
-      <Thumb emoji={p.emoji} tint={p.tint} size={44} radius={12} />
+      <Thumb emoji={v.emoji} tint={v.tint} size={44} radius={12} />
       <span className="min-w-0 flex-1 truncate text-[15px] font-semibold text-ink">
-        {p.name}
+        {v.title}
       </span>
       {stop.stayMin > 0 && (
         <span className="shrink-0 text-[12.5px] text-ink-3">
           停留 {dur(stop.stayMin)}
         </span>
       )}
+    </>
+  );
+
+  const rowClass =
+    "-mx-2 flex w-full items-center gap-3 rounded-2xl px-2 py-2 text-left";
+
+  /* A place opens; a hire car counter has nothing to open. */
+  return v.poi ? (
+    <button
+      onClick={() => nav.go({ k: "poi", id: v.poi!.id })}
+      className={rowClass + " active:bg-surface"}
+    >
+      {inner}
     </button>
+  ) : (
+    <div className={rowClass}>{inner}</div>
   );
 }
 

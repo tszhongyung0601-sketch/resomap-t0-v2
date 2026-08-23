@@ -297,9 +297,36 @@ export interface Leg {
   metres: number;
 }
 
+/**
+ * What a stop points at.
+ *
+ * A trip used to be a list of places, so a stop was a POI id and nothing else.
+ * V3 lets a traveller put a hire car, a restaurant, a guide or a day tour into
+ * the same day, and those are not POIs — they live in `merchants.ts`,
+ * `providers.ts`, `affiliateOffers.ts` and `carRentals.ts`.
+ *
+ * A discriminated union rather than four optional id fields, so a stop cannot
+ * be half a restaurant and half a hire car, and so `lib/stop.ts` can resolve one
+ * with a `switch` the compiler checks rather than a chain of `if (x?.id)`.
+ */
+export type StopRef =
+  | { kind: "poi"; poiId: string }
+  | { kind: "merchant"; merchantId: string }
+  | { kind: "provider"; providerId: string }
+  | { kind: "offer"; offerId: string }
+  | { kind: "rental"; rentalId: string };
+
 export interface Stop {
   id: string;
+  /**
+   * Kept, and kept first, because forty-four authored stops carry it and every
+   * one of them is still a place. For a POI stop it equals `ref.poiId`; for the
+   * rest it is empty, which is the signal to go through `viewOf()` instead of
+   * calling `poi()`.
+   */
   poiId: string;
+  /** Absent on the authored fixtures, which are all POIs — see `refOf()`. */
+  ref?: StopRef;
   at: string; // "HH:MM"
   stayMin: number;
   meal?: "lunch" | "dinner";
@@ -813,6 +840,48 @@ export interface AffiliateOffer {
   tint: string;
   photo?: string;
   photoFromPoi?: string;
+}
+
+/**
+ * A car hire counter near a place.
+ *
+ * Separate from `AffiliateOffer` because hiring a car is not booking a room: it
+ * has a pickup counter with an address you have to physically reach, an opening
+ * time you have to reach it by, and a vehicle class rather than a room type. It
+ * is separate from `Merchant` because ResoMap has reviewed none of these and
+ * takes no money from them, so it must not be able to earn 推薦夥伴 — there is
+ * deliberately no `isPaid` or `reviewStatus` field to set.
+ *
+ * Every one of these is a real company that has no agreement with ResoMap,
+ * which is why `RENTAL_DISCLOSURE` is printed on each card rather than once at
+ * the foot of a screen. `url` is empty for the same reason `affiliateUrl` is:
+ * the component reads the field and explains what would happen, and signing a
+ * programme later is a data change rather than a code change.
+ */
+export interface CarRental {
+  id: string;
+  brand: string;
+  /** A hire company's own counter, or a platform that resells several. */
+  kind: "brand" | "ota";
+  destId: string;
+  /** The counter, in words a traveller can hand to a taxi driver. */
+  pickup: string;
+  area: string;
+  lat: number;
+  lng: number;
+  /** An example vehicle at this price, not the only one available. */
+  model: string;
+  seats: number;
+  priceTwd: number;
+  /** "日" for a daily rate, "小時" for the by-the-hour operators. */
+  priceUnit: string;
+  rating: number;
+  reviewCount: number;
+  hours: string;
+  /** One sentence — what makes this counter different from the one next door. */
+  note: string;
+  /** Empty in the demo. See the note above. */
+  url: string;
 }
 
 /* ----------------------------------------------------------- subscription */

@@ -146,7 +146,9 @@ export function Search({ q }: { q: string }) {
     ? [results[0].lat, results[0].lng]
     : [23.7, 121.0];
 
-  const openPoi = (p: Poi) => nav.go({ k: "poi", id: p.id });
+  /* Takes the id and nothing else, so the same handler serves a result row
+     and a map pin without either having to be a full Poi. */
+  const openPoi = (p: { id: string }) => nav.go({ k: "poi", id: p.id });
   const nothing = Boolean(query) && !results.length && !places.length;
 
   return (

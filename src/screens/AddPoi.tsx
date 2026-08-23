@@ -1,12 +1,14 @@
 import { useMemo, useState } from "react";
 import type { ReactNode } from "react";
-import { POIS, poi, poisForDest } from "../data";
+import { POIS, poisForDest } from "../data";
 import { distance, km } from "../lib/geo";
 import { lookupPlaceLink } from "../lib/placelink";
 import { hasStory } from "../lib/story";
 import { useNav } from "../nav";
 import { Button, Row, Sheet, StoryBadge, Thumb } from "../components/ui";
 import { POI_KIND_LABELS, type Poi, type Trip } from "../types";
+import { poiOf, viewOf } from "../lib/stop";
+import type { StopView } from "../lib/stop";
 
 /**
  * Adding a place is a two-second job, so it stays a sheet over the day you are
@@ -31,19 +33,22 @@ export function AddPoiSheet({
   const trip = nav.trips.find((t) => t.id === tripId);
 
   const { anchor, nearby, more } = useMemo<{
-    anchor: Poi | null;
+    /* Whatever the day currently ends at, which need not be a place. */
+    anchor: StopView | null;
     nearby: Poi[];
     more: Poi[];
   }>(() => {
     if (!trip) return { anchor: null, nearby: [], more: [] };
     const pool = poisForDest(trip.destId);
+    /* Places only. This screen offers places, so a hire car or a restaurant
+       already in the itinerary is not something it could duplicate. */
     const inTrip = new Set(
-      trip.days.flatMap((d) => d.tracks.flatMap((t) => t.stops.map((s) => s.poiId))),
+      trip.days.flatMap((d) => d.tracks.flatMap((t) => t.stops.flatMap((s) => poiOf(s)?.id ?? []))),
     );
     const thisDay = new Set(
       trip.days
         .filter((d) => d.n === day)
-        .flatMap((d) => d.tracks.flatMap((t) => t.stops.map((s) => s.poiId))),
+        .flatMap((d) => d.tracks.flatMap((t) => t.stops.flatMap((s) => poiOf(s)?.id ?? []))),
     );
 
     /* Where this day currently ends — the exact stop a new place is appended
@@ -52,7 +57,9 @@ export function AddPoiSheet({
     const target = trip.days.find((d) => d.n === day);
     const lastTrack = target?.tracks[target.tracks.length - 1];
     const lastStop = lastTrack?.stops[lastTrack.stops.length - 1];
-    const anchor = lastStop ? poi(lastStop.poiId) : null;
+    /* Any last stop will do as an anchor — a hire car counter is a perfectly
+       good place to measure 附近 from. Only its coordinates are needed. */
+    const anchor = lastStop ? (viewOf(lastStop) ?? null) : null;
 
     /* Prefer places the trip has not used at all; a short demo city can run out
        of those, and an empty section is worse than one offering a place that is
@@ -184,7 +191,7 @@ function PasteLink({
     if (found?.kind !== "found") return false;
     const onDay = trip.days.find((d) => d.n === pick);
     return Boolean(
-      onDay?.tracks.some((t) => t.stops.some((s) => s.poiId === found.poi.id)),
+      onDay?.tracks.some((t) => t.stops.some((s) => poiOf(s)?.id === found.poi.id)),
     );
   }, [found, trip, pick]);
 

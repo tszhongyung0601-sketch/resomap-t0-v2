@@ -3,6 +3,7 @@ import { BrandBar } from "../components/BrandBar";
 import { useNav } from "../nav";
 import { Button, Card, Empty, Screen, StoryBadge, Thumb } from "../components/ui";
 import type { Trip } from "../types";
+import { poiOf } from "../lib/stop";
 
 /**
  * The 行程 tab, and deliberately the dullest screen in the app.
@@ -85,7 +86,10 @@ function TripRow({ trip }: { trip: Trip }) {
  */
 function hasStory(trip: Trip): boolean {
   return trip.days.some((d) =>
-    d.tracks.some((t) => t.stops.some((s) => Boolean(poi(s.poiId).storyId))),
+    /* Only a place has a recorded guide, so anything that is not one simply
+       does not count towards the badge — rather than throwing on its empty
+       `poiId` and taking the whole trip list with it. */
+    d.tracks.some((t) => t.stops.some((s) => Boolean(poiOf(s)?.storyId))),
   );
 }
 
@@ -93,7 +97,7 @@ function hasStory(trip: Trip): boolean {
 function firstDayPois(trip: Trip): string[] {
   const day = trip.days[0];
   if (!day) return [];
-  const ids = day.tracks.flatMap((t) => t.stops.map((s) => s.poiId));
+  const ids = day.tracks.flatMap((t) => t.stops.flatMap((s) => poiOf(s)?.id ?? []));
   return [...new Set(ids)].slice(0, 4);
 }
 

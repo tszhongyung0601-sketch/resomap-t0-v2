@@ -118,17 +118,16 @@ export function Offer({ id }: { id: string }) {
           <MapView
             pins={[
               {
+                /* An offer is not a POI, and now it no longer has to pretend
+                   to be one to get a pin drawn. */
                 poi: {
                   id: o.id,
                   name: o.name,
-                  destId: o.destId,
                   area: city ?? "",
-                  kind: o.kind === "hotel" ? "stay" : "activity",
                   lat: o.lat,
                   lng: o.lng,
                   emoji: o.emoji,
                   tint: o.tint,
-                  stayMin: 60,
                 },
               },
             ]}

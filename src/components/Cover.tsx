@@ -4,6 +4,7 @@ import { portraitFor, shotFor, type HasPhoto } from "../lib/photo";
 import { portraitCredit } from "../data/portraitCredits";
 import { Avatar } from "./ui";
 import type { Poi, PoiKind } from "../types";
+import type { StopView } from "../lib/stop";
 
 /**
  * A place's picture, until there is a photograph of it.
@@ -526,6 +527,52 @@ export function PersonPhoto({
 
       {show && <AiMark tiny={size === "thumb"} />}
       {children}
+    </div>
+  );
+}
+
+/**
+ * A stop's picture, whatever the stop turns out to be.
+ *
+ * A place gets its photograph, or the drawn landscape that stands in for one.
+ * A hire car counter gets neither, and should not: there is no photograph of
+ * 「iRent 花蓮車站」 in this project, and inventing a generic car park for it
+ * would be the same mistake as putting a stock beach behind a named restaurant.
+ * It gets a flat tile with the one glyph that says what it is — the same
+ * treatment `Thumb` gives a service everywhere else in the app.
+ */
+export function StopImage({
+  view,
+  height = 48,
+  radius = 12,
+  className = "",
+}: {
+  view: StopView;
+  height?: number;
+  radius?: number;
+  className?: string;
+}) {
+  if (view.poi) {
+    return (
+      <PoiImage
+        poi={view.poi}
+        height={height}
+        radius={radius}
+        className={className}
+      />
+    );
+  }
+  return (
+    <div
+      className={`grid shrink-0 place-items-center ${className}`}
+      style={{
+        height,
+        borderRadius: radius,
+        background: view.tint,
+        fontSize: height * 0.42,
+      }}
+    >
+      {view.emoji}
     </div>
   );
 }

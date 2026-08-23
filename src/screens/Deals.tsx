@@ -7,6 +7,7 @@ import { useNav } from "../nav";
 import { DEAL_CATEGORY_LABELS } from "../types";
 import type { Deal, DealCategory, Trip } from "../types";
 import type { DealsTab } from "../nav";
+import { poiOf } from "../lib/stop";
 
 type TabId = DealsTab;
 
@@ -111,7 +112,13 @@ function makeReason(trip: Trip | undefined, home: string | null) {
   if (trip)
     for (const d of trip.days)
       for (const tr of d.tracks)
-        for (const s of tr.stops) if (!dayOf.has(s.poiId)) dayOf.set(s.poiId, d.n);
+        for (const s of tr.stops) {
+          /* Deals are attached to places. A hire car in the itinerary carries
+             no `poiId`, and letting an empty string into this map would make
+             every deal without a POI claim to be on Day 1. */
+          const id = poiOf(s)?.id;
+          if (id && !dayOf.has(id)) dayOf.set(id, d.n);
+        }
 
   return (deal: Deal): Why | null => {
     if (deal.poiId) {

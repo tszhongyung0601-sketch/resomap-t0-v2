@@ -15,6 +15,7 @@ import {
 } from "./data";
 import { applyAdapt } from "./lib/adapt";
 import { distance } from "./lib/geo";
+import { placeOf, viewOf, viewsOf } from "./lib/stop";
 import { audio as audioById } from "./lib/audio";
 import { stopSpeaking } from "./lib/speech";
 import { focusTrip } from "./lib/trip";
@@ -163,7 +164,8 @@ export default function App() {
               const last = tracks[tracks.length - 1];
               const prev = last.stops[last.stops.length - 1];
               const p = poi(poiId);
-              const metres = prev ? distance(poi(prev.poiId), p) : 0;
+              const prevView = prev ? viewOf(prev) : null;
+              const metres = prevView ? distance(prevView, p) : 0;
               tracks[tracks.length - 1] = {
                 ...last,
                 stops: [
@@ -171,6 +173,7 @@ export default function App() {
                   {
                     id: `add-${poiId}-${Date.now()}`,
                     poiId,
+                    ref: { kind: "poi" as const, poiId },
                     /* Appended after the day's last stop, not squeezed in. Where
                        exactly it lands is the traveller's call, not ours. */
                     at: addMinutes(prev?.at ?? "10:00", (prev?.stayMin ?? 0) + 20),
@@ -593,9 +596,16 @@ function TripRouteMap({ trip, day }: { trip: Trip; day: number }) {
   const nav = useNavSafe();
   const d = trip.days.find((x) => x.n === day) ?? trip.days[0];
   const stops = d.tracks.flatMap((t) => t.stops);
-  const pins = stops.map((s, i) => ({ poi: poi(s.poiId), order: i + 1 }));
+  /* Resolved rather than looked up: a day can hold a hire car counter or a
+     restaurant now, and a pin for one has to be able to exist. Anything whose
+     record has gone drops off the map instead of taking it down. */
+  const views = viewsOf(stops);
+  const pins = views.map((v, i) => ({ poi: placeOf(v), order: i + 1 }));
   const [picked, setPicked] = useState<string | null>(null);
-  const chosen = picked ? stops.find((s) => s.poiId === picked) : null;
+  /* Picked by stop id, not by place id: the same restaurant twice in one day
+     used to select whichever came first. */
+  const chosen = picked ? (views.find((v) => v.id === picked) ?? null) : null;
+  const chosenStop = chosen ? stops.find((s) => s.id === chosen.id) : null;
 
   return (
     <div className="relative h-full">
@@ -612,21 +622,24 @@ function TripRouteMap({ trip, day }: { trip: Trip; day: number }) {
       {chosen && (
         <div className="rm-up absolute inset-x-0 bottom-0 z-20 rounded-t-3xl bg-bg px-5 pb-[88px] pt-4">
           <div className="flex items-center gap-3">
-            <Thumb emoji={poi(chosen.poiId).emoji} tint={poi(chosen.poiId).tint} size={52} />
+            <Thumb emoji={chosen.emoji} tint={chosen.tint} size={52} />
             <div className="min-w-0 flex-1">
-              <div className="truncate text-[15.5px] font-bold text-ink">
-                {poi(chosen.poiId).name}
-              </div>
+              <div className="truncate text-[15.5px] font-bold text-ink">{chosen.title}</div>
               <div className="num text-[12.5px] text-ink-3">
-                {chosen.at} · 停留 {chosen.stayMin} 分
+                {chosenStop?.at} · 停留 {chosen.stayMin} 分
               </div>
             </div>
-            <button
-              onClick={() => nav.go({ k: "poi", id: chosen.poiId })}
-              className="shrink-0 rounded-full bg-surface px-4 py-2.5 text-[13px] font-bold text-ink"
-            >
-              查看
-            </button>
+            {/* Only a place has a page to open. A hire car counter shows its
+                name and its time and stops there, rather than offering a button
+                that would land on nothing. */}
+            {chosen.poi && (
+              <button
+                onClick={() => nav.go({ k: "poi", id: chosen.poi!.id })}
+                className="shrink-0 rounded-full bg-surface px-4 py-2.5 text-[13px] font-bold text-ink"
+              >
+                查看
+              </button>
+            )}
           </div>
         </div>
       )}

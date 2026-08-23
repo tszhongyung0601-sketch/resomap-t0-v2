@@ -4,13 +4,13 @@ import {
   AFFILIATE_DISCLOSURE,
   BY_TRAVELLER,
   dealsForPoi,
+  BY_POI,
   ME,
-  poi,
   POIS,
 } from "../data";
 import { EXPENSES } from "../data/expenses";
 import { DealCard } from "../components/DealCard";
-import { PoiImage } from "../components/Cover";
+import { PoiImage, StopImage } from "../components/Cover";
 import { dur } from "../lib/adapt";
 import { distance, km } from "../lib/geo";
 import {
@@ -28,7 +28,9 @@ import {
 import { total } from "../lib/split";
 import { finishedPois, track } from "../lib/track";
 import { audiosFor, hasAudio } from "../lib/audio";
-import { openDirections } from "../lib/maps";
+import { openDirections, openPlaceDirections } from "../lib/maps";
+import { viewOf, viewsOf } from "../lib/stop";
+import type { StopView } from "../lib/stop";
 import { useI18n } from "../i18n";
 import { useNav } from "../nav";
 import {
@@ -332,7 +334,14 @@ export function TripHome({ trip: source }: { trip: Trip }) {
 function DayCard({ trip, day }: { trip: Trip; day: Day }) {
   const nav = useNav();
   const stops = day.tracks.flatMap((t) => t.stops);
-  const thumbs = [...new Set(stops.map((s) => s.poiId))].slice(0, 4);
+  /* Deduped on the record rather than on `poiId`, which is empty for
+     everything that is not a place — four hire cars would have collapsed into
+     one thumbnail. */
+  const thumbs: StopView[] = [];
+  for (const v of viewsOf(stops)) {
+    if (thumbs.length === 4) break;
+    if (!thumbs.some((t) => t.title === v.title)) thumbs.push(v);
+  }
   /* A day can legitimately be empty. Reading the first element unguarded put
      the literal string "undefined 出發" on the card. */
   const times = stops.map((s) => s.at).sort();
@@ -352,13 +361,12 @@ function DayCard({ trip, day }: { trip: Trip; day: Day }) {
 
       {thumbs.length > 0 && (
         <div className="mt-2.5 flex gap-2">
-          {thumbs.map((id) => {
-            const p = poi(id);
-            /* Emoji stays on at this size — four 48px landscapes with nothing
-               on them are four identical stripes. PoiImage drops the glyph by
-               itself the moment a real photograph exists for the place. */
-            return <PoiImage key={id} poi={p} height={48} radius={12} className="w-12" />;
-          })}
+          {/* Emoji stays on at this size — four 48px landscapes with nothing
+              on them are four identical stripes. PoiImage drops the glyph by
+              itself the moment a real photograph exists for the place. */}
+          {thumbs.map((v) => (
+            <StopImage key={v.id} view={v} height={48} radius={12} className="w-12" />
+          ))}
         </div>
       )}
 
@@ -385,8 +393,10 @@ function ticketReminders(trip: Trip): { names: string[]; deals: Deal[] } {
 
   for (const id of ids) {
     if (deals.length === 2) break;
-    const p = poi(id);
-    if (!p.ticketed) continue;
+    /* A day can hold a hire car or a restaurant now, and those carry no
+       `poiId` at all. Only a place sells admission. */
+    const p = BY_POI[id];
+    if (!p?.ticketed) continue;
     const deal = dealsForPoi(id).find((d) => d.category === "ticket");
     if (!deal) continue;
     names.push(p.name);
@@ -701,7 +711,6 @@ function TrackHeader({ track: t }: { track: Track }) {
 }
 
 function Timeline({ stops, planned }: { stops: Stop[]; planned: Set<string> }) {
-  const nav = useNav();
 
   const found = stops.map((s, i) => {
     const prev = stops[i - 1];
@@ -725,11 +734,7 @@ function Timeline({ stops, planned }: { stops: Stop[]; planned: Set<string> }) {
       {stops.map((s, i) => (
         <div key={s.id}>
           {i > 0 && s.from && <Leg to={s} via={vias[i]} />}
-          <StopRow
-            stop={s}
-            prev={i > 0 ? stops[i - 1] : undefined}
-            onClick={() => nav.go({ k: "poi", id: s.poiId })}
-          />
+          <StopRow stop={s} prev={i > 0 ? stops[i - 1] : undefined} />
         </div>
       ))}
     </div>
@@ -786,13 +791,20 @@ interface Via {
  * a ticketed one sits closer to the midpoint; distance only breaks the tie.
  */
 function passedOnTheWay(from: Stop, to: Stop, planned: Set<string>): Via | null {
-  const a = poi(from.poiId);
-  const b = poi(to.poiId);
+  const a = viewOf(from);
+  const b = viewOf(to);
+  if (!a || !b) return null;
+  /* Scoped to the city the leg starts in, and only a place knows which city it
+     is in. A leg that begins at a hire car counter still has a midpoint, but
+     nothing to filter the candidates by, so it gets no suggestion rather than
+     one drawn from the whole island. */
+  const destId = a.poi?.destId ?? b.poi?.destId;
+  if (!destId) return null;
   const mid = { lat: (a.lat + b.lat) / 2, lng: (a.lng + b.lng) / 2 };
 
   const near = POIS.filter(
     (p) =>
-      p.destId === a.destId &&
+      p.destId === destId &&
       !planned.has(p.id) &&
       distance(mid, p) <= VIA_RADIUS,
   ).sort(
@@ -819,22 +831,24 @@ function viaNote(p: Poi): string {
 function StopRow({
   stop,
   prev,
-  onClick,
 }: {
   stop: Stop;
   prev?: Stop;
-  onClick: () => void;
 }) {
   const nav = useNav();
-  const p = poi(stop.poiId);
+  const v = viewOf(stop);
   const mode = stop.from?.mode ?? "walk";
-  const hasStory = Boolean(p.storyId);
+  /* Only a place has a guide, a page and a 附近. A hire car counter has an
+     address and a time, and the row says exactly that much about it rather
+     than growing three buttons that would land on nothing. */
+  const p = v?.poi;
+  const hasStory = Boolean(p?.storyId);
   /* Not the same question: a stop can have six uploaded guides and no ResoMap
      recording. `hasStory` still decides which player entry point is used. */
-  const hasAudioHere = hasAudio(p.id);
+  const hasAudioHere = Boolean(p) && hasAudio(p!.id);
   /* Read on the render path, cached in lib/track.ts. Closing the player is a
      state change in App, so the row re-renders and picks this up. */
-  const heard = hasAudioHere && finishedPois().has(p.id);
+  const heard = hasAudioHere && finishedPois().has(p!.id);
 
   /* Both actions are secondary on purpose. The itinerary is a list of equals —
      the moment one stop's headphones turn orange, every other stop reads as the
@@ -842,37 +856,62 @@ function StopRow({
   const action =
     "inline-flex min-h-11 items-center justify-center gap-1.5 rounded-full bg-surface px-4 text-[13px] font-semibold text-ink transition active:bg-surface-2";
 
+  if (!v) return null;
+
+  const body = (
+    <>
+      <div className="num w-11 shrink-0 pt-1 text-[14px] font-bold text-ink">{stop.at}</div>
+      {/* The width is explicit because the component only owns its height:
+          in a flex row a picture with no intrinsic content collapses. */}
+      {p ? (
+        <PoiImage poi={p} height={72} radius={12} emoji={false} className="w-[92px]" />
+      ) : (
+        <StopImage view={v} height={72} radius={12} className="w-[92px]" />
+      )}
+      <div className="min-w-0 flex-1 pt-0.5">
+        <div className="flex items-center gap-1.5">
+          <span className="truncate text-[15.5px] font-semibold text-ink">{v.title}</span>
+          {stop.meal && (
+            <span className="shrink-0 text-[12px] text-ink-3">
+              {stop.meal === "lunch" ? "午餐" : "晚餐"}
+            </span>
+          )}
+        </div>
+        {/* The brand behind a counter, or the company behind a driver. A place
+            already says where it is on the line above and does not repeat it. */}
+        {!p && <div className="mt-0.5 truncate text-[12.5px] text-ink-3">{v.subtitle}</div>}
+        {stop.stayMin > 0 && (
+          <div className="mt-0.5 text-[12.5px] text-ink-3">停留 {dur(stop.stayMin)}</div>
+        )}
+        {v.disclosure && (
+          <div className="mt-1 inline-block rounded-md bg-surface px-1.5 py-0.5 text-[11px] font-semibold text-ink-3">
+            {v.disclosure}
+          </div>
+        )}
+        {stop.changed && (
+          <div className="mt-1.5 inline-block rounded-md bg-brand-wash px-1.5 py-0.5 text-[11px] font-semibold text-brand">
+            {stop.changed}
+          </div>
+        )}
+      </div>
+    </>
+  );
+
+  const rowClass = "-mx-2 flex w-full gap-3 rounded-2xl px-2 py-1.5 text-left";
+
   return (
     <div className="py-1">
-      <button
-        onClick={onClick}
-        className="-mx-2 flex w-full gap-3 rounded-2xl px-2 py-1.5 text-left active:bg-surface"
-      >
-        <div className="num w-11 shrink-0 pt-1 text-[14px] font-bold text-ink">
-          {stop.at}
-        </div>
-        {/* The width is explicit because the component only owns its height:
-            in a flex row a picture with no intrinsic content collapses. */}
-        <PoiImage poi={p} height={72} radius={12} emoji={false} className="w-[92px]" />
-        <div className="min-w-0 flex-1 pt-0.5">
-          <div className="flex items-center gap-1.5">
-            <span className="truncate text-[15.5px] font-semibold text-ink">{p.name}</span>
-            {stop.meal && (
-              <span className="shrink-0 text-[12px] text-ink-3">
-                {stop.meal === "lunch" ? "午餐" : "晚餐"}
-              </span>
-            )}
-          </div>
-          {stop.stayMin > 0 && (
-            <div className="mt-0.5 text-[12.5px] text-ink-3">停留 {dur(stop.stayMin)}</div>
-          )}
-          {stop.changed && (
-            <div className="mt-1.5 inline-block rounded-md bg-brand-wash px-1.5 py-0.5 text-[11px] font-semibold text-brand">
-              {stop.changed}
-            </div>
-          )}
-        </div>
-      </button>
+      {p ? (
+        <button
+          onClick={() => nav.go({ k: "poi", id: p.id })}
+          className={`${rowClass} active:bg-surface`}
+        >
+          {body}
+        </button>
+      ) : (
+        /* Nothing to open, so nothing that looks openable. */
+        <div className={rowClass}>{body}</div>
+      )}
 
       {/* Plan → arrive → listen → look around. The row is the itinerary's own
           version of that arc: before the guide has been heard it offers the
@@ -880,7 +919,7 @@ function StopRow({
           here. Offering both from the start would be the app asking somebody to
           go shopping before they have looked at the thing they came for. */}
       <div className="mt-1.5 flex gap-2 pl-[56px]">
-        {hasAudioHere && (
+        {hasAudioHere && p && (
           <button
             onClick={() => {
               track("story_open", { poiId: p.id });
@@ -896,7 +935,7 @@ function StopRow({
             開始語音導覽
           </button>
         )}
-        {heard ? (
+        {heard && p ? (
           <button
             onClick={() => nav.go({ k: "nearby", poiId: p.id })}
             className={`${action} flex-1`}
@@ -905,7 +944,20 @@ function StopRow({
           </button>
         ) : (
           <button
-            onClick={() => openDirections(prev ? poi(prev.poiId) : null, p, mode)}
+            onClick={() => {
+              const from = prev ? viewOf(prev) : null;
+              /* A place hands the map app an id it can resolve exactly; a
+                 counter or a shop has only a name and a pair of coordinates,
+                 which is what the second helper is for. */
+              if (p) openDirections(from?.poi ?? null, p, mode);
+              else
+                openPlaceDirections({
+                  name: v.title,
+                  area: v.subtitle,
+                  lat: v.lat,
+                  lng: v.lng,
+                });
+            }}
             className={`${action} ${hasAudioHere ? "flex-1" : "ml-auto"}`}
           >
             怎麼走
@@ -1078,7 +1130,7 @@ function EditList({
   return (
     <div className={drag ? "select-none" : ""}>
       {stops.map((s, i) => {
-        const p = poi(s.poiId);
+        const v = viewOf(s);
         const lift = drag && drag.index === i ? drag : null;
         const going = leaving && leaving.id === s.id ? leaving : null;
 
@@ -1131,10 +1183,16 @@ function EditList({
                 {s.at}
               </button>
 
-              <PoiImage poi={p} height={40} radius={10} className="w-10" />
+              {v ? (
+                <StopImage view={v} height={40} radius={10} className="w-10" />
+              ) : (
+                <span className="size-10 shrink-0 rounded-[10px] bg-surface" />
+              )}
 
               <div className="min-w-0 flex-1">
-                <div className="truncate text-[14.5px] font-semibold text-ink">{p.name}</div>
+                <div className="truncate text-[14.5px] font-semibold text-ink">
+                  {v?.title ?? "—"}
+                </div>
                 {s.stayMin > 0 && (
                   <div className="mt-0.5 truncate text-[12px] text-ink-3">
                     停留 {dur(s.stayMin)}
@@ -1193,7 +1251,7 @@ function TimeSheet({
   onSave: (at: string) => void;
 }) {
   const { t } = useI18n();
-  const p = poi(stop.poiId);
+  const v = viewOf(stop);
   const min = floor ? toMinutes(floor) : 0;
   const [at, setAt] = useState(() => Math.max(toMinutes(stop.at), min));
 
@@ -1202,7 +1260,7 @@ function TimeSheet({
   return (
     <Sheet open onClose={onClose} title={t("調整時間")}>
       <div className="px-5 pb-2">
-        <div className="truncate text-[14px] text-ink-3">{p.name}</div>
+        <div className="truncate text-[14px] text-ink-3">{v?.title ?? ""}</div>
 
         <div className="num mt-3 text-center text-[38px] font-bold leading-none text-ink">
           {toClock(at)}
