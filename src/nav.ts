@@ -66,6 +66,8 @@ export type Route =
   | { k: "offer"; id: string }
   /* A hire car counter. Real company, no agreement — see data/carRentals.ts. */
   | { k: "rental"; id: string }
+  /* The AI wizard. Separate from `create`, which makes an empty trip. */
+  | { k: "aiPlan" }
   | { k: "reviews"; kind: "merchant" | "provider"; id: string }
   | { k: "subscribe"; audience?: PlanAudience }
   | { k: "pro" };
@@ -140,6 +142,14 @@ export interface Nav {
   addStop: (tripId: string, day: number, ref: StopRef) => void;
   /** Create the demo trip for a destination and open it. */
   createTrip: (destId: string) => void;
+  /**
+   * Put a fully-formed trip into live state and open it.
+   *
+   * Used by the AI planner, which builds the whole itinerary before anybody
+   * agrees to keep it. Always adds rather than replaces: generating a second
+   * plan for the same city is a second plan, not a correction of the first.
+   */
+  saveTrip: (trip: Trip) => void;
   /**
    * Pull a scripted demo itinerary into live state and open it.
    *

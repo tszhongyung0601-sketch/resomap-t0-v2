@@ -81,6 +81,7 @@ const Merchant = lazy(async () => ({ default: (await import("./screens/Merchant"
 const Provider = lazy(async () => ({ default: (await import("./screens/Provider")).Provider }));
 const Offer = lazy(async () => ({ default: (await import("./screens/Offer")).Offer }));
 const Rental = lazy(async () => ({ default: (await import("./screens/Rental")).Rental }));
+const AiPlanner = lazy(async () => ({ default: (await import("./screens/AiPlanner")).AiPlanner }));
 const Reviews = lazy(async () => ({ default: (await import("./screens/Reviews")).Reviews }));
 const Subscribe = lazy(async () => ({ default: (await import("./screens/Subscribe")).Subscribe }));
 const Pro = lazy(async () => ({ default: (await import("./screens/Pro")).Pro }));
@@ -217,6 +218,12 @@ export default function App() {
            it can be twenty seconds and three chips apart — 「已加入 Day 2」 alone
            made the traveller trust their own memory of what they had picked. */
         say(view ? `✓ ${view.title}已加入 Day ${day}` : `✓ 已加入 Day ${day}`);
+      },
+
+      saveTrip: (trip) => {
+        setTrips((l) => [trip, ...l.filter((t) => t.id !== trip.id)]);
+        setStack([{ k: "trip", id: trip.id }]);
+        setTab("trips");
       },
 
       adoptTrip: (tripId) => {
@@ -378,6 +385,7 @@ export default function App() {
   else if (route?.k === "provider") screen = <Provider id={route.id} />;
   else if (route?.k === "offer") screen = <Offer id={route.id} />;
   else if (route?.k === "rental") screen = <Rental id={route.id} />;
+  else if (route?.k === "aiPlan") screen = <AiPlanner />;
   else if (route?.k === "reviews")
     screen = <Reviews kind={route.kind} id={route.id} />;
   else if (route?.k === "subscribe") screen = <Subscribe audience={route.audience} />;

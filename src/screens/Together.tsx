@@ -243,7 +243,19 @@ export function Together() {
         </div>
       )}
 
-      <Section tight>
+      {/* Above the room, because it answers a different question. The room is
+          for four people who cannot agree; this is for one person with an empty
+          weekend and no shortlist to argue about yet. */}
+      <Section title="自己一個人先排" tight>
+        <Row
+          icon="✨"
+          label="AI 幫我排行程"
+          value="回答五個問題"
+          onClick={() => nav.go({ k: "aiPlan" })}
+        />
+      </Section>
+
+      <Section title="和朋友一起" tight>
         <Row
           icon="🙋"
           label="我的偏好"

@@ -576,7 +576,10 @@ export type EventName =
   | "directions_open"
   | "room_view"
   | "pref_saved"
-  | "vote_cast";
+  | "vote_cast"
+  /* The generated itinerary was kept. The one number that says whether the
+     wizard produced something anybody wanted. */
+  | "ai_plan_saved";
 
 export interface TrackedEvent {
   name: EventName;
