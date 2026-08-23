@@ -193,6 +193,13 @@ export function generatePlan(req: PlanRequest, existingIds: string[] = []): Plan
   const groups: Poi[][] = seeds.map((p) => [p]);
   const dropped: Poi[] = [];
 
+  /* An even share, when an even share is smaller than a full day. Pure
+     nearest-seed assignment gave 日月潭 over two days a 3/1 split: four places
+     around one lake, and the second day held 伊達邵 on its own. The cap keeps
+     the geography — everything still joins the nearest seed that has room — and
+     stops one cluster from taking the whole trip. */
+  const cap = Math.min(MAX_PER_DAY, Math.ceil(chosen.length / groups.length));
+
   for (const p of chosen) {
     if (seeds.includes(p)) continue;
     /* Nearest seed with room. The fallback to the next-nearest is what stops a
@@ -200,7 +207,7 @@ export function generatePlan(req: PlanRequest, existingIds: string[] = []): Plan
     const order = groups
       .map((_, i) => ({ i, d: distance(seeds[i], p) }))
       .sort((a, b) => a.d - b.d);
-    const slot = order.find((o) => groups[o.i].length < MAX_PER_DAY);
+    const slot = order.find((o) => groups[o.i].length < cap);
     if (slot) groups[slot.i].push(p);
     else dropped.push(p);
   }

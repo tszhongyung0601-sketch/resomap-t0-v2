@@ -40,7 +40,11 @@ const snapshot = () => edited;
 
 function commit(next: Record<string, DayEdits>) {
   edited = next;
-  save(DAY_EDITS_KEY, next);
+  /* No edits leaves no key, the same way untouched trips leave no key. Writing
+     `{}` back would be equivalent today and stop being equivalent the moment
+     the stored shape changes — a demo reset should leave nothing behind. */
+  if (Object.keys(next).length === 0) clear(DAY_EDITS_KEY);
+  else save(DAY_EDITS_KEY, next);
   for (const fn of watchers) fn();
 }
 
@@ -52,10 +56,7 @@ function commit(next: Record<string, DayEdits>) {
  * on top of it is not a reset — and now that the edits outlive the tab, it
  * would not even be a reset for the length of one session.
  */
-export const resetDayEdits = () => {
-  clear(DAY_EDITS_KEY);
-  commit({});
-};
+export const resetDayEdits = () => commit({});
 
 /**
  * One day's edits, read at the moment of asking.
