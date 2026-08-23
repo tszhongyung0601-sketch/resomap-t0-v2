@@ -1,4 +1,4 @@
-import { Suspense, lazy, useCallback, useMemo, useState } from "react";
+import { Suspense, lazy, useCallback, useEffect, useMemo, useState } from "react";
 import { AppShell } from "./components/AppShell";
 import { AdaptCard } from "./components/AdaptCard";
 import { OutboundSheet } from "./components/DealCard";
@@ -36,6 +36,8 @@ import { ProductDetail, Tickets } from "./screens/Tickets";
 import { Together, Prefs, Pool, ConsensusView } from "./screens/Together";
 import { Expenses, Settle, resetReceipts } from "./screens/Expenses";
 import { resetHere } from "./lib/here";
+import { clear, load, save, TRIPS_KEY } from "./lib/persist";
+import { resetDayEdits } from "./lib/dayEdits";
 import { resetSaved } from "./lib/saved";
 import { Library } from "./screens/Library";
 import { resetReactions } from "./lib/reactions";
@@ -93,7 +95,24 @@ const INITIAL: Trip[] = [
 export default function App() {
   const [tab, setTab] = useState<Tab>("explore");
   const [stack, setStack] = useState<Route[]>([]);
-  const [trips, setTrips] = useState<Trip[]>(INITIAL);
+  /* Restored from the last session. An itinerary somebody built — added a
+     place to, reordered, had the AI generate — is the one thing in this demo
+     that is theirs rather than ours, and a plan that evaporates on refresh is
+     a plan the app was only pretending to keep.
+
+     The route stack deliberately does not survive: reopening on the fourth
+     screen of a flow nobody remembers starting is disorienting, and where you
+     were is not something you made. */
+  const [trips, setTrips] = useState<Trip[]>(() => load(TRIPS_KEY, INITIAL));
+
+  useEffect(() => {
+    /* The untouched fixtures are not worth storing, and storing them would be
+       actively wrong: they would pin this month's demo itinerary in somebody's
+       browser and shadow the next change to it. The identity check is exact on
+       purpose — every path that alters a trip builds a new array. */
+    if (trips === INITIAL) clear(TRIPS_KEY);
+    else save(TRIPS_KEY, trips);
+  }, [trips]);
 
   /* overlays — these sit above whatever screen is showing */
   const [deal, setDeal] = useState<Deal | null>(null);
@@ -220,7 +239,13 @@ export default function App() {
 
   function reset() {
     stopSpeaking();
+    /* The same array the app started from, so the effect above clears the
+       stored copy rather than writing the fixtures back over it. */
     setTrips(INITIAL);
+    /* The hand-moved stops are a fourth store, and now they outlive the tab.
+       A reset that rolls the itinerary back to the fixture and leaves last
+       run's reorder sitting on top of it is not a reset. */
+    resetDayEdits();
     /* The receipts live in a module store, not in `trips`, so they need saying
        out loud — otherwise a bill entered in one demo run is still there in the
        next one, under a trip that has been rolled back. */

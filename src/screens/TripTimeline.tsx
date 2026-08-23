@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { PointerEvent as ReactPointerEvent, ReactNode } from "react";
 import {
   AFFILIATE_DISCLOSURE,
@@ -23,7 +23,6 @@ import {
   toClock,
   toMinutes,
   trackOffset,
-  type DayEdits,
 } from "../lib/reorder";
 import { total } from "../lib/split";
 import { finishedPois, track } from "../lib/track";
@@ -33,6 +32,8 @@ import { viewOf, viewsOf } from "../lib/stop";
 import type { StopView } from "../lib/stop";
 import { useI18n } from "../i18n";
 import { useNav } from "../nav";
+import { editsFor, forget, key, remember, useEditedTrip } from "../lib/dayEdits";
+
 import {
   Avatar,
   Button,
@@ -57,84 +58,6 @@ import {
   type TravellerId,
   type Trip,
 } from "../types";
-
-/* ------------------------------------------------------ the traveller's edits */
-
-/**
- * Days the traveller has rearranged by hand.
- *
- * The trip lives in App state and only App can write to it — this screen is
- * handed a `Trip` and a way to add a POI, and nothing else. So a reorder is
- * kept beside the trip and replayed over it on the way to the screen, the same
- * module-store shape lib/saved.ts and the receipts in Expenses.tsx already use,
- * and for the same reason: component state would lose the edit the moment
- * somebody tapped a stop to look at it, and an edit that survives being read is
- * the entire point of an edit.
- *
- * lib/reorder.ts does all the thinking; this is a `Record` and three lines of
- * plumbing. It is also the seam where a `nav.editDay` would land — see the
- * note in TripHome about which screens can and cannot see these edits.
- */
-const key = (tripId: string, n: number) => `${tripId}:${n}`;
-
-let edited: Record<string, DayEdits> = {};
-const watchers = new Set<() => void>();
-
-function subscribe(fn: () => void) {
-  watchers.add(fn);
-  return () => {
-    watchers.delete(fn);
-  };
-}
-
-/* The snapshot is the module object. A fresh one each call would hand React a
-   new reference every render and loop forever. */
-const snapshot = () => edited;
-
-function commit(next: Record<string, DayEdits>) {
-  edited = next;
-  for (const fn of watchers) fn();
-}
-
-/**
- * Roll the day back to what the trip says.
- *
- * Nothing calls this yet. App.tsx's `reset()` should, next to `resetSaved()` —
- * a demo reset that rolls the itinerary back to the fixture and leaves last
- * run's reorder sitting on top of it is not a reset. It cannot be wired from
- * here, so it is exported and listed as a risk rather than left unsaid.
- */
-export const resetDayEdits = () => commit({});
-
-const remember = (tripId: string, n: number, e: DayEdits) =>
-  commit({ ...edited, [key(tripId, n)]: e });
-
-const forget = (id: string) => {
-  if (!edited[id]) return;
-  const next = { ...edited };
-  delete next[id];
-  commit(next);
-};
-
-/** The trip as the traveller has left it. */
-function useEditedTrip(trip: Trip): Trip {
-  const all = useSyncExternalStore(subscribe, snapshot, snapshot);
-
-  return useMemo(() => {
-    let touched = false;
-    const days = trip.days.map((d) => {
-      const e = all[key(trip.id, d.n)];
-      /* `applyEdits` returns null when the day has moved underneath the edit —
-         an AI adjustment applied, a scenario reloaded. The day the trip states
-         wins, every time. */
-      const next = e ? applyEdits(d, e) : null;
-      if (!next) return d;
-      touched = true;
-      return next;
-    });
-    return touched ? { ...trip, days } : trip;
-  }, [trip, all]);
-}
 
 /* ------------------------------------------------------------- trip home */
 
@@ -473,7 +396,7 @@ export function DayPlan({
      or replaying a demo scenario would bring it back from the dead. */
   useEffect(() => {
     const id = key(trip.id, day);
-    const e = edited[id];
+    const e = editsFor(id);
     if (raw && e && !applyEdits(raw, e)) forget(id);
   }, [raw, trip.id, day]);
 
@@ -539,7 +462,7 @@ export function DayPlan({
    * derivation `useEditedTrip` does, for the one day this screen is showing.
    */
   const current = (): Day => {
-    const e = edited[key(trip.id, day)];
+    const e = editsFor(key(trip.id, day));
     return (e && applyEdits(raw, e)) || raw;
   };
 
