@@ -233,13 +233,13 @@ function NextTrip({ trip }: { trip: Trip }) {
   return (
     <div className="mt-7 px-5">
       <Card className="p-4">
-        {/* A trip you are on day 2 of is not your "next" trip. The eyebrow read
-            推薦行程 directly above 今天是第 2 天, which is the card
-            contradicting itself — reachable the moment the demo starts the
-            Tainan trip, since focusTrip prefers an ongoing one. */}
-        <div className="text-[12.5px] font-semibold text-ink-3">
-          {started ? t("行程進行中") : t("推薦行程")}
-        </div>
+        {/* One eyebrow for both states. It used to switch to 行程進行中 once a
+            trip was under way, on the argument that a trip you are on day 2 of
+            is not a recommendation — but the line directly below already says
+            今天是第 2 天, so the pill was spending the card's first line
+            repeating it. 推薦行程 names the section instead, the way 目的地頁
+            names the same block. */}
+        <div className="text-[12.5px] font-semibold text-ink-3">{t("推薦行程")}</div>
         <div className="mt-1 truncate text-[20px] font-bold leading-tight text-ink">
           {trip.title}
         </div>

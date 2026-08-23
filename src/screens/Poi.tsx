@@ -6,7 +6,7 @@ import { sceneFor } from "../data/imagePrompts";
 import { DealCard } from "../components/DealCard";
 import { AudioRowMini } from "../components/AudioRow";
 import { audiosFor, featuredAudiosFor } from "../lib/audio";
-import { Button, Headphones, Note, Screen, Section, StoryBadge, Thumb } from "../components/ui";
+import { Button, Headphones, Note, Screen, Section, StoryBadge } from "../components/ui";
 import { distance, km } from "../lib/geo";
 import { dur } from "../lib/adapt";
 import { openDirections } from "../lib/maps";
@@ -180,6 +180,21 @@ export function Poi({ id }: { id: string }) {
     ...featuredAudio,
     ...allAudio.filter((a) => a.kind === "community"),
   ];
+
+  /**
+   * How many languages this place can be heard in.
+   *
+   * The reason to show it: the section lists three of the guides and a
+   * 「全部 N 則」 link, and N tells you how much there is but not what kind. A
+   * traveller who reads 日本語 and sees one Japanese row has no way to tell
+   * whether that is the only one or one of six without opening the list.
+   *
+   * Counted across `allAudio`, which includes the ResoMap recording shown in
+   * the card above — the question is what this place offers, not what this
+   * particular section happens to be rendering. Order is first-appearance, so
+   * 中文 leads and nothing is alphabetised into a different answer.
+   */
+  const languages = [...new Set(allAudio.map((a) => a.language).filter(Boolean))];
 
   const attached = dealsForPoi(id);
   const tickets = p.ticketed ? attached.filter((d) => d.category === "ticket") : [];
@@ -369,6 +384,16 @@ export function Poi({ id }: { id: string }) {
           action={`全部 ${allAudio.length} 則`}
           onAction={() => nav.go({ k: "audios", poiId: id })}
         >
+          {/* Above the rows, not beside the heading: the heading line already
+              carries 全部 N 則 on its right and a third thing on it would make
+              a row of three competing numbers. Truncates rather than wraps —
+              a place with six languages must not push the first guide down. */}
+          {languages.length > 0 && (
+            <p className="-mt-1 mb-2.5 truncate px-5 text-[12.5px] text-ink-3">
+              {languages.length} 種語言 · {languages.join("・")}
+            </p>
+          )}
+
           <div className="space-y-2 px-5">
             {extraAudio.slice(0, 3).map((a) => (
               <AudioRowMini
@@ -418,7 +443,19 @@ export function Poi({ id }: { id: string }) {
                 onClick={() => nav.go({ k: "poi", id: place.id })}
                 className="flex w-full items-center gap-3 border-b border-line py-3 text-left last:border-0 active:bg-surface"
               >
-                <Thumb emoji={place.emoji} tint={place.tint} size={48} />
+                {/* The real photograph where the manifest has one, and the
+                    drawn poster where it does not — `PoiImage` decides, the
+                    same as every other list in the app. This row used to draw
+                    `Thumb`, which is emoji-on-a-tint and nothing else, so three
+                    places that all have credited photographs were showing as
+                    three coloured squares. */}
+                <PoiImage
+                  poi={place}
+                  height={48}
+                  radius={12}
+                  emoji={false}
+                  className="w-12"
+                />
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-1.5">
                     <span className="truncate text-[14.5px] font-semibold text-ink">

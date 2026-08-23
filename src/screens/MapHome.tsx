@@ -436,18 +436,25 @@ function PreviewCard({
           onClick={() => {
             /* Straight into the app's one player, on this place's own guide.
                Not a second player, and not a stub — every one of the seven has
-               a recorded guide in data/stories.ts. */
+               a recorded guide in data/stories.ts.
+
+               The 30-second edit, not the full one, because the button says
+               試聽. Everywhere else in the app that word opens the short cut —
+               導覽庫's cards say 試聽 30 秒 and play "short" — and a 試聽 that
+               starts a two-minute recording on somebody standing at a map pin
+               is the label disagreeing with the thing it starts. The full
+               version is one tap further in, on the place's own page. */
             const first = audiosFor(p.id)[0];
-            if (p.storyId) nav.play(p.id, "full");
+            if (p.storyId) nav.play(p.id, "short");
             else if (first) nav.playAudio(first.id);
           }}
         >
-          開始導覽
+          試聽語音導覽
         </Button>
       </div>
       <div className="mt-1">
         <Button variant="ghost" onClick={() => nav.go({ k: "poi", id: p.id })}>
-          查看景點
+          查看景點詳細
         </Button>
       </div>
     </div>
