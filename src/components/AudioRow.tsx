@@ -1,10 +1,24 @@
-import { SceneCover } from "./Cover";
-import { Headphones, Thumb } from "./ui";
+import { PoiImage, RecordPhoto } from "./Cover";
+import { Headphones } from "./ui";
 import { clockOf } from "../lib/audio";
 import { likeCount, useReactions } from "../lib/reactions";
 import { merchant as merchantOf } from "../data/merchants";
 import { poi } from "../data";
-import { AUDIO_TOPIC_LABELS, type AudioGuide } from "../types";
+import {
+  AUDIO_TOPIC_LABELS,
+  type AudioGuide,
+  type Merchant,
+  type PoiKind,
+} from "../types";
+
+/* The generated poster palettes are keyed by POI kind, and a shop is one of
+   three of them. Mapped rather than invented so one street keeps the same
+   colour on every screen it appears on — the same table NearbyCards keeps. */
+const MERCHANT_SCENE: Record<Merchant["category"], PoiKind> = {
+  restaurant: "food",
+  hotel: "stay",
+  souvenir: "shopping",
+};
 
 /**
  * One guide, in a list.
@@ -61,20 +75,35 @@ export function AudioRow({
         onClick={onPlay}
         className="flex w-full gap-3 p-3 text-left transition active:bg-surface-2"
       >
-        {/* A merchant guide is about a shop, so it gets the shop's own colour
-            block; everything else is about the place. Either way the picture is
-            generated, so nothing loads and nothing can 404. */}
+        {/* A merchant guide is about a shop, so it shows the shop; everything
+            else is about the place, so it shows the place. Both go through the
+            components that prefer a real, credited photograph and fall back to
+            the drawn poster — which is all this row used to draw, so three
+            guides about 台北101 were three identical generated pictures of a
+            building that has a perfectly good photograph in the manifest.
+
+            The 語音導覽 screen already shows that photograph as its header, so
+            these rows do repeat it. That is the lesser of the two problems: a
+            drawn poster of a building whose photograph is sitting four hundred
+            pixels above it reads as the app not having the picture, which is
+            not true. The merchant rows break the run anyway, since those show
+            the shop instead. */}
         {shop ? (
-          <Thumb emoji={shop.emoji} tint={shop.tint} size={56} radius={12} />
-        ) : (
-          <SceneCover
-            id={a.id}
-            kind={p?.kind ?? "attraction"}
-            emoji={p?.emoji ?? "🎧"}
+          <RecordPhoto
+            record={shop}
+            fallbackId={shop.id}
+            fallbackKind={MERCHANT_SCENE[shop.category]}
+            emoji={shop.emoji}
             height={56}
             radius={12}
             className="w-[56px]"
           />
+        ) : p ? (
+          <PoiImage poi={p} height={56} radius={12} emoji={false} className="w-[56px]" />
+        ) : (
+          <span className="grid size-14 shrink-0 place-items-center rounded-xl bg-surface-2 text-ink-2">
+            <Headphones size={18} />
+          </span>
         )}
 
         <div className="min-w-0 flex-1">
@@ -137,8 +166,25 @@ export function AudioRowMini({
         featured ? "bg-brand-wash" : "bg-bg"
       }`}
     >
+      {/* The shop gets its photograph, because that is a different picture from
+          the one already at the top of the page and it says which shop.
+
+          A guide about the place keeps the headphone tile rather than the
+          place's photograph: this row only ever appears on that place's own
+          page, directly under a hero showing exactly that. Four copies of it
+          running down the page would be decoration, not information. The full
+          list on the 語音導覽 screen does show it, because that screen has no
+          hero of its own. */}
       {shop ? (
-        <Thumb emoji={shop.emoji} tint={shop.tint} size={44} radius={10} />
+        <RecordPhoto
+          record={shop}
+          fallbackId={shop.id}
+          fallbackKind={MERCHANT_SCENE[shop.category]}
+          emoji={shop.emoji}
+          height={44}
+          radius={10}
+          className="w-11"
+        />
       ) : (
         <span className="grid size-11 shrink-0 place-items-center rounded-[10px] bg-surface-2 text-ink-2">
           <Headphones size={16} />
