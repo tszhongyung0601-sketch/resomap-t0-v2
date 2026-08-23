@@ -1,10 +1,11 @@
 import { useState, type ReactNode } from "react";
 import { photoFor } from "../data/imagePrompts";
-import { portraitFor, shotFor, type HasPhoto } from "../lib/photo";
+import { portraitFor, shotFor, type HasPhoto, vehicleFor } from "../lib/photo";
 import { portraitCredit } from "../data/portraitCredits";
 import { Avatar } from "./ui";
 import type { Poi, PoiKind } from "../types";
 import type { StopView } from "../lib/stop";
+import { vehicleCredit } from "../data/vehicleCredits";
 
 /**
  * A place's picture, until there is a photograph of it.
@@ -574,5 +575,112 @@ export function StopImage({
     >
       {view.emoji}
     </div>
+  );
+}
+
+/**
+ * The car a hire counter is offering.
+ *
+ * Two states and no third, the same shape `PersonPhoto` has: a photograph when
+ * one has been fetched, and otherwise the flat tile with the one glyph that
+ * says what this is. Never a broken image — a request that fails falls back to
+ * the tile underneath it rather than to the browser's torn-page icon.
+ *
+ * The mark is not optional and not conditional on anything but the photograph
+ * being shown. This is a picture of *a* car, on a card naming a specific
+ * counter, and a reader who is not told will reasonably assume it is a picture
+ * of *the* car waiting for them.
+ */
+export function VehiclePhoto({
+  id,
+  model,
+  height = 150,
+  radius = 0,
+  size = "card",
+  eager = false,
+  className = "",
+  children,
+}: {
+  id: string;
+  /** The class of car, for the alt text. The one true thing about the image. */
+  model?: string;
+  height?: number | string;
+  radius?: number;
+  size?: "card" | "hero" | "thumb";
+  eager?: boolean;
+  className?: string;
+  children?: ReactNode;
+}) {
+  const shot = vehicleFor(id);
+  const [failed, setFailed] = useState(false);
+  /* `thumb` is a separately composed square rather than a crop of the wide one:
+     half of a 16:9 car is a door. */
+  const src = shot
+    ? size === "hero"
+      ? shot.hero
+      : size === "thumb"
+        ? (shot.thumb ?? shot.card)
+        : shot.card
+    : undefined;
+  const show = Boolean(src) && !failed;
+
+  return (
+    <div
+      className={`relative shrink-0 overflow-hidden ${className}`}
+      style={{ height, borderRadius: radius, background: "#eef2f6" }}
+    >
+      {/* Underneath the photograph rather than instead of it, so a failed
+          request degrades to the tile the cards used before there were any
+          photographs at all. */}
+      <div
+        className="absolute inset-0 grid place-items-center"
+        style={{ fontSize: typeof height === "number" ? height * 0.36 : 28 }}
+      >
+        🚗
+      </div>
+
+      {show && src && (
+        <img
+          src={src}
+          /* The class of car, which is what the picture is genuinely of.
+             Not the brand and not the counter — neither of those is in the
+             frame, and an alt attribute is a description, not a caption. */
+          alt={model ?? ""}
+          loading={eager ? "eager" : "lazy"}
+          decoding="async"
+          onError={() => setFailed(true)}
+          className="absolute inset-0 size-full object-cover"
+        />
+      )}
+
+      {show && <AiMark tiny={size === "thumb"} />}
+      {children}
+    </div>
+  );
+}
+
+/**
+ * Photographer, and what the photograph is and is not.
+ *
+ * The Pexels licence asks for nothing. This is here for the same reason the
+ * portrait credit is — twenty-two photographers whose work fronts a product
+ * ought to be named somewhere in it — and it carries the disclaimer in the same
+ * breath, because the two facts belong together: this is a real photograph, and
+ * it is not a photograph of this counter's car.
+ */
+export function VehicleCredit({ rentalId }: { rentalId: string }) {
+  const c = vehicleCredit(rentalId);
+  if (!c) return null;
+  return (
+    <p className="px-5 pt-1.5 text-[11px] leading-relaxed text-ink-3">
+      車輛照片為 {c.model} 的圖庫示意圖，非該據點實際車輛。攝影：
+      <a href={c.photographerUrl} target="_blank" rel="noopener noreferrer" className="underline">
+        {c.photographer}
+      </a>
+      {" · via "}
+      <a href={c.url} target="_blank" rel="noopener noreferrer" className="underline">
+        Pexels
+      </a>
+    </p>
   );
 }

@@ -2,6 +2,8 @@ import { useState } from "react";
 import { rental as rentalById, rentalPrice, RENTAL_DISCLOSURE } from "../data/carRentals";
 import { BY_DEST } from "../data/destinations";
 import { MapCredit, MapView } from "../components/MapView";
+import { VehicleCredit, VehiclePhoto } from "../components/Cover";
+import { hasVehiclePhoto } from "../data/vehicles";
 import { DemoLinkSheet, InfoButton, InfoSheet, Stars } from "../components/Trade";
 import { AddToTrip } from "../components/AddToTrip";
 import { SHORT_DISCLOSURE, type InfoTopic } from "../data/info";
@@ -20,9 +22,14 @@ import { useNav } from "../nav";
  * and rating and mentions the relationship once in a footer is a demo somebody
  * will screenshot without the footer.
  *
- * No photograph, for the reason given in `NearbyCards`: there is no picture of
- * this counter in this project, and a stock car park would be the same mistake
- * as a stock beach behind a named restaurant.
+ * The photograph is of the class of car, never of the counter. There is no
+ * picture of iRent's 花蓮 pickup point in any stock library, and a generic
+ * forecourt behind a named address would be an image pretending to be
+ * documentation. What the card and this page already state is the vehicle —
+ * 「Toyota Yaris · 5 人座」 — so a hatchback above that line illustrates
+ * something true. It carries the 圖庫示意 mark and a credit naming the model,
+ * because a picture of a specific object is the thing a reader assumes is real
+ * unless told otherwise.
  *
  * The primary action is 加入行程 rather than 立即預約. Nothing here books —
  * `url` is empty for every record — and the honest thing this app can do with a
@@ -39,33 +46,55 @@ export function Rental({ id }: { id: string }) {
 
   const city = BY_DEST[r.destId]?.name;
   const trip = focusTrip(nav.trips) ?? null;
+  /* Whether there is a picture at all decides the whole header shape, so it
+     is read once rather than asked twice. */
+  const photo = hasVehiclePhoto(r.id);
 
   return (
     <Screen>
-      <div className="px-5 pt-2">
-        <button
-          onClick={() => nav.back()}
-          className="-ml-1 grid size-10 place-items-center rounded-full text-[18px] text-ink active:bg-surface"
-          aria-label="返回"
-        >
-          ‹
-        </button>
-      </div>
-
-      <div className="px-5 pt-1">
-        <div className="flex items-start gap-3">
-          <div
-            className="grid size-14 shrink-0 place-items-center text-[30px]"
-            style={{ background: "#eef2f6", borderRadius: 14 }}
+      {/* The same shape 商家 and 服務者 pages use: picture first, back button
+          floating on it. The picture is of the class of car, not of the
+          counter — `VehiclePhoto` marks it 圖庫示意 and the credit under it
+          says which model it illustrates. */}
+      {photo ? (
+        <div className="relative shrink-0">
+          <VehiclePhoto
+            id={r.id}
+            model={r.model}
+            size="hero"
+            height={200}
+            radius={0}
+            className="w-full"
+            eager
+          />
+          <button
+            onClick={() => nav.back()}
+            aria-label="返回"
+            className="absolute left-4 top-4 grid size-11 place-items-center rounded-full bg-bg/90 text-[19px] text-ink active:bg-bg"
           >
-            🚗
-          </div>
-          <div className="min-w-0 flex-1">
-            <h1 className="text-[22px] font-bold leading-tight text-ink">{r.brand}</h1>
-            <div className="mt-1 text-[13.5px] text-ink-3">
-              {r.pickup}
-              {city ? ` · ${city}` : ""}
-            </div>
+            ‹
+          </button>
+        </div>
+      ) : (
+        <div className="px-5 pt-2">
+          <button
+            onClick={() => nav.back()}
+            className="-ml-1 grid size-10 place-items-center rounded-full text-[18px] text-ink active:bg-surface"
+            aria-label="返回"
+          >
+            ‹
+          </button>
+        </div>
+      )}
+
+      {photo && <VehicleCredit rentalId={r.id} />}
+
+      <div className="px-5 pt-3">
+        <div className="min-w-0">
+          <h1 className="text-[22px] font-bold leading-tight text-ink">{r.brand}</h1>
+          <div className="mt-1 text-[13.5px] text-ink-3">
+            {r.pickup}
+            {city ? ` · ${city}` : ""}
           </div>
         </div>
 

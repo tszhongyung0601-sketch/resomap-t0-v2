@@ -41,3 +41,6 @@ dist-ssr
 .sheet.png
 portraits-40*.png
 .poi-photos.json
+
+# stock vehicle pipeline (the WebP is committed, the fetch state is not)
+.stock-vehicles.json

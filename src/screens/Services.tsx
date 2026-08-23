@@ -21,6 +21,7 @@ import {
 } from "../data/services";
 import { impression } from "../lib/track";
 import { CAR_RENTALS, rentalPrice, RENTAL_DISCLOSURE } from "../data/carRentals";
+import { VehiclePhoto } from "../components/Cover";
 import { BY_DEST } from "../data/destinations";
 import { useNav } from "../nav";
 import type { Deal, ServiceId } from "../types";
@@ -499,12 +500,17 @@ export function CarRentalFlow({ destId }: { destId?: string }) {
                   onClick={() => nav.go({ k: "rental", id: r.id })}
                   className="flex w-full items-center gap-3 rounded-2xl bg-surface p-3 text-left active:bg-surface-2"
                 >
-                  <span
-                    className="grid size-11 shrink-0 place-items-center text-[22px]"
-                    style={{ background: "#eef2f6", borderRadius: 12 }}
-                  >
-                    🚗
-                  </span>
+                  {/* The same picture the 周邊推薦 card shows, at 56px rather
+                      than 44: the 示意 mark is composed for a small square and
+                      at 44px it covers the car it is marking. */}
+                  <VehiclePhoto
+                    id={r.id}
+                    model={r.model}
+                    size="thumb"
+                    height={56}
+                    radius={12}
+                    className="w-14"
+                  />
                   <span className="min-w-0 flex-1">
                     <span className="flex items-center gap-1.5">
                       <span className="truncate text-[15px] font-semibold text-ink">

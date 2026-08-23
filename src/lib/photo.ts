@@ -1,6 +1,7 @@
 import { poi } from "../data";
 import { photoFor, type Credit } from "../data/imagePrompts";
 import { hasPortrait } from "../data/portraits";
+import { hasVehiclePhoto } from "../data/vehicles";
 
 /**
  * The picture for something that is not a POI — a shop, a driver, a guide, a
@@ -105,4 +106,29 @@ export function shotFor(rec: HasPhoto): Shot | null {
     };
   }
   return null;
+}
+
+/**
+ * The car a hire counter is offering, if a picture has been fetched for it.
+ *
+ * Deliberately not a photograph of the counter — there is no photograph of
+ * iRent's 花蓮 pickup point in any stock library, and a generic forecourt behind
+ * a named address would be an image pretending to be documentation. What this
+ * is instead is a photograph of the class of car the record already names in its
+ * own 車型 row: a hatchback above 「Toyota Yaris」, an MPV above 「Toyota Sienta ·
+ * 7 人座」. Illustrative and true at once, which is the most a stock library can
+ * be here.
+ *
+ * `illustrative` is therefore always true, and every surface that draws one
+ * marks it — the same rule the portraits follow, for the same reason: a picture
+ * of a specific object is the thing a viewer assumes is real unless told.
+ */
+export function vehicleFor(rentalId: string): Shot | null {
+  if (!hasVehiclePhoto(rentalId)) return null;
+  return {
+    card: `${base}vehicles/${rentalId}-card.webp`,
+    hero: `${base}vehicles/${rentalId}-hero.webp`,
+    thumb: `${base}vehicles/${rentalId}-thumb.webp`,
+    illustrative: true,
+  };
 }

@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { PersonPhoto, RecordPhoto } from "./Cover";
+import { PersonPhoto, RecordPhoto, VehiclePhoto } from "./Cover";
 import { AffiliateBadge, DemoPartnerBadge, PartnerBadge, PendingBadge, Stars } from "./Trade";
 import { Avatar, Headphones } from "./ui";
 import { km } from "../lib/geo";
@@ -468,9 +468,13 @@ export { Avatar };
  * and price and rating with no such mark would read as a listing ResoMap had
  * been paid to place.
  *
- * No photograph. There is no picture of 「iRent 花蓮車站」 in this project, and
- * a generic car park behind a named counter is the same mistake as a stock
- * beach behind a named restaurant. It gets the one glyph that says what it is.
+ * The picture is of the class of car, not of the counter. Nobody has a
+ * photograph of 「iRent 花蓮車站」, and a generic car park behind a named address
+ * would be the same mistake as a stock beach behind a named restaurant. But the
+ * card states a vehicle two lines further down — 「Toyota Yaris · 5 人座」 — and
+ * a small hatchback is a true illustration of that. It is marked 示意 in the
+ * corner by `VehiclePhoto` itself, and falls back to the flat tile it replaced
+ * if the file is missing.
  *
  * 「加入行程」 is the primary action rather than 「立即預約」: nothing here books,
  * and putting the counter into the day at the hour you land is the thing this
@@ -493,12 +497,10 @@ export function RentalCard({
     <ServiceCard
       thumb={
         <Thumb>
-          <div
-            className="grid size-full place-items-center text-[30px]"
-            style={{ background: "#eef2f6", borderRadius: 12 }}
-          >
-            🚗
-          </div>
+          {/* The class of car this counter rents, marked as illustrative by the
+              component itself. Falls back to the tile it replaced when the file
+              is missing, so a card is never broken. */}
+          <VehiclePhoto id={r.id} model={r.model} size="thumb" height="100%" radius={12} />
         </Thumb>
       }
       name={r.brand}
