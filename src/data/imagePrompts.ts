@@ -15,12 +15,16 @@ import type { Poi } from "../types";
  *              not an acceptable substitute here at any quality, because a
  *              traveller uses this image to recognise the building when they
  *              arrive.
- *   "scene"  — what the place looked like in a period nobody photographed.
- *              Generated imagery is the only way to have this at all, and it
- *              always renders under the ✨ AI 情境重現 label.
+ *
+ * There was a second kind — "scene", a generated view of a period nobody
+ * photographed, rendered under an ✨ AI 情境重現 label. Four slots were
+ * written and none was ever produced, so for as long as it existed the only
+ * thing it put on a traveller's screen was a grey box reading 情境圖製作中.
+ * The kind is gone rather than left waiting: a manifest that describes images
+ * nobody is making is a to-do list pretending to be data.
  */
 
-export type ImageKind = "photo" | "scene";
+export type ImageKind = "photo";
 export type ImageStatus = "todo" | "queued" | "done";
 
 /**
@@ -52,7 +56,7 @@ export interface ImageSlot {
   aspectRatio: "16:9" | "4:3" | "1:1";
   /** Long edge, in px, before compression. Sized for 2x on a 430px phone. */
   minLongEdge: number;
-  /** For "scene": the generation prompt. For "photo": what the shot must show. */
+  /** What the shot must show. */
   prompt: string;
   status: ImageStatus;
   /**
@@ -67,9 +71,9 @@ export interface ImageSlot {
 }
 
 /**
- * Tainan first, because it is the demo city. Eight photo slots and four scene
- * slots is roughly one afternoon of shooting and one batch of generation — a
- * deliberately finishable list rather than eighty aspirational ones.
+ * Tainan first, because it is the demo city. Eight photo slots is roughly one
+ * afternoon of shooting — a deliberately finishable list rather than eighty
+ * aspirational ones.
  */
 export const IMAGE_SLOTS: ImageSlot[] = [
 
@@ -978,57 +982,7 @@ export const IMAGE_SLOTS: ImageSlot[] = [
         "https://commons.wikimedia.org/wiki/File%3ASky%20above%20Pipa%20Lake.jpg",
     },
   },
-  /* ------------------------------------------------- AI historical scenes */
-  {
-    poiId: "chihkan",
-    kind: "scene",
-    aspectRatio: "4:3",
-    minLongEdge: 1536,
-    prompt:
-      "Photorealistic historical reconstruction, 1650s Dutch Formosa. Fort Provintia: " +
-      "a compact two-storey Dutch colonial brick fort on flat coastal ground, red brick " +
-      "walls, small shuttered windows, low outer rampart. Han Chinese settlers and Dutch " +
-      "VOC officials in period dress in the middle distance. Natural overcast daylight, " +
-      "muted earth palette, documentary lens, no text, no watermark, no fantasy elements, " +
-      "no modern buildings.",
-    status: "todo",
-  },
-  {
-    poiId: "anping-fort",
-    kind: "scene",
-    aspectRatio: "4:3",
-    minLongEdge: 1536,
-    prompt:
-      "Photorealistic historical reconstruction, Fort Zeelandia circa 1660, Taiwan. " +
-      "Large Dutch brick fortress on a sandbank overlooking a harbour, bastions at the " +
-      "corners, wooden sailing ships at anchor. Late afternoon light, natural colour, " +
-      "documentary photography style, no text, no watermark, no fantasy.",
-    status: "todo",
-  },
-  {
-    poiId: "shennong",
-    kind: "scene",
-    aspectRatio: "4:3",
-    minLongEdge: 1536,
-    prompt:
-      "Photorealistic historical reconstruction, Qing dynasty Tainan, the 五條港 canal " +
-      "district. A narrow waterway running where a street is today, wooden cargo boats " +
-      "unloading at the back doors of two-storey timber shophouses, goods hoisted to " +
-      "upper floors by rope. Morning light, natural colour, no text, no watermark.",
-    status: "todo",
-  },
-  {
-    poiId: "jiufen",
-    kind: "scene",
-    aspectRatio: "4:3",
-    minLongEdge: 1536,
-    prompt:
-      "Photorealistic historical reconstruction, Jiufen gold mining town in the 1930s. " +
-      "Steep stone stairways lined with timber buildings clinging to a hillside, miners " +
-      "and shopkeepers, the sea visible below through mist. Overcast natural light, " +
-      "muted palette, documentary style, no text, no watermark.",
-    status: "todo",
-  },
+
   /* ------------------------------------------- 新店・景美（地圖首頁的七個點）
 
      Fetched from Wikimedia Commons by scripts/fetch-attraction-photos.mjs and
@@ -1709,8 +1663,6 @@ export const slotsFor = (poiId: string) => IMAGE_SLOTS.filter((s) => s.poiId ===
 export const photoFor = (poi: Poi): ImageSlot | undefined =>
   IMAGE_SLOTS.find((s) => s.poiId === poi.id && s.kind === "photo" && s.status === "done");
 
-export const sceneFor = (poiId: string): ImageSlot | undefined =>
-  IMAGE_SLOTS.find((s) => s.poiId === poiId && s.kind === "scene" && s.status === "done");
 
 /** How much of the manifest is actually shot. Shown on the business demo. */
 export const imageProgress = () => ({

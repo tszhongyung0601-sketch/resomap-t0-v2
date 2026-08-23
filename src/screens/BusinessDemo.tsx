@@ -243,11 +243,14 @@ export function BusinessDemo() {
       {/* Kept out of the empty branch: it is counted from the image manifest in
           the repo, so it is readable whether or not anybody tapped a deal. */}
       <Panel title="內容準備進度">
-        {/* 圖片 rather than 照片: the manifest mixes real photography with AI
-            historical scenes, and calling the generated four "照片" is the exact
-            claim data/imagePrompts.ts exists to avoid. */}
+        {/* 照片 now, not 圖片. The word was deliberately vague while the
+            manifest also held four AI historical scenes — calling those
+            "照片" would have been the exact claim data/imagePrompts.ts exists
+            to avoid. Those slots are gone and every remaining one is a real
+            photograph with a credit, so the vaguer word would now be
+            under-claiming instead. */}
         <p className="num px-5 text-[14.5px] text-ink">
-          {img.done} / {img.total} 張景點圖片已完成
+          {img.done} / {img.total} 張景點照片已完成
         </p>
       </Panel>
 

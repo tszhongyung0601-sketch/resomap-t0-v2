@@ -1,8 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { AFFILIATE_DISCLOSURE, POIS, dealsForPoi, poi } from "../data";
 import { story } from "../data/stories";
-import { AiSceneNote, PhotoCredit, PoiImage } from "../components/Cover";
-import { sceneFor } from "../data/imagePrompts";
+import { PhotoCredit, PoiImage } from "../components/Cover";
 import { DealCard } from "../components/DealCard";
 import { AudioRowMini } from "../components/AudioRow";
 import { audiosFor, featuredAudiosFor } from "../lib/audio";
@@ -14,10 +13,8 @@ import { track } from "../lib/track";
 import { togglePoi, useSaved } from "../lib/saved";
 import { useI18n } from "../i18n";
 import { useNav } from "../nav";
-import { POI_KIND_LABELS, type Story } from "../types";
+import { POI_KIND_LABELS } from "../types";
 import { AddToTrip } from "../components/AddToTrip";
-
-const THIS_YEAR = new Date().getFullYear();
 
 /**
  * How far 附近 is allowed to stretch.
@@ -30,68 +27,6 @@ const THIS_YEAR = new Date().getFullYear();
  * the radius gets no 附近 section at all.
  */
 const NEARBY_RADIUS_M = 8000;
-
-/* The guides write their dates in Chinese numerals because they go through
-   speech synthesis — 一六六二年, not 1662年 — so that is what has to be read
-   back out. 千 and 百 are deliberately not in the class: it keeps 三百五十多年
-   and 乾隆五十三年 from being mistaken for calendar years. */
-const CN_DIGIT: Record<string, string> = {
-  "〇": "0",
-  "○": "0",
-  "零": "0",
-  "一": "1",
-  "二": "2",
-  "三": "3",
-  "四": "4",
-  "五": "5",
-  "六": "6",
-  "七": "7",
-  "八": "8",
-  "九": "9",
-};
-const YEAR_RE = /[〇○零一二三四五六七八九]{3,4}(?=年)/g;
-
-function earliestYear(text: string): number | null {
-  let min: number | null = null;
-  for (const m of text.matchAll(YEAR_RE)) {
-    const n = Number([...m[0]].map((c) => CN_DIGIT[c]).join(""));
-    if (!Number.isFinite(n) || n < 100 || n > THIS_YEAR) continue;
-    if (min === null || n < min) min = n;
-  }
-  return min;
-}
-
-const HUNDREDS = ["", "一", "兩", "三", "四", "五", "六", "七", "八", "九"];
-
-/** Whole hundreds only. The label is never allowed a figure finer than that. */
-function cnHundreds(h: number): string {
-  if (h < 10) return `${HUNDREDS[h]}百`;
-  const rest = h % 10;
-  return `${HUNDREDS[Math.floor(h / 10)]}千${rest ? `${HUNDREDS[rest]}百` : ""}`;
-}
-
-/**
- * How far back the generated scene is allowed to say it is looking.
- *
- * The number comes out of the guide's own text — every ResoMap story is written
- * with dates in it — floored to the century so the line under-claims rather
- * than over-claims: 赤崁樓's 一六五三 reads 三百, not 四百. A story whose oldest
- * date is inside the last century gets no scene at all, which is why 駁二 and
- * 松園別館 do not have one. Inventing a century for a place we cannot date is
- * exactly the kind of confident nonsense these guides were written against.
- *
- * Which is why there is no fallback. A "台南 and 淡水 are obviously old enough"
- * default used to sit here handing out 三百 to any story that happened not to
- * print a date — a figure derived from nothing, on the one image a traveller
- * cannot check, next to a label that says AI made it. The guide names a century
- * or the scene does not appear.
- */
-function sceneEra(st: Story): string | null {
-  const y = earliestYear(`${st.title}${st.short}${st.body}`);
-  if (y === null) return null;
-  const h = Math.floor((THIS_YEAR - y) / 100);
-  return h >= 1 ? cnHundreds(h) : null;
-}
 
 /**
  * One place, one decision: put it in the itinerary.
@@ -131,7 +66,6 @@ export function Poi({ id }: { id: string }) {
    * through, so this heart and the 收藏 screen cannot disagree.
    */
   const { pois: savedPois } = useSaved();
-  const [sceneFailedId, setSceneFailedId] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
   const saved = savedPois.includes(id);
 
@@ -162,12 +96,6 @@ export function Poi({ id }: { id: string }) {
   if (!p) return null;
 
   const st = story(p.storyId);
-  const era = st ? sceneEra(st) : null;
-  /* The generated period image, and only that. Every slot in the manifest is
-     still "todo" and `sceneFor` returns only finished ones, so today this is
-     always undefined and the block that draws it never renders. It stays wired
-     up so that filling a slot is a data change rather than a code change. */
-  const scene = sceneFor(p.id);
 
   /* Two blocks, two promises: a ticket only where the venue genuinely sells
      admission, a local offer only ever as 即將推出. Filtering by category is
@@ -182,24 +110,6 @@ export function Poi({ id }: { id: string }) {
     ...allAudio.filter((a) => a.kind === "community"),
   ];
 
-  /**
-   * The guides in a language other than this page's own.
-   *
-   * 中文 is the home language of this build, not a universal default — the
-   * comparison is against the string the data actually stores, so a guide
-   * recorded in Japanese is "other" here whoever is reading. It is a deliberate
-   * simplification: the app has a locale, and pivoting this on it would mean a
-   * Japanese reader seeing 中文 filed under 其他國家語言, which is true but
-   * useless when the whole page around it is Chinese.
-   */
-  const HOME_LANGUAGE = "中文";
-  const otherLangAudio = allAudio.filter((a) => a.language !== HOME_LANGUAGE);
-  const otherLanguages = [...new Set(otherLangAudio.map((a) => a.language))];
-  /* Split rather than duplicated. The section below used to carry every
-     community upload including the foreign-language ones, so promoting them
-     into their own block without this filter would print the same guide twice
-     on one screen. */
-  const homeLangAudio = extraAudio.filter((a) => a.language === HOME_LANGUAGE);
 
   /**
    * How many languages this place can be heard in.
@@ -327,77 +237,56 @@ export function Poi({ id }: { id: string }) {
           </div>
         )}
 
-        {/* What the story is describing, as a picture.
+        {/* 語音導覽庫.
 
-            This used to draw the same generated cover as the hero and label it
-            三百年前, which made the claim self-refuting: the two images were
-            pixel-identical, so the only thing the label could tell a traveller
-            was that ResoMap will put a caption on anything. A period image has
-            to be a different image or it is not a period image.
+            Every recording for this place, in the space the dead scene
+            placeholder used to hold. It sits directly under the ResoMap guide
+            card because that is the moment it answers: somebody who has just
+            been shown one guide — possibly in a language they do not read —
+            needs to see what else exists without scrolling or tapping.
 
-            So it comes from the scene manifest and nowhere else, and it renders
-            only when the slot is actually filled. It never has been: all four
-            scene slots are `status: "todo"`, and `sceneFor` only returns a
-            finished one — so every place whose guide named a century has been
-            showing a grey box reading 情境圖製作中 since the day this shipped.
-            A placeholder that can never resolve is not a quiet promise, it is
-            dead space in the middle of the page, and the block below is what a
-            traveller standing there can actually use. */}
-        {st && era && scene?.src && sceneFailedId !== id && (
-          <div className="mt-5">
-            {/* No spaces around `era`: it is a Chinese numeral, not a figure.
-                The app spaces 建議停留 1 小時 because the numeral is Latin;
-                「如果回到 三百 年前」 is the same rule misapplied, and it reads
-                as a gap in the sentence. */}
-            <div className="text-[13px] text-ink-3">如果回到{era}年前……</div>
-            <div className="relative mt-2">
-              <img
-                src={scene.src}
-                alt={`${p.name} ${era}年前的 AI 情境重現`}
-                loading="lazy"
-                decoding="async"
-                /* A 404 here has to hide the block, not land on a broken-image
-                   glyph wearing an ✨ AI 情境重現 badge — the badge would be
-                   labelling nothing, which is the one thing this exists to
-                   prevent. */
-                onError={() => setSceneFailedId(id)}
-                className="h-[140px] w-full rounded-[14px] object-cover"
-              />
-              <AiSceneNote />
-            </div>
-          </div>
-        )}
+            It used to be a section far below, under 導航 and 探索附近, which
+            put the merchant recordings and six languages of community uploads
+            behind two calls to action about walking somewhere else.
 
-        {/* 其他國家語言語音導覽.
-
-            Sits directly under the Chinese guide card, in the space the dead
-            scene placeholder used to hold, because this is the moment it
-            answers: a traveller who has just seen a guide they cannot listen to
-            needs to know, without scrolling or tapping, whether there is one
-            they can.
-
-            The languages are named rather than counted. 「4 種語言」 tells
-            somebody there is variety; 「日本語」 tells them whether any of it is
-            for them, which is the only thing they are asking. */}
-        {otherLangAudio.length > 0 && (
+            The ResoMap recording itself is not repeated here — it is the card
+            immediately above, with both its edits on offer. 全部 N 則 counts
+            it, because that link opens the library where it does appear. */}
+        {extraAudio.length > 0 && (
           <div className="mt-5">
             <div className="flex items-baseline gap-2">
-              <span className="text-[15px] font-bold text-ink">其他國家語言語音導覽</span>
-              <span className="num ml-auto shrink-0 text-[12.5px] text-ink-3">
-                {otherLangAudio.length} 則
-              </span>
+              <span className="text-[15px] font-bold text-ink">語音導覽庫</span>
+              <button
+                onClick={() => nav.go({ k: "audios", poiId: id })}
+                className="num -my-2 ml-auto shrink-0 px-1 py-2 text-[12.5px] font-semibold text-ink-3"
+              >
+                全部 {allAudio.length} 則 ›
+              </button>
             </div>
-            <p className="mt-0.5 truncate text-[12.5px] text-ink-3">
-              {otherLanguages.join("・")}
-            </p>
+
+            {/* Named rather than counted. 「5 種語言」 tells somebody there is
+                variety; 「日本語」 tells them whether any of it is for them,
+                which is the only thing they are asking. Truncates rather than
+                wraps, so six languages cannot push the first guide down. */}
+            {languages.length > 0 && (
+              <p className="mt-0.5 truncate text-[12.5px] text-ink-3">
+                {languages.length} 種語言 · {languages.join("・")}
+              </p>
+            )}
 
             <div className="mt-2.5 space-y-2">
-              {otherLangAudio.slice(0, 4).map((a) => (
-                <AudioRowMini key={a.id} guide={a} onPlay={() => nav.playAudio(a.id)} />
+              {extraAudio.slice(0, 4).map((a) => (
+                <AudioRowMini
+                  key={a.id}
+                  guide={a}
+                  onPlay={() =>
+                    a.kind === "resomap" ? nav.play(id, "full") : nav.playAudio(a.id)
+                  }
+                />
               ))}
             </div>
 
-            {otherLangAudio.length > 4 && (
+            {extraAudio.length > 4 && (
               <button
                 onClick={() => nav.go({ k: "audios", poiId: id })}
                 className="mt-2 min-h-11 text-[13px] font-semibold text-ink-3"
@@ -425,46 +314,6 @@ export function Poi({ id }: { id: string }) {
         </Button>
       </div>
 
-      {/* Everything else recorded here.
-          The ResoMap guide is already above with both its edits, so this block
-          is what that card cannot show: the merchant's pinned recordings and
-          what other travellers uploaded, in six languages. It renders only when
-          there is something in it — a section whose whole content is a link to
-          itself is the dead control this app keeps deleting. */}
-      {homeLangAudio.length > 0 && (
-        <Section
-          title="語音導覽"
-          action={`全部 ${allAudio.length} 則`}
-          onAction={() => nav.go({ k: "audios", poiId: id })}
-        >
-          {/* Above the rows, not beside the heading: the heading line already
-              carries 全部 N 則 on its right and a third thing on it would make
-              a row of three competing numbers. Truncates rather than wraps —
-              a place with six languages must not push the first guide down.
-
-              It counts every language including the ones listed in their own
-              block further up, because 全部 N 則 beside it links to the whole
-              library and these two numbers have to be describing the same
-              thing. */}
-          {languages.length > 0 && (
-            <p className="-mt-1 mb-2.5 truncate px-5 text-[12.5px] text-ink-3">
-              {languages.length} 種語言 · {languages.join("・")}
-            </p>
-          )}
-
-          <div className="space-y-2 px-5">
-            {homeLangAudio.slice(0, 3).map((a) => (
-              <AudioRowMini
-                key={a.id}
-                guide={a}
-                onPlay={() =>
-                  a.kind === "resomap" ? nav.play(id, "full") : nav.playAudio(a.id)
-                }
-              />
-            ))}
-          </div>
-        </Section>
-      )}
 
       {/* Compact on purpose. This is a link to somebody else's checkout, and it
           sits below both the story and 導航 in every dimension it can. */}

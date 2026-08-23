@@ -227,21 +227,6 @@ export function PhotoCredit({ poi }: { poi: Poi }) {
 }
 
 /**
- * The label that has to sit on any generated historical scene.
- *
- * An illustration of what a place looked like three centuries ago is the one
- * image a traveller cannot check for themselves, which is exactly why it says
- * so on the image rather than in a footnote nobody scrolls to.
- */
-export function AiSceneNote() {
-  return (
-    <span className="absolute bottom-2 left-2 z-10 inline-flex items-center gap-1 rounded-md bg-black/60 px-2 py-1 text-[11px] font-semibold text-white">
-      ✨ AI 情境重現
-    </span>
-  );
-}
-
-/**
  * The same generated poster, for something that is not a POI.
  *
  * Merchants, hotels and tours need a picture and there is no photograph of any
