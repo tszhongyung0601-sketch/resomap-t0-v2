@@ -16,6 +16,7 @@ export const POI_TW_NORTH: Poi[] = [
     about: "觀景台售票和入口都在購物中心 5 樓，日落前一小時隊伍最長，先上去等天黑一次看日景和夜景比較划算。",
     stayMin: 90,
     indoor: true,
+    storyId: "st-taipei101",
     // Paid gate is the 89F observatory, not the mall below it.
     ticketed: true,
   },

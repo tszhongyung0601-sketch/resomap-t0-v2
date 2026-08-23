@@ -180,15 +180,27 @@ function GuideCard({ story: s, trip }: { story: Story; trip?: Trip }) {
      an absent one. */
   const canAdd = Boolean(trip && trip.days.length > 0);
 
-  /* Sibling buttons rather than a Card with an onClick: each action has to be
-     its own tap target, and a button inside a button is neither valid markup
-     nor tappable in the way anyone expects. */
+  const open = () => nav.go({ k: "poi", id: s.poiId });
+
+  /* The whole card opens the place, and it does so without nesting one button
+     inside another — which is neither valid markup nor tappable the way anyone
+     expects, and is why this used to be a picture-and-title button with a dead
+     strip of card beneath it holding the rating.
+     
+     The wrapper handles the pointer and steps aside for anything that is
+     already a button: 試聽 and 加入行程 keep their own targets, and the title
+     button keeps its own handler rather than firing twice through the bubble.
+     Keyboard and screen readers still reach the place through that real
+     button, so nothing was traded away for the bigger target. */
   return (
-    <div className="overflow-hidden rounded-2xl bg-surface">
-      <button
-        onClick={() => nav.go({ k: "poi", id: s.poiId })}
-        className="block w-full text-left transition active:bg-surface-2"
-      >
+    <div
+      onClick={(e) => {
+        if ((e.target as HTMLElement).closest("button")) return;
+        open();
+      }}
+      className="cursor-pointer overflow-hidden rounded-2xl bg-surface"
+    >
+      <button onClick={open} className="block w-full text-left transition active:bg-surface-2">
         <PoiImage poi={p} height={128} radius={0} />
         <div className="px-4 pt-3">
           <div className="truncate text-[15.5px] font-bold text-ink">
