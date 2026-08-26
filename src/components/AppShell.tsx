@@ -60,16 +60,22 @@ const TABS: { id: Tab; label: string; icon: ReactNode }[] = [
 ];
 
 /**
- * Four tabs, and no floating AI button.
+ * Four tabs, and no assistant living in the chrome.
  *
  * 地圖 was a way of finding a place rather than a place to go, and 我的 was a
  * list of 即將推出 — both left the tab bar. What replaced them is the one thing
  * the app is actually for: planning with other people.
  *
- * The floating assistant went too. One control with four different behaviours,
- * parked on top of the content, taught nobody what it did. The AI now appears
- * in the three specific moments it is useful, inside the screens that own those
- * moments.
+ * The floating assistant went too. One control, sitting on every screen and
+ * doing a different thing on each, taught nobody what it did.
+ *
+ * A floating button did come back later, and what it is allowed to be is
+ * exactly the inverse of what was deleted: 行程 has one, it opens the
+ * conversation and only that, it says 跟 AI 說 on its face, and it belongs to
+ * a single pane rather than to the shell. Which is why it is declared in
+ * `Trips.tsx` and this file has never heard of it. The rest of the AI still
+ * appears in the specific moments it is useful, inside the screens that own
+ * those moments.
  */
 export function AppShell({
   tab,

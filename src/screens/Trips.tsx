@@ -2,7 +2,7 @@ import { useState } from "react";
 import { poi } from "../data";
 import { BrandBar } from "../components/BrandBar";
 import { useNav } from "../nav";
-import { Button, Card, Empty, Row, Screen, Segmented, StoryBadge, Thumb } from "../components/ui";
+import { Button, Card, Empty, Screen, Segmented, StoryBadge, Thumb } from "../components/ui";
 import { DocumentsPane } from "./Documents";
 import { TogetherPane } from "./Together";
 import type { Trip } from "../types";
@@ -42,55 +42,106 @@ export function Trips({ trips }: { trips: Trip[] }) {
   const [pane, setPane] = useState<Pane>("trips");
 
   return (
-    <Screen>
-      <BrandBar title="行程" />
+    <>
+      <Screen>
+        <BrandBar title="行程" />
 
-      <div className="px-5 pb-3 pt-1">
-        <Segmented<Pane> items={PANES} value={pane} onChange={setPane} />
-      </div>
+        <div className="px-5 pb-3 pt-1">
+          <Segmented<Pane> items={PANES} value={pane} onChange={setPane} />
+        </div>
 
-      {pane === "docs" && <DocumentsPane />}
-      {pane === "together" && <TogetherPane />}
+        {pane === "docs" && <DocumentsPane />}
+        {pane === "together" && <TogetherPane />}
 
-      {pane === "trips" && (
-        <>
-      {/* The one entry the conversation needs. It sits above the list because
-          somebody with no trip yet has nothing below it to look at. */}
-      <div className="px-5 pb-3">
-        <Row
-          icon="💬"
-          label="跟 AI 說你想怎麼玩"
-          value="用打字的"
-          onClick={() => nav.go({ k: "chat" })}
-        />
-      </div>
+        {pane === "trips" && (
+          <>
+            {trips.length === 0 ? (
+              <Empty
+                icon="🧳"
+                text="還沒有旅程"
+                action="建立旅程"
+                onAction={() => nav.go({ k: "create" })}
+              />
+            ) : (
+              <>
+                <div className="space-y-3 px-5 pt-1">
+                  {trips.map((t) => (
+                    <TripRow key={t.id} trip={t} />
+                  ))}
+                </div>
+                <div className="px-5 pt-4">
+                  <Button variant="ghost" onClick={() => nav.go({ k: "create" })}>
+                    建立新旅程
+                  </Button>
+                </div>
+              </>
+            )}
+          </>
+        )}
 
-      {trips.length === 0 ? (
-        <Empty
-          icon="🧳"
-          text="還沒有旅程"
-          action="建立旅程"
-          onAction={() => nav.go({ k: "create" })}
-        />
-      ) : (
-        <>
-          <div className="space-y-3 px-5 pt-1">
-            {trips.map((t) => (
-              <TripRow key={t.id} trip={t} />
-            ))}
-          </div>
-          <div className="px-5 pt-4">
-            <Button variant="ghost" onClick={() => nav.go({ k: "create" })}>
-              建立新旅程
-            </Button>
-          </div>
-        </>
-      )}
-        </>
-      )}
+        {/* Clearance for the floating button, so the last row is never
+           the one hiding under it. */}
+        <div className="h-24 shrink-0" />
+      </Screen>
 
-      <div className="h-24 shrink-0" />
-    </Screen>
+      {/* Only on the pane it writes to. The conversation reads and rewrites
+         itineraries — it has nothing to say about a boarding pass, and
+         nothing to add to a vote — so it is not offered there. */}
+      {pane === "trips" && <ChatFab onClick={() => nav.go({ k: "chat" })} />}
+    </>
+  );
+}
+
+/**
+ * The way into the conversation, floating over the list.
+ *
+ * This app deleted a floating AI button once before, and the reason is worth
+ * keeping rather than rediscovering: that one sat on every screen and did a
+ * different thing on each, so it taught nobody what it did. This one does
+ * exactly one thing, says that thing on its face, and lives on one pane. An
+ * icon-only circle would have thrown away the half of the lesson that was
+ * about being legible — 💬 alone is not a promise anybody can read.
+ *
+ * It replaced a row above the list. The row worked, but it spent the width
+ * of the screen and the top of the fold on an action, on the one screen
+ * whose entire job is showing somebody their own trips.
+ *
+ * A sibling of `Screen`, not a child of it: the screen scrolls and this must
+ * not. That puts it in the shell's screen area, which ends exactly where the
+ * tab bar begins — so `bottom-4` is four units above the nav on the drawn
+ * phone and above the home indicator on a real one, without this file
+ * needing to know how tall either is.
+ */
+function ChatFab({ onClick }: { onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      className="absolute bottom-4 right-4 z-30 flex h-13 items-center gap-2 rounded-full bg-brand pl-4 pr-5 text-white shadow-[0_6px_20px_rgba(0,0,0,.18)] transition active:scale-[.985] active:bg-brand-press"
+    >
+      <Bubble />
+      <span className="text-[14.5px] font-bold text-white">跟 AI 說</span>
+    </button>
+  );
+}
+
+/* A hairline speech bubble, drawn like the four icons in the tab bar — the
+   one floating control should not look like it came from another product. */
+function Bubble() {
+  return (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.9"
+      aria-hidden
+    >
+      <path
+        d="M20.5 11.4c0 4-3.8 7.3-8.5 7.3a10 10 0 01-2.4-.3L5.2 20.3l1.2-3.2a7 7 0 01-2.9-5.7C3.5 7.4 7.3 4 12 4s8.5 3.4 8.5 7.4z"
+        strokeLinejoin="round"
+      />
+    </svg>
   );
 }
 
