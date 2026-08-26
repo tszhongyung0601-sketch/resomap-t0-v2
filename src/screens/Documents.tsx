@@ -1,7 +1,19 @@
 import { useRef, useState } from "react";
 import { Button, Empty, Note, Screen, Sheet, TopBar } from "../components/ui";
 import { demoBoardingPass } from "../lib/bcbp";
-import { addDoc, docTitle, docWhen, removeDoc, updateDoc, useDocs, type TravelDoc } from "../lib/docs";
+import {
+  addDoc,
+  docTitle,
+  docWhen,
+  removeDoc,
+  updateDoc,
+  useDocs,
+  DOC_ICONS,
+  DOC_LABELS,
+  type DocKind,
+  type TravelDoc,
+} from "../lib/docs";
+import { demoEsimCode } from "../lib/lpa";
 import { asUrl, scanImage } from "../lib/scan";
 import { applyShift, planDayShift, type DayShift } from "../lib/docPlan";
 import { focusTrip } from "../lib/trip";
@@ -74,17 +86,19 @@ export function DocumentsPane() {
       return;
     }
     const doc = addDoc(result.text, { format: result.format });
-    /* A hotel code carries nothing anybody can read, so the sheet opens
-       straight away rather than leaving a row labelled 「文件」. */
-    if (!doc.flight) setEditing(doc);
+    /* Only for the ones nothing could be read from. A boarding pass and an
+       eSIM code both arrive fully described by their own standard, and
+       opening a form over them would be asking for something already known. */
+    if (!doc.flight && !doc.esim) setEditing(doc);
   }
 
   return (
     <>
       <div className="px-5 pt-1">
         <p className="text-[13.5px] leading-relaxed text-ink-3">
-          登機證的條碼是國際標準（IATA BCBP），可以直接讀出航班與座位。
-          飯店的 QR 沒有統一格式，讀到什麼就顯示什麼，名稱和日期請自己補。
+          登機證（IATA BCBP）與 eSIM 啟用碼（GSMA SGP.22）都有國際標準，
+          可以直接讀出來。住宿的 QR 沒有統一格式，讀到什麼就顯示什麼，
+          名稱與日期請自己補。
         </p>
 
         <div className="mt-4 space-y-2">
@@ -102,15 +116,38 @@ export function DocumentsPane() {
               e.target.value = "";
             }}
           />
-          <Button
-            variant="secondary"
-            onClick={() => {
-              setProblem(null);
-              addDoc(demoBoardingPass(), { format: "PDF417" });
-            }}
-          >
-            載入範例登機證
-          </Button>
+          {/* Three fabricated samples, so all three paths can be shown without
+              anybody holding up a real ticket, a real booking or — worst of
+              the three — a live eSIM activation code. */}
+          <div className="flex gap-2">
+            <Sample
+              label="範例登機證"
+              onClick={() => {
+                setProblem(null);
+                addDoc(demoBoardingPass(), { format: "PDF417" });
+              }}
+            />
+            <Sample
+              label="範例 eSIM"
+              onClick={() => {
+                setProblem(null);
+                addDoc(demoEsimCode(), { format: "QRCode" });
+              }}
+            />
+            <Sample
+              label="範例住宿"
+              onClick={() => {
+                setProblem(null);
+                const d = addDoc(DEMO_HOTEL_QR, { format: "QRCode", kind: "hotel" });
+                updateDoc(d.id, {
+                  title: "花蓮湖畔飯店",
+                  date: "8/20",
+                  until: "8/22",
+                  ref: "HL-88213",
+                });
+              }}
+            />
+          </div>
         </div>
 
         {problem && (
@@ -149,10 +186,18 @@ export function DocumentsPane() {
 
       {editing && (
         <ManualSheet
+          /* Keyed by document.
+
+             Without this, opening one document's sheet and then another's
+             reuses the same component instance — and every useState below
+             initialises on first mount only, so the second document opened
+             showing the first one's name, dates and kind. Somebody would have
+             saved that over the record they were actually looking at. */
+          key={editing.id}
           doc={editing}
           onClose={() => setEditing(null)}
-          onSave={(m) => {
-            updateDoc(editing.id, m);
+          onSave={(m, kind) => {
+            updateDoc(editing.id, m, kind);
             setEditing(null);
           }}
         />
@@ -184,7 +229,7 @@ function DocCard({
     <div className="rounded-2xl bg-surface p-4">
       <div className="flex items-start gap-3">
         <span className="text-[22px]" aria-hidden>
-          {d.kind === "flight" ? "✈️" : d.kind === "hotel" ? "🏨" : "🎫"}
+          {DOC_ICONS[d.kind]}
         </span>
         <div className="min-w-0 flex-1">
           <div className="truncate text-[15.5px] font-bold text-ink">{docTitle(d)}</div>
@@ -200,7 +245,29 @@ function DocCard({
         </div>
       )}
 
-      {!d.flight && (
+      {d.esim && (
+        <div className="mt-3 grid grid-cols-2 gap-2">
+          <Fact label="供應商" value={d.esim.server} />
+          <Fact label="啟用碼" value={d.esim.matchingId} />
+        </div>
+      )}
+
+      {d.esim?.needsConfirmation && (
+        <p className="mt-2 text-[12px] leading-relaxed text-ink-2">
+          這張還需要電信商另外給的確認碼才能啟用。
+        </p>
+      )}
+
+      {/* The dates are already the line under the title, so only the
+         reference is repeated here — a card that printed 退房 twice would be
+         spending its width saying one thing. */}
+      {d.kind === "hotel" && d.manual?.ref && (
+        <div className="mt-3">
+          <Fact label="訂房代號" value={d.manual.ref} />
+        </div>
+      )}
+
+      {!d.flight && !d.esim && (
         <div className="mt-3">
           <div className="text-[11px] font-semibold text-ink-3">掃到的內容</div>
           {/* Shown exactly as scanned. Breaking anywhere, because a booking
@@ -239,7 +306,7 @@ function DocCard({
           onClick={onEdit}
           className="min-h-11 flex-1 rounded-full bg-bg text-[13px] font-bold text-ink transition active:bg-surface-2"
         >
-          {d.flight ? "加註記" : "補資料"}
+          {d.flight || d.esim ? "加註記" : "補資料"}
         </button>
         <button
           onClick={onRemove}
@@ -270,11 +337,14 @@ function ManualSheet({
 }: {
   doc: TravelDoc;
   onClose: () => void;
-  onSave: (m: NonNullable<TravelDoc["manual"]>) => void;
+  onSave: (m: NonNullable<TravelDoc["manual"]>, kind: DocKind) => void;
 }) {
   const [title, setTitle] = useState(d.manual?.title ?? "");
   const [date, setDate] = useState(d.manual?.date ?? "");
+  const [until, setUntil] = useState(d.manual?.until ?? "");
+  const [ref, setRef] = useState(d.manual?.ref ?? "");
   const [note, setNote] = useState(d.manual?.note ?? "");
+  const [kind, setKind] = useState<DocKind>(d.kind);
 
   const input =
     "h-12 w-full rounded-2xl bg-bg px-4 text-[15px] text-ink outline-none placeholder:text-ink-3";
@@ -282,20 +352,55 @@ function ManualSheet({
   return (
     <Sheet open onClose={onClose} title={d.flight ? "加註記" : "補上資料"}>
       <div className="space-y-2 px-5 pb-5 pt-1">
-        {!d.flight && (
+        {/* Only where the app could not tell. A boarding pass and an eSIM code
+           both announce themselves through a published standard, and offering
+           to re-label them would be inviting somebody to be wrong about a
+           thing the app already knows. */}
+        {!d.flight && !d.esim && (
           <>
+            <div className="pb-1 text-[13px] font-semibold text-ink-2">這是什麼？</div>
+            <div className="flex flex-wrap gap-1.5 pb-1">
+              {(["hotel", "esim", "other"] as DocKind[]).map((k) => (
+                <button
+                  key={k}
+                  onClick={() => setKind(k)}
+                  className={`min-h-11 rounded-full px-3.5 text-[13px] font-semibold transition ${
+                    k === kind ? "bg-brand text-white" : "bg-bg text-ink-2 active:bg-surface-2"
+                  }`}
+                >
+                  {DOC_ICONS[k]} {DOC_LABELS[k]}
+                </button>
+              ))}
+            </div>
+
             <input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="名稱，例如 桑母樂飯店"
+              placeholder={kind === "hotel" ? "飯店名稱" : "名稱"}
               className={input}
             />
             <input
               value={date}
               onChange={(e) => setDate(e.target.value)}
-              placeholder="日期，例如 8/20 入住"
+              placeholder={kind === "hotel" ? "入住，例如 8/20" : "日期，例如 8/20"}
               className={input}
             />
+            {kind === "hotel" && (
+              <>
+                <input
+                  value={until}
+                  onChange={(e) => setUntil(e.target.value)}
+                  placeholder="退房，例如 8/22"
+                  className={input}
+                />
+                <input
+                  value={ref}
+                  onChange={(e) => setRef(e.target.value)}
+                  placeholder="訂房代號"
+                  className={input}
+                />
+              </>
+            )}
           </>
         )}
         <input
@@ -305,7 +410,7 @@ function ManualSheet({
           className={input}
         />
         <div className="pt-1">
-          <Button onClick={() => onSave({ title, date, note })}>儲存</Button>
+          <Button onClick={() => onSave({ title, date, until, ref, note }, kind)}>儲存</Button>
         </div>
       </div>
     </Sheet>
@@ -404,3 +509,20 @@ function AlignSheet({
     </Sheet>
   );
 }
+
+/** A fabricated example. Narrow, because three of them share one row. */
+function Sample({ label, onClick }: { label: string; onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      className="min-h-11 flex-1 rounded-full bg-surface px-2 text-[12.5px] font-bold text-ink transition active:bg-surface-2"
+    >
+      {label}
+    </button>
+  );
+}
+
+/* What a hotel QR usually is: a link with a reference in it. Not a standard —
+   which is the point. example.com is reserved by RFC 2606 so documentation can
+   name a host without naming somebody's server. */
+const DEMO_HOTEL_QR = "https://booking.example.com/checkin?ref=HL-88213";
