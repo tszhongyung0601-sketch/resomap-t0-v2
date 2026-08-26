@@ -66,8 +66,6 @@ export type Route =
   | { k: "offer"; id: string }
   /* A hire car counter. Real company, no agreement — see data/carRentals.ts. */
   | { k: "rental"; id: string }
-  /* The AI wizard. Separate from `create`, which makes an empty trip. */
-  | { k: "aiPlan" }
   /* The conversation. With a tripId it edits that trip; without one it plans a
      new one. Same screen and same engine — what changes is what it can act on. */
   | { k: "chat"; tripId?: string }
@@ -81,7 +79,7 @@ export type Route =
    trip that gives it a reason to exist, which is what MODEL B claims anyway:
    a shop window nobody asked for earns less than an offer at the moment of
    need. The `deals` route still renders the same six-tab screen. */
-export type Tab = "explore" | "library" | "trips" | "together";
+export type Tab = "explore" | "library" | "trips" | "deals";
 
 /** The 優惠 screen's own tabs. Mirrored in Deals.tsx's TABS. */
 export type DealsTab = "reco" | "ticket" | "stay" | "transport" | "car" | "more";

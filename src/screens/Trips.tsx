@@ -1,7 +1,10 @@
+import { useState } from "react";
 import { poi } from "../data";
 import { BrandBar } from "../components/BrandBar";
 import { useNav } from "../nav";
-import { Button, Card, Empty, Screen, StoryBadge, Thumb } from "../components/ui";
+import { Button, Card, Empty, Row, Screen, Segmented, StoryBadge, Thumb } from "../components/ui";
+import { DocumentsPane } from "./Documents";
+import { TogetherPane } from "./Together";
 import type { Trip } from "../types";
 import { poiOf } from "../lib/stop";
 
@@ -13,12 +16,54 @@ import { poiOf } from "../lib/stop";
  * totals and completion counts all belong to somebody who is not standing in a
  * station trying to find their itinerary.
  */
+/**
+ * Three things that are all about a trip, under one tab.
+ *
+ * 一起規劃 used to be a tab of its own, which put "the trip" and "deciding the
+ * trip with other people" two taps apart at the bottom of the screen. They are
+ * the same subject. So this tab now holds the itineraries, the documents that
+ * belong to them, and the room where a group argues about them.
+ *
+ * The list stays the default and stays first, unchanged. Somebody opening 行程
+ * came to look at their itinerary, and a tab that greets them with a control
+ * they have to read before they can see it has charged them for a feature they
+ * did not ask for.
+ */
+type Pane = "trips" | "docs" | "together";
+
+const PANES: { id: Pane; label: string }[] = [
+  { id: "trips", label: "行程" },
+  { id: "docs", label: "文件" },
+  { id: "together", label: "一起規劃" },
+];
+
 export function Trips({ trips }: { trips: Trip[] }) {
   const nav = useNav();
+  const [pane, setPane] = useState<Pane>("trips");
 
   return (
     <Screen>
       <BrandBar title="行程" />
+
+      <div className="px-5 pb-3 pt-1">
+        <Segmented<Pane> items={PANES} value={pane} onChange={setPane} />
+      </div>
+
+      {pane === "docs" && <DocumentsPane />}
+      {pane === "together" && <TogetherPane />}
+
+      {pane === "trips" && (
+        <>
+      {/* The one entry the conversation needs. It sits above the list because
+          somebody with no trip yet has nothing below it to look at. */}
+      <div className="px-5 pb-3">
+        <Row
+          icon="💬"
+          label="跟 AI 說你想怎麼玩"
+          value="用打字的"
+          onClick={() => nav.go({ k: "chat" })}
+        />
+      </div>
 
       {trips.length === 0 ? (
         <Empty
@@ -39,6 +84,8 @@ export function Trips({ trips }: { trips: Trip[] }) {
               建立新旅程
             </Button>
           </div>
+        </>
+      )}
         </>
       )}
 

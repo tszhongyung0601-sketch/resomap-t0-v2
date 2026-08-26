@@ -27,7 +27,32 @@ import type { Trip } from "../types";
  * Nothing leaves the device, and that is a fact about the architecture rather
  * than a policy: there is no backend here for a document to be sent to.
  */
+/**
+ * The screen, for the 我的 → 旅行文件 shortcut.
+ *
+ * The same content the 行程 tab shows in its 文件 pane, wrapped in a Screen
+ * and a back button. One implementation, two doors — the row in 我的 predates
+ * the pane and is still the shortest way in for somebody who is not thinking
+ * about a trip yet.
+ */
 export function Documents() {
+  const nav = useNav();
+  return (
+    <Screen>
+      <TopBar title="旅行文件" onBack={() => nav.back()} />
+      <DocumentsPane />
+      <div className="h-24 shrink-0" />
+    </Screen>
+  );
+}
+
+/**
+ * Everything below the title bar.
+ *
+ * No Screen and no TopBar of its own, so the 行程 tab can drop it under its
+ * own segmented control without two headers stacking up.
+ */
+export function DocumentsPane() {
   const nav = useNav();
   const list = useDocs();
   const [busy, setBusy] = useState(false);
@@ -55,9 +80,7 @@ export function Documents() {
   }
 
   return (
-    <Screen>
-      <TopBar title="旅行文件" onBack={() => nav.back()} />
-
+    <>
       <div className="px-5 pt-1">
         <p className="text-[13.5px] leading-relaxed text-ink-3">
           登機證的條碼是國際標準（IATA BCBP），可以直接讀出航班與座位。
@@ -115,7 +138,6 @@ export function Documents() {
       )}
 
       <Note>文件只存在這台裝置。這個 Demo 沒有後端，沒有地方可以上傳。</Note>
-      <div className="h-24 shrink-0" />
 
       {aligning?.flight && trip && (
         <AlignSheet
@@ -135,7 +157,7 @@ export function Documents() {
           }}
         />
       )}
-    </Screen>
+    </>
   );
 }
 

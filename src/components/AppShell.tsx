@@ -52,7 +52,11 @@ const TABS: { id: Tab; label: string; icon: ReactNode }[] = [
   { id: "explore", label: "探索", icon: <Compass /> },
   { id: "library", label: "導覽庫", icon: <Headphones /> },
   { id: "trips", label: "行程", icon: <Route /> },
-  { id: "together", label: "一起規劃", icon: <People /> },
+  /* 一起規劃 did not go away — it is a pane inside 行程 now, where the trip it
+     is about already lives. This slot went to the thing that had no home of
+     its own: nine service entries on the home screen and two full screens
+     behind them, reachable only by scrolling past everything else. */
+  { id: "deals", label: "更多優惠", icon: <Tag /> },
 ];
 
 /**
@@ -293,16 +297,18 @@ function Route() {
   );
 }
 /* Two people, the back one only half drawn — the overlap is what says 一起. */
-function People() {
+/* A luggage tag, not a percent sign. The tab holds ResoMap's own merchants
+   alongside five affiliate platforms, and a discount glyph would promise a
+   sale where most of it is simply supply. */
+function Tag() {
   return (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
-      <circle cx="9.4" cy="8.8" r="3.2" />
-      <path d="M3.4 19.4c.8-2.9 3.1-4.5 6-4.5s5.2 1.6 6 4.5" strokeLinecap="round" />
-      <path d="M15.9 6.2a3.2 3.2 0 010 5.2" strokeLinecap="round" />
-      <path d="M16.6 15.2c2 .5 3.4 1.9 4 4.2" strokeLinecap="round" />
+      <path d="M11.4 3.6H6.2A2.6 2.6 0 003.6 6.2v5.2c0 .7.3 1.4.8 1.9l7.3 7.3a2.6 2.6 0 003.7 0l5.2-5.2a2.6 2.6 0 000-3.7l-7.3-7.3a2.6 2.6 0 00-1.9-.8z" strokeLinejoin="round" />
+      <circle cx="8.2" cy="8.2" r="1.5" />
     </svg>
   );
 }
+
 function Headphones() {
   return (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">

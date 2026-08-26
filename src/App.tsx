@@ -32,7 +32,7 @@ import {
   TransportFlow,
 } from "./screens/Services";
 import { ProductDetail, Tickets } from "./screens/Tickets";
-import { Together, Prefs, Pool, ConsensusView } from "./screens/Together";
+import { Prefs, Pool, ConsensusView } from "./screens/Together";
 import { Expenses, Settle, resetReceipts } from "./screens/Expenses";
 import { resetHere } from "./lib/here";
 import { resetDocs } from "./lib/docs";
@@ -82,8 +82,8 @@ const Merchant = lazy(async () => ({ default: (await import("./screens/Merchant"
 const Provider = lazy(async () => ({ default: (await import("./screens/Provider")).Provider }));
 const Offer = lazy(async () => ({ default: (await import("./screens/Offer")).Offer }));
 const Rental = lazy(async () => ({ default: (await import("./screens/Rental")).Rental }));
-const AiPlanner = lazy(async () => ({ default: (await import("./screens/AiPlanner")).AiPlanner }));
 const Chat = lazy(async () => ({ default: (await import("./screens/Chat")).Chat }));
+const DealsHub = lazy(async () => ({ default: (await import("./screens/DealsHub")).DealsHub }));
 const Documents = lazy(async () => ({ default: (await import("./screens/Documents")).Documents }));
 const Reviews = lazy(async () => ({ default: (await import("./screens/Reviews")).Reviews }));
 const Subscribe = lazy(async () => ({ default: (await import("./screens/Subscribe")).Subscribe }));
@@ -396,7 +396,6 @@ export default function App() {
   else if (route?.k === "provider") screen = <Provider id={route.id} />;
   else if (route?.k === "offer") screen = <Offer id={route.id} />;
   else if (route?.k === "rental") screen = <Rental id={route.id} />;
-  else if (route?.k === "aiPlan") screen = <AiPlanner />;
   else if (route?.k === "chat") screen = <Chat tripId={route.tripId} />;
   else if (route?.k === "docs") screen = <Documents />;
   else if (route?.k === "reviews")
@@ -453,8 +452,8 @@ export default function App() {
       ) : null;
   } else {
     switch (tab) {
-      case "together":
-        screen = <Together />;
+      case "deals":
+        screen = <DealsHub />;
         break;
       case "trips":
         screen = <Trips trips={trips} />;

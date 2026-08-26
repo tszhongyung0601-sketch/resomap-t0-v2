@@ -7,7 +7,6 @@ import { ROOM } from "../data/room";
 import { consensus, pct, tallies } from "../lib/consensus";
 import type { Tally } from "../lib/consensus";
 import { track } from "../lib/track";
-import { BrandBar } from "../components/BrandBar";
 import { useNav } from "../nav";
 import { Cover } from "../components/Cover";
 import { Avatar, Button, Chip, Row, Screen, Section, Tag, TopBar } from "../components/ui";
@@ -140,7 +139,18 @@ function Field({ label, children }: { label: string; children: ReactNode }) {
 
 /* ------------------------------------------------------------------ room */
 
-export function Together() {
+/**
+ * 一起規劃, now a pane inside 行程.
+ *
+ * It stopped being a tab of its own and did not stop existing: planning with
+ * other people is a thing you do to a trip, so it lives beside the trip. The
+ * words 一起規劃 are the pane's name — nothing here changed but where it sits.
+ *
+ * No Screen and no BrandBar: the 行程 tab owns both, and two bars stacking is
+ * what happens when a screen is dropped into a pane without being asked to
+ * stop being a screen.
+ */
+export function TogetherPane() {
   const nav = useNav();
   const [invite, setInvite] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -174,9 +184,7 @@ export function Together() {
   };
 
   return (
-    <Screen>
-      <BrandBar title="一起規劃" />
-
+    <>
       <div className="px-5">
         <div className="rounded-2xl bg-surface p-4">
           <div className="text-[19px] font-bold text-ink">{ROOM.title}</div>
@@ -243,27 +251,9 @@ export function Together() {
         </div>
       )}
 
-      {/* Above the room, because it answers a different question. The room is
-          for four people who cannot agree; this is for one person with an empty
-          weekend and no shortlist to argue about yet. */}
-      {/* Two doors into the same planner. Some people would rather tap through
-          five questions than compose a sentence, and some would rather just say
-          it — neither is the beginner and neither is the power user. */}
-      <Section title="自己一個人先排" tight>
-        <Row
-          icon="💬"
-          label="跟 AI 說你想怎麼玩"
-          value="用打字的"
-          onClick={() => nav.go({ k: "chat" })}
-        />
-        <Row
-          icon="✨"
-          label="AI 幫我排行程"
-          value="回答五個問題"
-          onClick={() => nav.go({ k: "aiPlan" })}
-        />
-      </Section>
-
+      {/* The solo entries moved to the 行程 tab, where a trip you are making
+          by yourself already lives. This pane is the room: four people who
+          cannot agree. */}
       <Section title="和朋友一起" tight>
         <Row
           icon="🙋"
@@ -286,7 +276,7 @@ export function Together() {
       </Section>
 
       <div className="pb-24" />
-    </Screen>
+    </>
   );
 }
 
