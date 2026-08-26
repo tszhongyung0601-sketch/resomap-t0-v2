@@ -5,6 +5,7 @@ import {
   addDoc,
   docTitle,
   docWhen,
+  linkDoc,
   removeDoc,
   updateDoc,
   useDocs,
@@ -16,7 +17,6 @@ import {
 import { demoEsimCode } from "../lib/lpa";
 import { asUrl, scanImage } from "../lib/scan";
 import { applyShift, planDayShift, type DayShift } from "../lib/docPlan";
-import { focusTrip } from "../lib/trip";
 import { useNav } from "../nav";
 import type { Trip } from "../types";
 
@@ -70,10 +70,22 @@ export function DocumentsPane() {
   const [busy, setBusy] = useState(false);
   const [problem, setProblem] = useState<string | null>(null);
   const [editing, setEditing] = useState<TravelDoc | null>(null);
-  /* A flight that has offered to move a day, and is waiting to be told. */
-  const [aligning, setAligning] = useState<TravelDoc | null>(null);
-  const trip = focusTrip(nav.trips) ?? undefined;
+  /* The document whose 對到行程 sheet is open — by id, not by value. The
+     sheet writes to the store, so a captured object would keep showing the
+     trip the document was attached to before the tap. */
+  const [aligningId, setAligningId] = useState<string | null>(null);
+  const trips = nav.trips;
+  const aligning = list.find((d) => d.id === aligningId) ?? null;
   const fileRef = useRef<HTMLInputElement>(null);
+  /* Which of the three buttons opened the picker. A hint, and nothing
+     stronger — see `addDoc`. */
+  const want = useRef<DocKind>("other");
+
+  function pick(kind: DocKind) {
+    want.current = kind;
+    setProblem(null);
+    fileRef.current?.click();
+  }
 
   async function onFile(file: File | undefined) {
     if (!file) return;
@@ -85,7 +97,7 @@ export function DocumentsPane() {
       setProblem(result.reason);
       return;
     }
-    const doc = addDoc(result.text, { format: result.format });
+    const doc = addDoc(result.text, { format: result.format, kind: want.current });
     /* Only for the ones nothing could be read from. A boarding pass and an
        eSIM code both arrive fully described by their own standard, and
        opening a form over them would be asking for something already known. */
@@ -101,10 +113,23 @@ export function DocumentsPane() {
           名稱與日期請自己補。
         </p>
 
-        <div className="mt-4 space-y-2">
-          <Button onClick={() => fileRef.current?.click()}>
-            {busy ? "讀取中…" : "掃描登機證 / QR Code"}
-          </Button>
+        {/* One scanner, three doors.
+
+            Every kind gets its own button because a traveller arrives holding
+            one particular thing, and a single 「掃描 QR Code」 left them to work
+            out for themselves whether this app wanted that one. The kind
+            travels as a hint and stays a hint: `addDoc` still decides from
+            what the string actually is, so a boarding pass scanned under 住宿
+            is filed as a boarding pass. What the hint buys is the case where
+            nothing parses — a hotel QR that is only a URL now lands already
+            labelled 住宿 instead of 其他, with the right fields waiting. */}
+        <div className="mt-4 grid grid-cols-3 gap-2">
+          <ScanTile kind="flight" label="掃機票" busy={busy} onClick={() => pick("flight")} />
+          <ScanTile kind="esim" label="掃 eSIM" busy={busy} onClick={() => pick("esim")} />
+          <ScanTile kind="hotel" label="掃住宿" busy={busy} onClick={() => pick("hotel")} />
+        </div>
+
+        <div className="mt-2 space-y-2">
           <input
             ref={fileRef}
             type="file"
@@ -165,9 +190,10 @@ export function DocumentsPane() {
             <DocCard
               key={d.id}
               doc={d}
-              canAlign={Boolean(d.flight && trip)}
+              canAlign={trips.length > 0}
+              linkedTo={trips.find((t) => t.id === d.tripId)?.title ?? null}
               onEdit={() => setEditing(d)}
-              onAlign={() => setAligning(d)}
+              onAlign={() => setAligningId(d.id)}
               onRemove={() => removeDoc(d.id)}
             />
           ))}
@@ -176,12 +202,8 @@ export function DocumentsPane() {
 
       <Note>文件只存在這台裝置。這個 Demo 沒有後端，沒有地方可以上傳。</Note>
 
-      {aligning?.flight && trip && (
-        <AlignSheet
-          doc={aligning}
-          trip={trip}
-          onClose={() => setAligning(null)}
-        />
+      {aligning && trips.length > 0 && (
+        <AlignSheet doc={aligning} trips={trips} onClose={() => setAligningId(null)} />
       )}
 
       {editing && (
@@ -211,13 +233,16 @@ export function DocumentsPane() {
 function DocCard({
   doc: d,
   canAlign,
+  linkedTo,
   onEdit,
   onAlign,
   onRemove,
 }: {
   doc: TravelDoc;
-  /** Only a parsed flight has anything to say about a schedule. */
+  /** Only when there is a trip to file it under. */
   canAlign: boolean;
+  /** The trip it already belongs to, if somebody has said. */
+  linkedTo: string | null;
   onEdit: () => void;
   onAlign: () => void;
   onRemove: () => void;
@@ -293,12 +318,23 @@ function DocCard({
         <p className="mt-2 text-[12.5px] leading-relaxed text-ink-2">{d.manual.note}</p>
       )}
 
+      {/* Which trip it belongs to, on the card rather than only inside the
+         sheet — the whole point of attaching it is that the answer is visible
+         while scanning the list. In words rather than an icon: a small compass
+         beside a trip name read as a status glyph nobody could name. */}
+      {linkedTo && (
+        <div className="mt-3 truncate text-[12.5px] font-semibold text-brand">
+          已對到 · {linkedTo}
+        </div>
+      )}
+
       {canAlign && (
         <button
           onClick={onAlign}
-          className="mt-3 min-h-11 w-full rounded-full bg-brand-wash text-[13px] font-bold text-brand transition active:bg-brand-wash/70"
+          className={`min-h-11 w-full rounded-full bg-brand-wash text-[13px] font-bold text-brand transition active:bg-brand-wash/70 ${linkedTo ? "mt-2" : "mt-3"}`}
         >
-          對到行程</button>
+          對到行程
+        </button>
       )}
 
       <div className="mt-2 flex gap-2">
@@ -422,6 +458,94 @@ function ManualSheet({
 /** Landing times somebody might pick. Offered, because the barcode has none. */
 const ARRIVALS = ["10:00", "12:00", "14:30", "17:00", "20:00"];
 
+/** 「1 小時 30 分」, 「30 分」, 「2 小時」 — never 「0 小時 30 分」. */
+function spell(minutes: number): string {
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  if (!h) return m + " 分";
+  return m ? h + " 小時 " + m + " 分" : h + " 小時";
+}
+
+const chip = (on: boolean) =>
+  `min-h-11 rounded-full px-3.5 text-[13px] font-semibold transition ${
+    on ? "bg-brand text-white" : "bg-bg text-ink-2 active:bg-surface-2"
+  }`;
+
+/**
+ * 對到行程 — which trip this belongs to, and, for a boarding pass, which day
+ * it lands on.
+ *
+ * Two different things under one word, stacked rather than merged. Filing a
+ * document under a trip is the half that means something for all three kinds:
+ * it is what lets 旅行文件 answer 「這趟的東西在哪」 instead of being one undated
+ * pile, and it is what puts the count on the trip's own page. That half writes
+ * immediately, because the selected chip is the feedback and tapping it again
+ * undoes it.
+ *
+ * Moving a day is offered only by a parsed boarding pass, and that asymmetry is
+ * deliberate. A flight has a date and a route, so 「Day 2 從 09:00 變成 16:30」
+ * is derived from the document. A hotel booking and an eSIM code have nothing
+ * to say about when a morning should start, and giving them the same button
+ * would be a control with nothing behind it — the kind this project keeps
+ * deleting rather than filling with a guess. That half still proposes and
+ * waits, like everything else here that rewrites an itinerary.
+ */
+function AlignSheet({
+  doc: d,
+  trips,
+  onClose,
+}: {
+  doc: TravelDoc;
+  trips: Trip[];
+  onClose: () => void;
+}) {
+  const linked = trips.find((t) => t.id === d.tripId) ?? null;
+  const when = docWhen(d);
+
+  return (
+    <Sheet open onClose={onClose} title="對到行程">
+      <div className="space-y-3 px-5 pb-5 pt-1">
+        <div className="rounded-2xl bg-surface p-3.5">
+          <div className="truncate text-[14.5px] font-bold text-ink">{docTitle(d)}</div>
+          {when && <div className="num mt-0.5 text-[12.5px] text-ink-3">{when}</div>}
+
+          <div className="mt-3.5 text-[13px] font-semibold text-ink-2">這是哪一趟的？</div>
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            {trips.map((t) => (
+              <button
+                key={t.id}
+                /* The same tap both ways. Nothing is destroyed by getting
+                   this wrong, so a second confirmation would be ceremony. */
+                onClick={() => linkDoc(d.id, t.id === d.tripId ? null : t.id)}
+                className={chip(t.id === d.tripId)}
+              >
+                {t.title}
+              </button>
+            ))}
+          </div>
+
+          <p className="mt-2.5 text-[12.5px] leading-relaxed text-ink-3">
+            {linked
+              ? `會出現在「${linked.title}」的行程頁上。再按一次就取消。`
+              : "選一趟，這份文件就會出現在那趟的行程頁上。"}
+          </p>
+        </div>
+
+        {/* Keyed by trip: the day picker below defaults to that trip's Day 1,
+           and switching trips with the state still mounted would leave it
+           pointing at a day number the new itinerary may not have. */}
+        {d.flight && linked && <FlightShift key={linked.id} trip={linked} />}
+
+        {d.flight && !linked && (
+          <p className="px-1 text-[12.5px] leading-relaxed text-ink-3">
+            選好行程之後，這張登機證還可以把落地那天整個往後移。
+          </p>
+        )}
+      </div>
+    </Sheet>
+  );
+}
+
 /**
  * 「要把哪一天改成落地之後才開始？」
  *
@@ -434,79 +558,85 @@ const ARRIVALS = ["10:00", "12:00", "14:30", "17:00", "20:00"];
  *
  * Nothing is written until 套用.
  */
-function AlignSheet({
-  doc: d,
-  trip,
-  onClose,
-}: {
-  doc: TravelDoc;
-  trip: Trip;
-  onClose: () => void;
-}) {
+function FlightShift({ trip }: { trip: Trip }) {
   const [day, setDay] = useState(trip.days[0]?.n ?? 1);
   const [at, setAt] = useState(ARRIVALS[2]);
   const [done, setDone] = useState<string | null>(null);
 
   const shift: DayShift | null = planDayShift(trip, day, at);
 
-  const chip = (on: boolean) =>
-    `min-h-11 rounded-full px-3.5 text-[13px] font-semibold transition ${
-      on ? "bg-brand text-white" : "bg-bg text-ink-2 active:bg-surface-2"
-    }`;
-
   return (
-    <Sheet open onClose={onClose} title="對到行程">
-      <div className="px-5 pb-5 pt-1">
-        <div className="rounded-2xl bg-surface p-3.5">
-          <div className="text-[13.5px] leading-relaxed text-ink-2">
-            {d.flight?.carrier} {d.flight?.flightNo}・{d.flight?.from} → {d.flight?.to}
-            <span className="num"> · {docWhen(d)}</span>
-          </div>
-          <div className="mt-1 text-[12.5px] leading-relaxed text-ink-3">
-            {/* Said plainly, because the traveller is about to supply it. */}
-            登機證上沒有抵達時間，請選一個大概的落地時間。
-          </div>
-
-          <div className="mt-3.5 text-[13px] font-semibold text-ink-2">哪一天？</div>
-          <div className="mt-2 flex flex-wrap gap-1.5">
-            {trip.days.map((x) => (
-              <button key={x.n} onClick={() => setDay(x.n)} className={chip(x.n === day)}>
-                Day {x.n}
-              </button>
-            ))}
-          </div>
-
-          <div className="mt-3.5 text-[13px] font-semibold text-ink-2">大概幾點落地？</div>
-          <div className="mt-2 flex flex-wrap gap-1.5">
-            {ARRIVALS.map((t) => (
-              <button key={t} onClick={() => setAt(t)} className={`num ${chip(t === at)}`}>
-                {t}
-              </button>
-            ))}
-          </div>
-
-          <div className="mt-3.5 rounded-xl bg-bg px-3 py-2.5 text-[12.5px] leading-relaxed text-ink-2">
-            {done ??
-              (shift
-                ? `Day ${shift.day} 的 ${shift.stops} 個行程會往後 ${Math.floor(shift.minutes / 60)} 小時 ${shift.minutes % 60} 分，從 ${shift.from} 變成 ${shift.to}。`
-                : `Day ${day} 本來就在 ${at} 之後才開始，不用調整。`)}
-          </div>
-
-          <div className="mt-3">
-            <Button
-              disabled={!shift || Boolean(done)}
-              onClick={() => {
-                if (!shift) return;
-                applyShift(shift, trip);
-                setDone(`✓ Day ${shift.day} 已經往後 ${shift.minutes} 分鐘。`);
-              }}
-            >
-              套用
-            </Button>
-          </div>
-        </div>
+    <div className="rounded-2xl bg-surface p-3.5">
+      <div className="text-[13.5px] font-bold text-ink">把落地那天往後移</div>
+      <div className="mt-1 text-[12.5px] leading-relaxed text-ink-3">
+        {/* Said plainly, because the traveller is about to supply it. */}
+        登機證上沒有抵達時間，請選一個大概的落地時間。
       </div>
-    </Sheet>
+
+      <div className="mt-3.5 text-[13px] font-semibold text-ink-2">哪一天？</div>
+      <div className="mt-2 flex flex-wrap gap-1.5">
+        {trip.days.map((x) => (
+          <button key={x.n} onClick={() => setDay(x.n)} className={chip(x.n === day)}>
+            Day {x.n}
+          </button>
+        ))}
+      </div>
+
+      <div className="mt-3.5 text-[13px] font-semibold text-ink-2">大概幾點落地？</div>
+      <div className="mt-2 flex flex-wrap gap-1.5">
+        {ARRIVALS.map((t) => (
+          <button key={t} onClick={() => setAt(t)} className={`num ${chip(t === at)}`}>
+            {t}
+          </button>
+        ))}
+      </div>
+
+      <div className="mt-3.5 rounded-xl bg-bg px-3 py-2.5 text-[12.5px] leading-relaxed text-ink-2">
+        {done ??
+          (shift
+            ? `Day ${shift.day} 的 ${shift.stops} 個行程會往後 ${spell(shift.minutes)}，從 ${shift.from} 變成 ${shift.to}。`
+            : `Day ${day} 本來就在 ${at} 之後才開始，不用調整。`)}
+      </div>
+
+      <div className="mt-3">
+        <Button
+          disabled={!shift || Boolean(done)}
+          onClick={() => {
+            if (!shift) return;
+            applyShift(shift, trip);
+            setDone(`✓ Day ${shift.day} 已經往後 ${spell(shift.minutes)}。`);
+          }}
+        >
+          套用
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+/** One kind, one door. Wearing the same icon its card will. */
+function ScanTile({
+  kind,
+  label,
+  busy,
+  onClick,
+}: {
+  kind: DocKind;
+  label: string;
+  busy: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      disabled={busy}
+      className="rounded-2xl bg-surface px-2 py-3 text-center transition active:bg-surface-2 disabled:opacity-50"
+    >
+      <div className="text-[20px]" aria-hidden>
+        {DOC_ICONS[kind]}
+      </div>
+      <div className="mt-1 text-[12.5px] font-bold text-ink">{busy ? "讀取中…" : label}</div>
+    </button>
   );
 }
 

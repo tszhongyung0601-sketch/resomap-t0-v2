@@ -27,6 +27,7 @@ import {
 import { total } from "../lib/split";
 import { finishedPois, track } from "../lib/track";
 import { audiosFor, hasAudio } from "../lib/audio";
+import { useDocs } from "../lib/docs";
 import { openDirections, openPlaceDirections } from "../lib/maps";
 import { viewOf, viewsOf } from "../lib/stop";
 import type { StopView } from "../lib/stop";
@@ -107,6 +108,10 @@ export function TripHome({ trip: source }: { trip: Trip }) {
      The stack drops him too, because three faces beside the word 三 is the only
      version of this row a reader can check. */
   const companions = trip.travellers.filter((t) => t !== ME.id);
+  /* Only the ones somebody attached to this trip. The store holds every
+     document on the device, and a boarding pass to Tokyo has no business
+     appearing on a Hualien itinerary because it happens to exist. */
+  const papers = useDocs().filter((d) => d.tripId === trip.id);
 
   useEffect(() => {
     track("trip_view", { tripId: trip.id, destId: trip.destId });
@@ -179,6 +184,16 @@ export function TripHome({ trip: source }: { trip: Trip }) {
           label="雲端同步・共同編輯"
           value="模擬"
           onClick={() => nav.go({ k: "coedit", tripId: trip.id })}
+        />
+        {/* The documents filed under this trip. Shown even at zero, because
+            the row is also how you get to the scanner — and a count that
+            only appears once it is non-zero is a feature you have to already
+            know about to find. */}
+        <Row
+          icon="🛂"
+          label="旅行文件"
+          value={papers.length > 0 ? papers.length + " 份" : "機票・住宿・eSIM"}
+          onClick={() => nav.go({ k: "docs" })}
         />
       </div>
 

@@ -66,6 +66,15 @@ export interface TravelDoc {
     ref?: string;
     note?: string;
   };
+  /**
+   * The trip this belongs to, once somebody has said so.
+   *
+   * Set by 對到行程 and by nothing else. A document is not guessed onto a trip
+   * from its dates: two trips can overlap, a booking can be for somebody else,
+   * and quietly filing a boarding pass under the wrong itinerary is the kind
+   * of helpfulness nobody asked for.
+   */
+  tripId?: string;
   /** The barcode's own format, when it came from a scan. */
   format?: string;
 }
@@ -120,6 +129,14 @@ export const resetDocs = () => commit([]);
 export function removeDoc(id: string) {
   commit(state.filter((d) => d.id !== id));
 }
+
+/** Attach a document to a trip, or detach it with null. */
+export function linkDoc(id: string, tripId: string | null) {
+  commit(state.map((d) => (d.id === id ? { ...d, tripId: tripId ?? undefined } : d)));
+}
+
+/** Everything filed under one trip, newest first. */
+export const docsForTrip = (tripId: string) => state.filter((d) => d.tripId === tripId);
 
 /**
  * Save what the traveller typed, and what they said this is.
