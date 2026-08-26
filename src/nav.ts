@@ -71,6 +71,8 @@ export type Route =
   /* The conversation. With a tripId it edits that trip; without one it plans a
      new one. Same screen and same engine — what changes is what it can act on. */
   | { k: "chat"; tripId?: string }
+  /* Boarding passes and booking codes, on this device only. */
+  | { k: "docs" }
   | { k: "reviews"; kind: "merchant" | "provider"; id: string }
   | { k: "subscribe"; audience?: PlanAudience }
   | { k: "pro" };

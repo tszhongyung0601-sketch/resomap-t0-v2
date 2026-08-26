@@ -82,7 +82,7 @@ export function Profile() {
             instead of a count. */}
         <Row icon="⬇️" label="離線行程" />
         <Row icon="📄" label="下載 PDF" />
-        <Row icon="🛂" label="旅行文件" />
+        <Row icon="🛂" label="旅行文件" onClick={() => nav.go({ k: "docs" })} />
         <Row icon="🧳" label="行李清單" />
       </RowGroup>
 

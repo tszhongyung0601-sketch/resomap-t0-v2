@@ -35,6 +35,7 @@ import { ProductDetail, Tickets } from "./screens/Tickets";
 import { Together, Prefs, Pool, ConsensusView } from "./screens/Together";
 import { Expenses, Settle, resetReceipts } from "./screens/Expenses";
 import { resetHere } from "./lib/here";
+import { resetDocs } from "./lib/docs";
 import { clear, load, save, TRIPS_KEY } from "./lib/persist";
 import { resetDayEdits } from "./lib/dayEdits";
 import { resetSaved } from "./lib/saved";
@@ -83,6 +84,7 @@ const Offer = lazy(async () => ({ default: (await import("./screens/Offer")).Off
 const Rental = lazy(async () => ({ default: (await import("./screens/Rental")).Rental }));
 const AiPlanner = lazy(async () => ({ default: (await import("./screens/AiPlanner")).AiPlanner }));
 const Chat = lazy(async () => ({ default: (await import("./screens/Chat")).Chat }));
+const Documents = lazy(async () => ({ default: (await import("./screens/Documents")).Documents }));
 const Reviews = lazy(async () => ({ default: (await import("./screens/Reviews")).Reviews }));
 const Subscribe = lazy(async () => ({ default: (await import("./screens/Subscribe")).Subscribe }));
 const Pro = lazy(async () => ({ default: (await import("./screens/Pro")).Pro }));
@@ -266,6 +268,9 @@ export default function App() {
        A reset that rolls the itinerary back to the fixture and leaves last
        run's reorder sitting on top of it is not a reset. */
     resetDayEdits();
+    /* Scanned documents are the traveller's, and a reset that leaves
+       somebody's boarding pass on the device is not a reset. */
+    resetDocs();
     /* The receipts live in a module store, not in `trips`, so they need saying
        out loud — otherwise a bill entered in one demo run is still there in the
        next one, under a trip that has been rolled back. */
@@ -393,6 +398,7 @@ export default function App() {
   else if (route?.k === "rental") screen = <Rental id={route.id} />;
   else if (route?.k === "aiPlan") screen = <AiPlanner />;
   else if (route?.k === "chat") screen = <Chat tripId={route.tripId} />;
+  else if (route?.k === "docs") screen = <Documents />;
   else if (route?.k === "reviews")
     screen = <Reviews kind={route.kind} id={route.id} />;
   else if (route?.k === "subscribe") screen = <Subscribe audience={route.audience} />;
