@@ -159,7 +159,7 @@
 | 初始 JS | 單一 chunk 916 kB | entry 250 kB + react 174 kB + leaflet 159 kB（可分別快取） |
 | 其餘 | — | 40 個按需 chunk，點到才載 |
 | 圖片 | — | 全部 `loading="lazy"` + webp + 兩種尺寸 |
-| 相依套件 | leaflet / react-leaflet | **沒有新增任何 runtime 相依**（sharp 只在建圖腳本，devDependency） |
+| 相依套件 | leaflet / react-leaflet | V2、V3 沒有新增任何 runtime 相依。**V4 加了一個**：`zxing-wasm`，只為了真的讀登機證條碼，動態 import、自成 36 kB chunk、不開文件頁就不會載。sharp 與 tsx 是 devDependency |
 
 ## 14. 第二輪 Polish（工程說明退場）
 

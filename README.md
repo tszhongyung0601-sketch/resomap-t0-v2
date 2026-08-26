@@ -135,6 +135,20 @@ Overpass 是公共服務、會慢會擋，所以**每一種失敗都 resolve 成
 25. 排序 / 刪除一站 → 重新整理 → 還在（`resomap_trips` / `resomap_day_edits`）
 26. 我的 → Demo 情境 → 重置 → 兩個 key 都不見了
 
+**V4 · 用講的排行程，用掃的存文件**
+
+27. 一起規劃 →「跟 AI 說你想怎麼玩」→ 打「花蓮三天兩夜」→ 提案卡 → 套用 → 行程分頁多一筆
+28. 續打「多一點美食」→ 帶著上次的條件重排 → 再提案一次
+29. 打一句亂碼 →「這句我不會」＋三句它真的會的（不會硬掰）
+30. 行程 → Day 2 →「行程有變？讓 AI 幫你改」→ **「💬 直接告訴 AI」**（以前是即將推出）
+31. 打「把七星潭拿掉」→ 提案 → 套用 → 那一站消失、前後兩段路線重算、重新整理還是消失
+32. 打「太魯閣有日文導覽嗎」→ 從語音資料回答，沒有就說沒有
+33. 我的 →「🛂 旅行文件」（以前是即將推出）→「載入範例登機證」→
+    讀出 MICKEY/DEMO MR・RM7X2QK・BR 189・TPE → HLN・12C
+34. 上傳一張飯店 QR → **讀到什麼顯示什麼**，名稱日期自己補（不會幫你猜成某某飯店）
+35. 登機證卡片 →「對到行程」→ 選 Day 1 與落地時間 → 套用 → 那一天整天往後移
+36. 我的 → Demo 情境 → 重置 → 文件也清掉了
+
 T0 原有的腳本（台南延後、花蓮下雨、抵達赤崁樓、營運數據）在「我的 → Demo 情境」，全部照舊——
 多型 Stop 上線後重驗過：雨天改行程會換掉七星潭並重算前後兩段路線，
 台南延後會取消府中街商圈並算出省下的時間與距離。
@@ -197,6 +211,14 @@ src/
     dayEdits.ts    手動排序／刪除／改時間，存 localStorage（原本在 TripTimeline 裡）
     persist.ts     load / save / clear，帶版本戳，storage 壞掉就當作沒有
     planner.ts     AI 行程產生：加權挑選 → 地理分群 → 固定節奏。沒有模型、沒有亂數
+    ── V4 ──
+    chat/intent.ts 一句話 → 十種意圖＋參數。48 個測試，npm run test:chat
+    chat/respond.ts 意圖 → 回覆＋提案。純函式，不寫任何東西
+    chat/apply.ts  唯一會寫入的地方，只在使用者按下「套用」時
+    bcbp.ts        登機證條碼（IATA Res. 792）真解析。32 個測試
+    scan.ts        zxing 解 PDF417 / QR，動態載入，失敗一律退回手動
+    docs.ts        旅行文件，只存在這台裝置
+    docPlan.ts     航班 → 「要把這一天往後移嗎」，提案不執行
   components/
     ── T0 ──
     AppShell / ui.tsx / MapView / Cover / DealCard / AdaptCard / Story / BrandBar
@@ -209,6 +231,7 @@ src/
   scripts/
     build-demo-photos.mjs  來源圖 → webp card 720 / hero 1280（18 MB → 1.1 MB）
   screens/          T0 的 15 個 ＋ V2 的 9 個 ＋ V3 的 2 個（Rental / AiPlanner）
+                    ＋ V4 的 2 個（Chat / Documents）
 ```
 
 ---
