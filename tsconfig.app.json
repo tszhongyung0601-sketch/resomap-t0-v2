@@ -22,5 +22,8 @@
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src"]
+  "include": ["src"],
+  /* Test harnesses run under tsx and use node globals. They are not part of
+     the bundle, so they are not part of the build's typecheck. */
+  "exclude": ["src/**/*.test.ts"]
 }
