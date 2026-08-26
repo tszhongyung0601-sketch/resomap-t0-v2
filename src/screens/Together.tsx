@@ -246,7 +246,16 @@ export function Together() {
       {/* Above the room, because it answers a different question. The room is
           for four people who cannot agree; this is for one person with an empty
           weekend and no shortlist to argue about yet. */}
+      {/* Two doors into the same planner. Some people would rather tap through
+          five questions than compose a sentence, and some would rather just say
+          it — neither is the beginner and neither is the power user. */}
       <Section title="自己一個人先排" tight>
+        <Row
+          icon="💬"
+          label="跟 AI 說你想怎麼玩"
+          value="用打字的"
+          onClick={() => nav.go({ k: "chat" })}
+        />
         <Row
           icon="✨"
           label="AI 幫我排行程"

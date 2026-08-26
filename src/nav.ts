@@ -68,6 +68,9 @@ export type Route =
   | { k: "rental"; id: string }
   /* The AI wizard. Separate from `create`, which makes an empty trip. */
   | { k: "aiPlan" }
+  /* The conversation. With a tripId it edits that trip; without one it plans a
+     new one. Same screen and same engine — what changes is what it can act on. */
+  | { k: "chat"; tripId?: string }
   | { k: "reviews"; kind: "merchant" | "provider"; id: string }
   | { k: "subscribe"; audience?: PlanAudience }
   | { k: "pro" };

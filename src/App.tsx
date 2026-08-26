@@ -82,6 +82,7 @@ const Provider = lazy(async () => ({ default: (await import("./screens/Provider"
 const Offer = lazy(async () => ({ default: (await import("./screens/Offer")).Offer }));
 const Rental = lazy(async () => ({ default: (await import("./screens/Rental")).Rental }));
 const AiPlanner = lazy(async () => ({ default: (await import("./screens/AiPlanner")).AiPlanner }));
+const Chat = lazy(async () => ({ default: (await import("./screens/Chat")).Chat }));
 const Reviews = lazy(async () => ({ default: (await import("./screens/Reviews")).Reviews }));
 const Subscribe = lazy(async () => ({ default: (await import("./screens/Subscribe")).Subscribe }));
 const Pro = lazy(async () => ({ default: (await import("./screens/Pro")).Pro }));
@@ -127,6 +128,11 @@ export default function App() {
   const [adding, setAdding] = useState<{ tripId: string; day: number } | null>(null);
   const [services, setServices] = useState(false);
   const [aiSheet, setAiSheet] = useState(false);
+  /* Which trip the 行程有變 sheet was opened from. The scripted scenarios
+     find their own trip through ADAPTS, but the chat edits whatever it is
+     handed — and handing it `ongoing ?? focus` would let it write to a trip
+     the traveller is not looking at. */
+  const [aiSheetTripId, setAiSheetTripId] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
 
   /** Which adapt card is currently live, if any. */
@@ -374,7 +380,7 @@ export default function App() {
   else if (route?.k === "settle") screen = <Settle tripId={route.tripId} />;
   else if (route?.k === "today") {
     const t = trips.find((x) => x.id === route.tripId);
-    screen = t ? <Today trip={t} onAdjust={() => setAiSheet(true)} /> : null;
+    screen = t ? <Today trip={t} onAdjust={() => { setAiSheetTripId(t.id); setAiSheet(true); }} /> : null;
   }
   else if (route?.k === "audios") screen = <Audios poiId={route.poiId} />;
   else if (route?.k === "addAudio") screen = <AddAudio poiId={route.poiId} />;
@@ -386,6 +392,7 @@ export default function App() {
   else if (route?.k === "offer") screen = <Offer id={route.id} />;
   else if (route?.k === "rental") screen = <Rental id={route.id} />;
   else if (route?.k === "aiPlan") screen = <AiPlanner />;
+  else if (route?.k === "chat") screen = <Chat tripId={route.tripId} />;
   else if (route?.k === "reviews")
     screen = <Reviews kind={route.kind} id={route.id} />;
   else if (route?.k === "subscribe") screen = <Subscribe audience={route.audience} />;
@@ -420,7 +427,10 @@ export default function App() {
         <DayPlan
           trip={t}
           day={route.n}
-          onAdjust={() => setAiSheet(true)}
+          onAdjust={() => {
+            setAiSheetTripId(t.id);
+            setAiSheet(true);
+          }}
           banner={
             a && a.tripId === t.id && a.day === route.n ? (
               <AdaptCard
@@ -500,9 +510,16 @@ export default function App() {
       <AiSheet
         open={aiSheet}
         onClose={() => setAiSheet(false)}
-        trip={ongoing ?? focus}
+        trip={trips.find((t) => t.id === aiSheetTripId) ?? ongoing ?? focus}
         used={usedAdapts}
         onAdapt={fireAdapt}
+        onChat={() => {
+          /* The trip the sheet was opened from, falling back only when it
+             was opened from somewhere that has no trip of its own. */
+          const id = aiSheetTripId ?? (ongoing ?? focus)?.id;
+          setAiSheet(false);
+          setStack((st) => [...st, { k: "chat", tripId: id }]);
+        }}
       />
 
       {toast && (
@@ -550,14 +567,21 @@ const SITUATION_ICON: Record<string, string> = {
   CHAT: "💬",
 };
 
-const SITUATIONS: { icon: string; label: string; trigger?: "rain" | "late" }[] = [
+const SITUATIONS: {
+  icon: string;
+  label: string;
+  trigger?: "rain" | "late";
+  /* Not a scripted scenario — it opens the conversation, which works on any
+     trip rather than only on the two the fixtures have an ADAPT for. */
+  chat?: boolean;
+}[] = [
   { icon: "RAIN", label: "下雨了", trigger: "rain" },
   { icon: "SLEEP", label: "起晚了", trigger: "late" },
   { icon: "FOOD", label: "想先吃東西" },
   { icon: "TIRED", label: "太累了" },
   { icon: "CLOCK", label: "時間不夠" },
   { icon: "PIN", label: "想去附近" },
-  { icon: "CHAT", label: "直接告訴 AI" },
+  { icon: "CHAT", label: "直接告訴 AI", chat: true },
 ];
 
 function AiSheet({
@@ -566,6 +590,7 @@ function AiSheet({
   trip,
   used,
   onAdapt,
+  onChat,
 }: {
   open: boolean;
   onClose: () => void;
@@ -574,6 +599,8 @@ function AiSheet({
   /** Scenarios already applied — re-firing one would shift the day twice. */
   used: string[];
   onAdapt: (id: string) => void;
+  /** Opens the conversation on this trip. */
+  onChat: () => void;
 }) {
   if (!open) return null;
 
@@ -595,12 +622,14 @@ function AiSheet({
         <div className="mt-4 space-y-2">
           {SITUATIONS.map((s) => {
             const id = s.trigger ? live.get(s.trigger) : undefined;
-            const ready = Boolean(id);
+            /* The chat is always ready: it needs no scripted scenario
+               behind it, only a trip to talk about. */
+            const ready = Boolean(id) || Boolean(s.chat && trip);
             return (
               <button
                 key={s.label}
                 disabled={!ready}
-                onClick={() => id && onAdapt(id)}
+                onClick={() => (s.chat ? onChat() : id && onAdapt(id))}
                 className={`flex min-h-[52px] w-full items-center gap-3 rounded-2xl px-4 text-left ${
                   ready ? "bg-surface active:bg-surface-2" : "bg-surface/60"
                 }`}
