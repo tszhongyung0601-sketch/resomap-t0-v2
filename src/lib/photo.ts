@@ -2,6 +2,7 @@ import { poi } from "../data";
 import { photoFor, type Credit } from "../data/imagePrompts";
 import { hasPortrait } from "../data/portraits";
 import { hasVehiclePhoto } from "../data/vehicles";
+import { hasEventPhoto } from "../data/eventPhotos";
 
 /**
  * The picture for something that is not a POI — a shop, a driver, a guide, a
@@ -129,6 +130,26 @@ export function vehicleFor(rentalId: string): Shot | null {
     card: `${base}vehicles/${rentalId}-card.webp`,
     hero: `${base}vehicles/${rentalId}-hero.webp`,
     thumb: `${base}vehicles/${rentalId}-thumb.webp`,
+    illustrative: true,
+  };
+}
+
+/**
+ * The picture for an invented event.
+ *
+ * `illustrative` is not a hedge here, it is the literal truth: the event
+ * does not exist, so nothing could be a photograph of it. There is no
+ * borrowing chain and no POI fallback, unlike a shop — a shop is somewhere,
+ * and a photograph of its street is a location shot. An event is a night,
+ * and there is no street that is the night.
+ *
+ * No thumb. Nothing composes an event square.
+ */
+export function eventPhotoFor(eventId: string): Shot | null {
+  if (!hasEventPhoto(eventId)) return null;
+  return {
+    card: `${base}events/${eventId}-card.webp`,
+    hero: `${base}events/${eventId}-hero.webp`,
     illustrative: true,
   };
 }

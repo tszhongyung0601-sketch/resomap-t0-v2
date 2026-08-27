@@ -26,10 +26,23 @@ import type { StopRef, Trip } from "../types";
 export function AddToTrip({
   target,
   trip,
+  days,
   onClose,
 }: {
   target: StopRef;
   trip: Trip;
+  /**
+   * Which days may be offered. Absent means all of them, which is right for
+   * everything that is only a place — a restaurant is equally addable to any
+   * afternoon.
+   *
+   * A festival is not. It happens on given days, and offering Day 3 for
+   * something that ends on Day 2 would put a stop on an itinerary that could
+   * never be attended. The caller works out which days qualify, because it is
+   * the caller that knows what kind of thing this is; this sheet only has to
+   * not offer the rest.
+   */
+  days?: number[];
   onClose: () => void;
 }) {
   const nav = useNav();
@@ -47,12 +60,20 @@ export function AddToTrip({
     [target],
   );
 
-  /* Open on the day the traveller is on — but only if the trip has that day.
+  /* The days this sheet is allowed to offer, in the trip's own order. An
+     empty `days` is treated as no restriction rather than as no days: the
+     caller that means "none" should not be opening this sheet at all. */
+  const offer = useMemo(
+    () => (days?.length ? trip.days.filter((d) => days.includes(d.n)) : trip.days),
+    [trip, days],
+  );
+
+  /* Open on the day the traveller is on — but only if it is on offer.
      `today` is free to run past the last one, and a default that matches no
      chip would leave the row looking unselected while the button named a day
      nobody had tapped. */
   const [pick, setPick] = useState(() =>
-    trip.days.some((d) => d.n === trip.today) ? trip.today : trip.days[0].n,
+    offer.some((d) => d.n === trip.today) ? trip.today : (offer[0]?.n ?? trip.days[0].n),
   );
 
   const already = useMemo(() => {
@@ -98,9 +119,10 @@ export function AddToTrip({
             <span className="ml-auto truncate text-[12px] text-ink-3">{trip.title}</span>
           </div>
 
-          {/* One chip per day the trip actually has — never a fixed seven. */}
+          {/* One chip per day this thing can actually go on — never a fixed
+              seven, and never a day it could not be attended. */}
           <div className="mt-2 flex flex-wrap gap-1.5">
-            {trip.days.map((d) => (
+            {offer.map((d) => (
               <button
                 key={d.n}
                 onClick={() => setPick(d.n)}

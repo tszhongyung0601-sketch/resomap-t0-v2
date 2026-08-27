@@ -82,6 +82,8 @@ const Merchant = lazy(async () => ({ default: (await import("./screens/Merchant"
 const Provider = lazy(async () => ({ default: (await import("./screens/Provider")).Provider }));
 const Offer = lazy(async () => ({ default: (await import("./screens/Offer")).Offer }));
 const Rental = lazy(async () => ({ default: (await import("./screens/Rental")).Rental }));
+const Event = lazy(async () => ({ default: (await import("./screens/Event")).Event }));
+const Events = lazy(async () => ({ default: (await import("./screens/Events")).Events }));
 const Chat = lazy(async () => ({ default: (await import("./screens/Chat")).Chat }));
 const DealsHub = lazy(async () => ({ default: (await import("./screens/DealsHub")).DealsHub }));
 const Documents = lazy(async () => ({ default: (await import("./screens/Documents")).Documents }));
@@ -396,6 +398,8 @@ export default function App() {
   else if (route?.k === "provider") screen = <Provider id={route.id} />;
   else if (route?.k === "offer") screen = <Offer id={route.id} />;
   else if (route?.k === "rental") screen = <Rental id={route.id} />;
+  else if (route?.k === "event") screen = <Event id={route.id} />;
+  else if (route?.k === "events") screen = <Events />;
   else if (route?.k === "chat") screen = <Chat tripId={route.tripId} />;
   else if (route?.k === "docs") screen = <Documents />;
   else if (route?.k === "reviews")

@@ -1,11 +1,12 @@
 import { useState, type ReactNode } from "react";
 import { photoFor } from "../data/imagePrompts";
-import { portraitFor, shotFor, type HasPhoto, vehicleFor } from "../lib/photo";
+import { eventPhotoFor, portraitFor, shotFor, type HasPhoto, vehicleFor } from "../lib/photo";
 import { portraitCredit } from "../data/portraitCredits";
 import { Avatar } from "./ui";
 import type { Poi, PoiKind } from "../types";
 import type { StopView } from "../lib/stop";
 import { vehicleCredit } from "../data/vehicleCredits";
+import { eventCredit } from "../data/eventCredits";
 
 /**
  * A place's picture, until there is a photograph of it.
@@ -659,6 +660,103 @@ export function VehicleCredit({ rentalId }: { rentalId: string }) {
   return (
     <p className="px-5 pt-1.5 text-[11px] leading-relaxed text-ink-3">
       車輛照片為 {c.model} 的圖庫示意圖，非該據點實際車輛。攝影：
+      <a href={c.photographerUrl} target="_blank" rel="noopener noreferrer" className="underline">
+        {c.photographer}
+      </a>
+      {" · via "}
+      <a href={c.url} target="_blank" rel="noopener noreferrer" className="underline">
+        Pexels
+      </a>
+    </p>
+  );
+}
+
+/* --------------------------------------------------------------- events */
+
+/**
+ * The picture on an event card.
+ *
+ * Marked 圖庫示意 like the hire cars, and for a stronger reason. A stock
+ * forecourt over a real counter is at worst the wrong forecourt; a real
+ * photograph of a real lantern festival over an event that is not happening
+ * is evidence for something untrue. The rail and the detail page both say in
+ * a sentence that the events are invented — the mark on the image is what
+ * survives the screenshot that loses the sentence.
+ *
+ * The emoji tile stays underneath rather than instead of it, so a failed
+ * request degrades to what the card looked like before there were pictures.
+ */
+export function EventImage({
+  id,
+  emoji,
+  tint,
+  alt,
+  height = 96,
+  radius = 12,
+  size = "card",
+  className = "",
+}: {
+  id: string;
+  emoji: string;
+  tint: string;
+  /** What the photograph shows — the photographer's words, not the event's. */
+  alt?: string;
+  height?: number | string;
+  radius?: number;
+  size?: "card" | "hero";
+  className?: string;
+}) {
+  const shot = eventPhotoFor(id);
+  const [failed, setFailed] = useState(false);
+  const src = shot ? (size === "hero" ? shot.hero : shot.card) : undefined;
+  const show = Boolean(src) && !failed;
+
+  return (
+    <div
+      className={`relative shrink-0 overflow-hidden ${className}`}
+      style={{ height, borderRadius: radius, background: tint }}
+    >
+      <div
+        className="absolute inset-0 grid place-items-center"
+        style={{ fontSize: typeof height === "number" ? height * 0.34 : 26 }}
+        aria-hidden
+      >
+        {emoji}
+      </div>
+
+      {show && src && (
+        <img
+          src={src}
+          /* The photographer's description, not the event's name. An alt
+             attribute describes the image, and the image is not of the
+             event — writing the event's name here would put the fiction
+             into the one place a screen reader treats as documentation. */
+          alt={alt ?? ""}
+          /* A hero is the first thing on its screen, so waiting for the lazy
+             heuristic to notice it is a beat of empty tile on every open. Rail
+             cards stay lazy — most of them are off-screen. */
+          loading={size === "hero" ? "eager" : "lazy"}
+          decoding="async"
+          onError={() => setFailed(true)}
+          className="absolute inset-0 size-full object-cover"
+        />
+      )}
+
+      {/* The corner mark, small on a rail card where four characters would
+          cover a third of the picture. A string height means somebody sized it
+          in CSS units, and the small mark is the safe read at any of them. */}
+      {show && <AiMark tiny={size === "card" && (typeof height !== "number" || height <= 110)} />}
+    </div>
+  );
+}
+
+/** Photographer, and what the photograph is and is not. */
+export function EventCredit({ eventId }: { eventId: string }) {
+  const c = eventCredit(eventId);
+  if (!c) return null;
+  return (
+    <p className="px-5 pt-1.5 text-[11px] leading-relaxed text-ink-3">
+      這張是圖庫示意圖，不是這場活動的照片——這場活動是虛構的。照片內容：{c.alt}。攝影：
       <a href={c.photographerUrl} target="_blank" rel="noopener noreferrer" className="underline">
         {c.photographer}
       </a>

@@ -3,6 +3,7 @@ import { BY_MERCHANT } from "../data/merchants";
 import { BY_PROVIDER } from "../data/providers";
 import { BY_OFFER } from "../data/affiliateOffers";
 import { BY_RENTAL, RENTAL_DISCLOSURE } from "../data/carRentals";
+import { BY_EVENT, EVENT_KINDS } from "../data/events";
 import type { Poi, Stop, StopRef } from "../types";
 
 /**
@@ -73,6 +74,7 @@ const DEFAULT_STAY: Record<StopRef["kind"], number> = {
   provider: 180,
   offer: 240,
   rental: 20,
+  event: 90,
 };
 
 export function viewOf(stop: Stop): StopView | null {
@@ -165,6 +167,29 @@ export function viewOf(stop: Stop): StopView | null {
         disclosure: RENTAL_DISCLOSURE,
       };
     }
+    case "event": {
+      const e = BY_EVENT[ref.eventId];
+      if (!e) return null;
+      return {
+        id: stop.id,
+        kind: "event",
+        title: e.name,
+        /* The district, not the category. A row on an itinerary is telling
+           somebody where to go, and 「市集」 is not a place. */
+        subtitle: e.area,
+        lat: e.lat,
+        lng: e.lng,
+        emoji: EVENT_KINDS[e.kind].emoji,
+        tint: e.tint,
+        stayMin: stop.stayMin || e.stayMin,
+        /* Stronger than the hire cars' 「未正式合作」, because this is a
+           different claim: that one says ResoMap has no agreement with a
+           real company, this one says the thing on the itinerary does not
+           exist. It rides on the stop itself so it cannot be left behind
+           when a card is copied to a screen nobody remembered to update. */
+        disclosure: "Demo・虛構活動",
+      };
+    }
   }
 }
 
@@ -193,6 +218,8 @@ export function refKey(ref: StopRef): string {
       return `offer:${ref.offerId}`;
     case "rental":
       return `rental:${ref.rentalId}`;
+    case "event":
+      return `event:${ref.eventId}`;
   }
 }
 

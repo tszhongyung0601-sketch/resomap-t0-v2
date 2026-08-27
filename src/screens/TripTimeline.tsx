@@ -28,6 +28,8 @@ import { total } from "../lib/split";
 import { finishedPois, track } from "../lib/track";
 import { audiosFor, hasAudio } from "../lib/audio";
 import { useDocs } from "../lib/docs";
+import { dest } from "../data/destinations";
+import { describe, resolveDate, useDaily, type DayWeather } from "../lib/weather";
 import { openDirections, openPlaceDirections } from "../lib/maps";
 import { viewOf, viewsOf } from "../lib/stop";
 import type { StopView } from "../lib/stop";
@@ -112,6 +114,9 @@ export function TripHome({ trip: source }: { trip: Trip }) {
      document on the device, and a boarding pass to Tokyo has no business
      appearing on a Hualien itinerary because it happens to exist. */
   const papers = useDocs().filter((d) => d.tripId === trip.id);
+  /* One request for the trip, not one per card. The destination's own
+     coordinates, because a trip to 東京 is not asking about 新店. */
+  const sky = useTripSky(trip);
 
   useEffect(() => {
     track("trip_view", { tripId: trip.id, destId: trip.destId });
@@ -162,7 +167,7 @@ export function TripHome({ trip: source }: { trip: Trip }) {
       <Section title="每日行程">
         <div className="space-y-3 px-5">
           {trip.days.map((d) => (
-            <DayCard key={d.n} trip={trip} day={d} />
+            <DayCard key={d.n} trip={trip} day={d} sky={skyFor(sky, d.date)} />
           ))}
         </div>
       </Section>
@@ -269,7 +274,7 @@ export function TripHome({ trip: source }: { trip: Trip }) {
   );
 }
 
-function DayCard({ trip, day }: { trip: Trip; day: Day }) {
+function DayCard({ trip, day, sky }: { trip: Trip; day: Day; sky: DayWeather | null }) {
   const nav = useNav();
   const stops = day.tracks.flatMap((t) => t.stops);
   /* Deduped on the record rather than on `poiId`, which is empty for
@@ -295,6 +300,7 @@ function DayCard({ trip, day }: { trip: Trip; day: Day }) {
         <span className="truncate text-[13px] text-ink-3">
           {day.date} {day.weekday}
         </span>
+        <SkyChip sky={sky} />
       </div>
 
       {thumbs.length > 0 && (
@@ -376,6 +382,8 @@ export function DayPlan({
      changes underneath — see lib/reorder.ts's `diffDay`. */
   const raw = source.days.find((x) => x.n === day) ?? source.days[0];
   const d = trip.days.find((x) => x.n === day) ?? trip.days[0];
+
+  const sky = useTripSky(trip);
 
   const [editing, setEditing] = useState(false);
   /** Which stop's clock is open. */
@@ -559,8 +567,13 @@ export function DayPlan({
 
       {banner && <div className="px-5 pt-1">{banner}</div>}
 
-      <div className="px-5 pt-2 text-[15px] font-bold text-ink">
-        {d.date} <span className="font-normal text-ink-3">{d.weekday}</span>
+      {/* The same chip the overview card carries, on the screen somebody is on
+          when they are actually deciding what to wear. */}
+      <div className="flex items-baseline gap-2 px-5 pt-2 text-[15px] font-bold text-ink">
+        <span className="shrink-0">
+          {d.date} <span className="font-normal text-ink-3">{d.weekday}</span>
+        </span>
+        <SkyChip sky={skyFor(sky, d.date)} />
       </div>
 
       {/* In the page, not floating over it. A plan that changes is the normal
@@ -1344,5 +1357,56 @@ function MapButton({ onClick }: { onClick: () => void }) {
         <path d="M9 4.5v12.7M15 6.8v12.7" />
       </svg>
     </button>
+  );
+}
+
+/* ----------------------------------------------------------------- sky */
+
+/**
+ * The forecast for a trip, from the destination's own coordinates.
+ *
+ * A trip is the right unit to ask at. Asking per day would be five requests
+ * for one answer — the API returns a month either way — and asking from the
+ * traveller's current position would put 新店's rain on a itinerary in 東京.
+ */
+function useTripSky(trip: Trip): Map<string, DayWeather> | null {
+  const d = dest(trip.destId);
+  return useDaily(d ? { lat: d.lat, lng: d.lng } : null);
+}
+
+/** 「8 月 15 日」 → that day's weather, or null when nobody knows. */
+function skyFor(sky: Map<string, DayWeather> | null, date: string): DayWeather | null {
+  if (!sky) return null;
+  const iso = resolveDate(date);
+  return iso ? (sky.get(iso) ?? null) : null;
+}
+
+/**
+ * 「🌦 32°/27°」 beside the date.
+ *
+ * It says which kind of number it is, because they are not the same kind of
+ * thing and the difference matters to somebody deciding whether to pack a
+ * coat. A forecast is a claim about the future and can be wrong; a past day
+ * is a measurement and cannot. The demo's itineraries are dated a fortnight
+ * ago, so most of what shows here is the second sort — and calling that a
+ * 預報 would be the app misdescribing its own data.
+ *
+ * Nothing renders when there is no answer. The row reads exactly as it did
+ * before this feature existed.
+ */
+function SkyChip({ sky }: { sky: DayWeather | null }) {
+  if (!sky) return null;
+  const look = describe(sky.code);
+  if (!look) return null;
+  return (
+    <span className="ml-auto flex shrink-0 items-center gap-1 text-[12.5px] text-ink-3">
+      <span aria-hidden>{look.icon}</span>
+      <span className="num">
+        {Math.round(sky.maxC)}°/{Math.round(sky.minC)}°
+      </span>
+      <span className="rounded bg-surface-2 px-1 text-[10.5px] font-semibold">
+        {sky.forecast ? "預報" : "實測"}
+      </span>
+    </span>
   );
 }

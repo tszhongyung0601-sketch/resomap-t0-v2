@@ -314,7 +314,11 @@ export type StopRef =
   | { kind: "merchant"; merchantId: string }
   | { kind: "provider"; providerId: string }
   | { kind: "offer"; offerId: string }
-  | { kind: "rental"; rentalId: string };
+  | { kind: "rental"; rentalId: string }
+  /* A festival or a market. The sixth kind, and the first one that is a
+     time as much as a place — which is why it is the only one an itinerary
+     can refuse: see `daysMatching`. */
+  | { kind: "event"; eventId: string };
 
 export interface Stop {
   id: string;

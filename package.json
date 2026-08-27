@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "test:chat": "tsx src/lib/chat/intent.test.ts",
     "test:bcbp": "tsx src/lib/bcbp.test.ts",
-    "test:esim": "tsx src/lib/lpa.test.ts"
+    "test:esim": "tsx src/lib/lpa.test.ts",
+    "test:events": "tsx src/lib/eventDate.test.ts"
   },
   "dependencies": {
     "leaflet": "^1.9.4",

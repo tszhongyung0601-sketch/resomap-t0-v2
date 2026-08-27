@@ -66,6 +66,11 @@ export type Route =
   | { k: "offer"; id: string }
   /* A hire car counter. Real company, no agreement — see data/carRentals.ts. */
   | { k: "rental"; id: string }
+  /* A festival or a market, and an invented one — see data/events.ts. */
+  | { k: "event"; id: string }
+  /* All of them, by city. The rail on the home screen only ever shows what
+     is genuinely near, which leaves most of them unreachable without this. */
+  | { k: "events" }
   /* The conversation. With a tripId it edits that trip; without one it plans a
      new one. Same screen and same engine — what changes is what it can act on. */
   | { k: "chat"; tripId?: string }

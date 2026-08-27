@@ -11,6 +11,7 @@ import { DEFAULT_AREA_LABEL } from "../data/location";
 import { distance, km, type LatLng } from "../lib/geo";
 import { FAILURE_MESSAGE, locate } from "../lib/geolocation";
 import { setHere, useHere } from "../lib/here";
+import { describe, useNow } from "../lib/weather";
 import { nearbyOsmPlaces, type OsmPlace } from "../lib/overpass";
 import { audiosFor } from "../lib/audio";
 import { openPlaceDirections } from "../lib/maps";
@@ -233,6 +234,7 @@ export function MapHome() {
           </span>
           <Headphones size={11} />
           <span className="num shrink-0">{near.length} 個可以聽</span>
+          <Sky />
         </div>
 
         {/* The tile licence requires the attribution to be visible, and its own
@@ -504,5 +506,36 @@ function LocateIcon({ spinning }: { spinning: boolean }) {
       <circle cx="12" cy="12" r="7.4" />
       <path d="M12 1.6v3.2M12 19.2v3.2M22.4 12h-3.2M4.8 12H1.6" strokeLinecap="round" />
     </svg>
+  );
+}
+
+/**
+ * The temperature where the blue dot is.
+ *
+ * The one live number in the app, and it earns the caption's last few pixels
+ * because it is the only thing on this screen that changes while you look at
+ * it. Everything else here is data that shipped with the build.
+ *
+ * It renders nothing at all until there is an answer, and nothing at all if
+ * the answer never comes — no skeleton, no dash, no 25°. The caption is
+ * complete without it, so its absence costs the reader nothing, and a
+ * placeholder temperature would cost them the one thing this number has:
+ * being true.
+ */
+function Sky() {
+  const fix = useHere();
+  const now = useNow(fix.at);
+  const look = now ? describe(now.code, now.isDay) : null;
+  if (!now || !look) return null;
+  return (
+    <>
+      <span className="text-ink-3" aria-hidden>
+        ·
+      </span>
+      <span className="shrink-0" aria-hidden>
+        {look.icon}
+      </span>
+      <span className="num shrink-0">{Math.round(now.tempC)}°</span>
+    </>
   );
 }

@@ -1,12 +1,17 @@
 import { poi } from "../data";
 import { BrandBar } from "../components/BrandBar";
 import { MapHome } from "./MapHome";
-import { PoiImage, StopImage } from "../components/Cover";
+import { EventImage, PoiImage, StopImage } from "../components/Cover";
 import { Button, Card, Headphones, Screen, Tag } from "../components/ui";
 import { toggleStory, useSaved } from "../lib/saved";
 import { nearbyStoryRail, playLabel, rating } from "../lib/story";
 import { distance } from "../lib/geo";
 import { useHere } from "../lib/here";
+import { eventRail, railIsNear, type RailEvent } from "../lib/eventRail";
+import { runText, statusText } from "../lib/eventDate";
+import { EVENT_DISCLOSURE, EVENT_KINDS } from "../data/events";
+import { eventCredit } from "../data/eventCredits";
+import { km } from "../lib/geo";
 import { focusTrip } from "../lib/trip";
 import { useI18n } from "../i18n";
 import { useNav, type Route } from "../nav";
@@ -46,6 +51,12 @@ export function Explore({ trips }: { trips: Trip[] }) {
           「有什麼好聽的」— both are about the place. The trip card is about you,
           and it reads better as the answer to those two than as their preface. */}
       <GuideRail destId={trip?.destId} />
+      {/* Directly under the guides, and in that order for a reason: both
+          answer 「附近有什麼」, but a guide is available whenever you happen to
+          walk past and an event is not. The rail that never expires goes
+          first; the one with a deadline reads better as the follow-up than
+          as the opening. */}
+      <EventRail destId={trip?.destId} />
       {trip ? <NextTrip trip={trip} /> : <NoTrip />}
       <ServiceGrid />
       {/* shrink-0 or it collapses: Screen is a flex column, and a spacer with no
@@ -408,5 +419,125 @@ function PlayIcon() {
     <svg width="11" height="11" viewBox="0 0 12 12" fill="currentColor" aria-hidden>
       <path d="M3 1.6 10 6l-7 4.4z" />
     </svg>
+  );
+}
+
+/* ------------------------------------------- 附近在辦什麼 (all invented) */
+
+/**
+ * Festivals and markets near here.
+ *
+ * The rail below the guides, and the only section on this screen whose
+ * contents do not exist. Everything else on the home page points at a real
+ * place — the map pins are real, the guides are about real streets, the
+ * merchants behind the service grid are real shops. These are invented, and
+ * the section says so in a sentence rather than in an 11px tag, because a
+ * traveller who takes a train to 壽豐 on the strength of a card here has been
+ * misled by this app specifically.
+ *
+ * It borrows GuideRail's honesty about its own heading: 「附近」 only when the
+ * nearest one genuinely is. Somebody opening this in 高雄 still gets a rail —
+ * emptying the section outside 新北 would be worse — but it is not called
+ * 附近 while the first card is 300km away, and every card prints its distance
+ * either way.
+ */
+function EventRail({ destId }: { destId?: string }) {
+  const nav = useNav();
+  const fix = useHere();
+  const rail = eventRail(fix.at, destId);
+  if (!rail.length) return null;
+
+  return (
+    <section className="mt-7">
+      <div className="flex items-center gap-1.5 px-5 text-ink">
+        <span className="text-[15px]" aria-hidden>
+          🎊
+        </span>
+        <h2 className="text-[17px] font-bold">
+          {railIsNear(rail) ? "附近在辦什麼" : "這陣子在辦什麼"}
+        </h2>
+        <Tag kind="demo" />
+      </div>
+      {/* A sentence, not a badge. See the note at the top of data/events.ts. */}
+      <p className="mb-3 mt-1 px-5 text-[12.5px] leading-relaxed text-ink-3">
+        {EVENT_DISCLOSURE}
+      </p>
+
+      <div className="snap-rail flex gap-3 overflow-x-auto px-5 pb-1 no-scrollbar">
+        {rail.map((r) => (
+          <EventCard key={r.event.id} item={r} />
+        ))}
+
+        {/* The rail is honest about 附近, which means most of the set is not
+            on it — a 台南 festival is not near anything this demo opens on.
+            Without a way through, two thirds of the data would exist only
+            for somebody standing in the right county. Same tile, same
+            position and same reasoning as 看全部導覽 one section up. */}
+        <button
+          onClick={() => nav.go({ k: "events" })}
+          className="flex w-[112px] shrink-0 flex-col items-center justify-center gap-1 rounded-2xl bg-surface px-3 text-[13.5px] font-bold text-ink-2 active:bg-surface-2"
+        >
+          <span>看全部活動</span>
+          <span className="text-[16px]" aria-hidden>
+            ›
+          </span>
+        </button>
+      </div>
+    </section>
+  );
+}
+
+/**
+ * One event.
+ *
+ * Three facts and no more: what it is, when it is, how far away. A card in a
+ * horizontal rail is read in about a second, and the two that decide whether
+ * somebody taps are the date and the distance — which is also why they are the
+ * two the rail sorts on.
+ *
+ * One tap target, unlike GuideCard. That card has two because the 試聽 pill
+ * does something the card cannot; there is no second action here, and a
+ * button inside a button would be invalid markup for no gain.
+ */
+function EventCard({ item }: { item: RailEvent }) {
+  const nav = useNav();
+  const { event: e, metres } = item;
+  const kind = EVENT_KINDS[e.kind];
+  const status = statusText(e);
+
+  return (
+    <button
+      onClick={() => nav.go({ k: "event", id: e.id })}
+      className="flex w-[168px] shrink-0 flex-col rounded-2xl bg-surface p-3 text-left transition active:bg-surface-2"
+    >
+      <EventImage
+        id={e.id}
+        emoji={kind.emoji}
+        tint={e.tint}
+        alt={eventCredit(e.id)?.alt}
+        height={92}
+        radius={12}
+        className="w-full"
+      />
+
+      <div className="mt-2 text-[11.5px] font-semibold text-ink-3">{kind.label}</div>
+
+      <div className="mt-0.5 line-clamp-2 text-[14px] font-bold leading-snug text-ink">
+        {e.name}
+      </div>
+      <div className="mt-1 line-clamp-2 text-[12px] leading-snug text-ink-3">{e.hook}</div>
+
+      <div className="mt-2 flex items-center gap-1.5">
+        <span className="num text-[12px] font-semibold text-ink-2">{runText(e)}</span>
+        {status && (
+          <span className="shrink-0 rounded-md bg-brand-wash px-1.5 py-0.5 text-[11px] font-semibold text-brand">
+            {status}
+          </span>
+        )}
+      </div>
+      {/* Distance, always — it is the word 附近 being checkable rather than
+          asserted, and it is the only thing on the card that is measured. */}
+      <div className="num mt-0.5 text-[11.5px] text-ink-3">{km(metres)}</div>
+    </button>
   );
 }
